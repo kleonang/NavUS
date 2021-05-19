@@ -1,0 +1,177 @@
+{
+   "1": {
+      "Name": "AS 5",
+      "NextBusAlias": "AS7",
+      "Services": ["A1", "B1", "BTC1", "D1"]
+   },
+   "2": {
+      "Name": "BIZ 2",
+      "NextBusAlias": "BIZ2",
+      "Services": ["A1", "A1E", "B1", "BTC1", "D1"]
+   },
+   "3": {
+      "Name": "BOTANIC GARDENS MRT",
+      "NextBusAlias": "BG-MRT",
+      "Services": ["BTC2"]
+   },
+   "4": {
+      "Name": "CENTRAL LIBRARY (CLB)",
+      "NextBusAlias": "CENLIB",
+      "Services": ["A1", "A1E", "B1", "BTC1", "D1"]
+   },
+   "5": {
+      "Name": "COLLEGE GREEN",
+      "NextBusAlias": "CGH",
+      "Services": ["BTC1"]
+   },
+   "6": {
+      "Name": "COM 2",
+      "NextBusAlias": "COM2",
+      "Services": ["A1", "A2", "D1"]
+   },
+   "7": {
+      "Name": "EA",
+      "NextBusAlias": "BLK-EA-OPP",
+      "Services": ["B2", "BTC2", "C"]
+   },
+   "8": {
+      "Name": "INFORMATION TECHNOLOGY (IT)",
+      "NextBusAlias": "COMCEN",
+      "Services": ["A2", "A2E", "B1", "B2", "D1"]
+   },
+   "9": {
+      "Name": "KENT RIDGE BUS TERMINAL (KR BUS TERMINAL)",
+      "NextBusAlias": "KR-BT",
+      "Services": ["B1", "BTC1", "C"]
+   },
+   "10": {
+      "Name": "KENT RIDGE MRT (KR MRT)",
+      "NextBusAlias": "KR-MRT",
+      "Services": ["A1", "A1E", "D2"]
+   },
+   "11": {
+      "Name": "KENT VALE (KV)",
+      "NextBusAlias": "KV",
+      "Services": ["BTC1", "C"]
+   },
+   "12": {
+      "Name": "LT 13",
+      "NextBusAlias": "LT13",
+      "Services": ["A1", "B1", "BTC1", "D1"]
+   },
+   "13": {
+      "Name": "LT 27",
+      "NextBusAlias": "LT27",
+      "Services": ["A1", "A1E", "C", "D2"]
+   },
+   "14": {
+      "Name": "MUSEUM",
+      "NextBusAlias": "MUSEUM",
+      "Services": ["A2", "BTC1", "BTC2", "C", "D1", "D2"]
+   },
+   "15": {
+      "Name": "OEI TIONG HAM BUILDING (OTH BLDG)",
+      "NextBusAlias": "BUKITTIMAH-BTC2",
+      "Services": ["BTC2"]
+   },
+   "16": {
+      "Name": "OPP HON SUI SEN MEMORIAL LIBRARY (OPP HSSML)",
+      "NextBusAlias": "HSSML-OPP",
+      "Services": ["A2", "B2", "D1"]
+   },
+   "17": {
+      "Name": "OPP KENT RIDGE MRT (OPP KR MRT)",
+      "NextBusAlias": "KR-MRT-OPP",
+      "Services": ["A2", "A2E", "D2"]
+   },
+   "18": {
+      "Name": "OPP NUSS",
+      "NextBusAlias": "NUSS-OPP",
+      "Services": ["A2", "B2", "D1"]
+   },
+   "19": {
+      "Name": "OPP TCOMS",
+      "NextBusAlias": "PGP12-OPP",
+      "Services": ["A1", "D2"]
+   },
+   "20": {
+      "Name": "OPP UNIVERSITY HALL (OPP UHALL)",
+      "NextBusAlias": "UHALL-OPP",
+      "Services": ["A2", "C", "D2"]
+   },
+   "21": {
+      "Name": "OPP UNIVERSITY HEALTH CENTRE (OPP UHC)",
+      "NextBusAlias": "STAFFCLUB-OPP",
+      "Services": ["A1", "A1E", "C", "D2"]
+   },
+   "22": {
+      "Name": "OPP YUSOF ISHAK HOUSE (OPP YIH)",
+      "NextBusAlias": "YIH-OPP",
+      "Services": ["A2", "B1", "B2", "D1"]
+   },
+   "23": {
+      "Name": "PGP HOUSE 15",
+      "NextBusAlias": "PGP14-15",
+      "Services": ["A2"]
+   },
+   "24": {
+      "Name": "PGP7",
+      "NextBusAlias": "PGP7",
+      "Services": ["A1"]
+   },
+   "25": {
+      "Name": "PRINCE GEORGE PARK RESIDENCES (PGPR)",
+      "NextBusAlias": "PGP",
+      "Services": ["D2"]
+   },
+   "26": {
+      "Name": "PRINCE GEORGE'S PARK (PGP)",
+      "NextBusAlias": "PGPT",
+      "Services": ["A1", "A1E", "A2", "BTC1", "D2"]
+   },
+   "27": {
+      "Name": "RAFFLES HALL",
+      "NextBusAlias": "RAFFLES",
+      "Services": ["B2", "C"]
+   },
+   "28": {
+      "Name": "S 17",
+      "NextBusAlias": "S17",
+      "Services": ["A2", "A2E", "C", "D2"]
+   },
+   "29": {
+      "Name": "TCOMS",
+      "NextBusAlias": "PGP12",
+      "Services": ["A2", "D2"]
+   },
+   "30": {
+      "Name": "THE JAPANESE PRIMARY SCHOOL",
+      "NextBusAlias": "JP-SCH-16151",
+      "Services": ["C"]
+   },
+   "31": {
+      "Name": "UNIVERSITY HALL (UHALL)",
+      "NextBusAlias": "UHALL",
+      "Services": ["A1", "C", "D2"]
+   },
+   "32": {
+      "Name": "UNIVERSITY HEALTH CENTRE (UHC)",
+      "NextBusAlias": "STAFFCLUB",
+      "Services": ["A2", "C", "D2"]
+   },
+   "33": {
+      "Name": "UNIVERSITY TOWN (UTOWN)",
+      "NextBusAlias": "UTown",
+      "Services": ["B1", "B2", "C", "D1", "D2"]
+   },
+   "34": {
+      "Name": "VENTUS (OPP LT13)",
+      "NextBusAlias": "LT13-OPP",
+      "Services": ["A2", "A2E", "B2", "D1"]
+   },
+   "35": {
+      "Name": "YUSOF ISHAK HOUSE (YIH)",
+      "NextBusAlias": "YIH",
+      "Services": ["A1", "B1", "BTC1", "D1"]
+   }
+}
