@@ -119,7 +119,7 @@ class Node:
     
     def __lt__(self, other):
         if self.dist == other.dist:
-            return self.service == other.service
+            return self.service != other.service
         else:
             return self.dist < other.dist
     
@@ -257,8 +257,8 @@ def getpath(source, destination):
     print(path)
     print("\n" + "Total route time: " + str(dest.get_dist()) + " mins\n")
     
+    # Store data in JSON format
     data = {}
-
     waypointslist = [] # list to store all waypoints (busstops)
 
     for pair in path:
