@@ -202,39 +202,40 @@ def dijkstra(graph, source, dest_name):
                 # Insert nxt into priority queue
                 heapq.heappush(pq, nxt)
 
-# Construct Graph
-graph = Graph()
-# Add vertices to graph
-for busroute in routedict:
-    busroute_len = len(routedict[busroute])
-    for i in range(busroute_len):
-        graph.add_node(routedict[busroute][i][0], busroute)
-# Add directed edges to graph
-for busroute in routedict:
-    busroute_len = len(routedict[busroute])
-    for i in range(busroute_len):
-        if routedict[busroute][i][1] != 0:
-                graph.add_directed_edge(routedict[busroute][i][0], routedict[busroute][i+1][0], 
-                                        routedict[busroute][i][1], busroute)
-# Add undirected edges to graph
-for busstop in busstopdict:
-    busservices = busstopdict[busstop]["Services"]
-    services_len = len(busservices)
-    for i in range(services_len):
-        for j in range(i + 1, services_len):
-            graph.add_undirected_edge(busstop, busstop, 0, busservices[i], busservices[j])
-
-# Print graph statistics
-num_e = 0
-print('Graph data:')
-for v in graph:
-    for w in v.get_neighbours():
-        num_e += 1
-print("Number of vertices: " + str(graph.num_vertices))
-print("Number of edges: " + str(num_e) + "\n")
-
 @app.route('/getpath/<source>/<destination>') #access at 127.0.0.1:5000/getpath/your_source/your_destination
 def getpath(source, destination):
+    # Construct Graph
+    graph = Graph()
+    # Add vertices to graph
+    for busroute in routedict:
+        busroute_len = len(routedict[busroute])
+        for i in range(busroute_len):
+            graph.add_node(routedict[busroute][i][0], busroute)
+    # Add directed edges to graph
+    for busroute in routedict:
+        busroute_len = len(routedict[busroute])
+        for i in range(busroute_len):
+            if routedict[busroute][i][1] != 0:
+                    graph.add_directed_edge(routedict[busroute][i][0], routedict[busroute][i+1][0], 
+                                            routedict[busroute][i][1], busroute)
+    # Add undirected edges to graph
+    for busstop in busstopdict:
+        busservices = busstopdict[busstop]["Services"]
+        services_len = len(busservices)
+        for i in range(services_len):
+            for j in range(i + 1, services_len):
+                graph.add_undirected_edge(busstop, busstop, 0, busservices[i], busservices[j])
+    
+    # Print graph statistics
+    num_e = 0
+    print('Graph data:')
+    for v in graph:
+        for w in v.get_neighbours():
+            num_e += 1
+    print("Number of vertices: " + str(graph.num_vertices))
+    print("Number of edges: " + str(num_e) + "\n")
+    
+    # Call Dijkstra's Algorithm
     first_service = busstopdict[source]["Services"][0]
     src = graph.get_node(source, first_service)
     dest = dijkstra(graph, src, destination)
@@ -294,3 +295,4 @@ def getpath(source, destination):
 
 if __name__ == '__main__':
 	app.run(host="0.0.0.0")
+    
