@@ -202,7 +202,7 @@ def dijkstra(graph, source, dest_name):
                 # Insert nxt into priority queue
                 heapq.heappush(pq, nxt)
 
-@app.route('/getpath/<source>/<destination>') #access at 127.0.0.1:5000/getpath/your_source/your_destination
+@app.route('/getpath/<source>/<destination>') # access at 127.0.0.1:5000/getpath/your_source/your_destination
 def getpath(source, destination):
     # Construct Graph
     graph = Graph()
@@ -252,25 +252,12 @@ def getpath(source, destination):
                 path[i] = (path[i][0], "D1 (To BIZ 2)")
             elif path[i+1][0] == "VENTUS (OPP LT13)" and path[i+1][1] == "D1":
                 path[i] = (path[i][0], "D1 (To UTown)")
-    print("Source: " + source + ", Destination: " + destination)
+    print("Source: " + source + ", Destination: " + destination + "\n")
     print("Recommended route:")
     print(path)
+    print("\n" + "Total route time: " + str(dest.get_dist()) + " mins\n")
     
     data = {}
-
-	# Stores source
-    sourcedict = {}
-    sourcedict["Name"] = source
-    sourcedict["Latitude"] = venuedict[source][0]
-    sourcedict["Longitude"] = venuedict[source][1]
-    sourcedict["IsBusStop"] = venuedict[source][2]
-	
-	# Stores destination
-    destinationdict = {}
-    destinationdict["Name"] = destination
-    destinationdict["Latitude"] = venuedict[destination][0]
-    destinationdict["Longitude"] = venuedict[destination][1]
-    destinationdict["IsBusStop"] = venuedict[destination][2]
 
     waypointslist = [] # list to store all waypoints (busstops)
 
@@ -284,15 +271,12 @@ def getpath(source, destination):
         currentwaypoint["IsBusStop"] = venuedict[busstop][2]
         waypointslist.append(currentwaypoint) # add the waypoints to the list
         
-    data['Source'] = sourcedict
-    data['Destination'] = destinationdict
     data['Waypoints'] = waypointslist
     json_data = json.dumps(data) # create a json object
     return json_data # return the json object
 
 # FOR OFFLINE TESTING
-# getpath("COM 2", "INFORMATION TECHNOLOGY (IT)")
+# getpath("KENT RIDGE MRT (KR MRT)", "COM 2")
 
 if __name__ == '__main__':
 	app.run(host="0.0.0.0")
-    
