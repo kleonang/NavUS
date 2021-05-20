@@ -57,67 +57,107 @@
             "Time": 0
          }
    },
-   "A2": {
+   "A1E":{
        "1": {
-            "Name": "PRINCE GEORGE'S PARK (PGP)",
-            "Time": 1
+            "Name": "KENT RIDGE MRT (KR MRT)",
+            "Time": 2
          },
          "2": {
-            "Name": "PGP HOUSE 15",
-            "Time": 1
-         },
-         "3": {
-            "Name": "TCOMS",
-            "Time": 1
-         },
-         "4": {
-            "Name": "OPP HON SUI SEN MEMORIAL LIBRARY (OPP HSSML)",
-            "Time": 1
-         },
-         "5": {
-            "Name": "OPP NUSS",
-            "Time": 1
-         },
-         "6": {
-            "Name": "COM 2",
-            "Time": 2
-         },
-         "7": {
-            "Name": "VENTUS (OPP LT13)",
-            "Time": 2
-         },
-         "8": {
-            "Name": "INFORMATION TECHNOLOGY (IT)",
-            "Time": 1
-         },
-         "9": {
-            "Name": "OPP YUSOF ISHAK HOUSE (OPP YIH)",
-            "Time": 1
-         },
-         "10": {
-            "Name": "MUSEUM",
-            "Time": 1
-         },
-         "11": {
-            "Name": "UNIVERSITY HEALTH CENTRE (UHC)",
-            "Time": 1
-         },
-         "12": {
-            "Name": "OPP UNIVERSITY HALL (OPP UHALL)",
-            "Time": 1
-         },
-         "13": {
-            "Name": "S 17",
-            "Time": 2
-         },
-         "14": {
-            "Name": "OPP KENT RIDGE MRT (OPP KR MRT)",
+            "Name": "LT 27",
             "Time": 3
          },
-         "15": {
+         "3": {
+            "Name": "OPP UNIVERSITY HEALTH CENTRE (OPP UHC)",
+            "Time": 3
+         },
+         "4": {
+            "Name": "CENTRAL LIBRARY (CLB)",
+            "Time": 3
+         },
+         "5": {
+            "Name": "BIZ 2",
+            "Time": 2
+         },
+         "6": {
             "Name": "PRINCE GEORGE'S PARK (PGP)",
             "Time": 0
          }
+   },
+   "A2": {
+       "1": {
+            "Name": "PRINCE GEORGE'S PARK (PGP)",
+            "Time": 3
+         },
+         "2": {
+            "Name": "TCOMS",
+            "Time": 1
+         },
+         "3": {
+            "Name": "OPP HON SUI SEN MEMORIAL LIBRARY (OPP HSSML)",
+            "Time": 1
+         },
+         "4": {
+            "Name": "OPP NUSS",
+            "Time": 1
+         },
+         "5": {
+            "Name": "COM 2",
+            "Time": 2
+         },
+         "6": {
+            "Name": "VENTUS (OPP LT13)",
+            "Time": 2
+         },
+         "7": {
+            "Name": "INFORMATION TECHNOLOGY (IT)",
+            "Time": 1
+         },
+         "8": {
+            "Name": "OPP YUSOF ISHAK HOUSE (OPP YIH)",
+            "Time": 1
+         },
+         "9": {
+            "Name": "MUSEUM",
+            "Time": 1
+         },
+         "10": {
+            "Name": "UNIVERSITY HEALTH CENTRE (UHC)",
+            "Time": 1
+         },
+         "11": {
+            "Name": "OPP UNIVERSITY HALL (OPP UHALL)",
+            "Time": 1
+         },
+         "12": {
+            "Name": "S 17",
+            "Time": 2
+         },
+         "13": {
+            "Name": "OPP KENT RIDGE MRT (OPP KR MRT)",
+            "Time": 3
+         },
+         "14": {
+            "Name": "PRINCE GEORGE PARK RESIDENCES (PGPR)",
+            "Time": 0
+         }
+   },
+   "A2E":{
+        "1": {
+          "Name": "VENTUS (OPP LT13)",
+          "Time": 2
+       },
+       "2": {
+          "Name": "INFORMATION TECHNOLOGY (IT)",
+          "Time": 3
+       },
+       "3": {
+          "Name": "S17",
+          "Time": 2
+       },
+       "4": {
+          "Name": "OPP KENT RIDGE MRT (OPP KR MRT)",
+          "Time": 0
+       }
    },
    "B1": {
         "1": {

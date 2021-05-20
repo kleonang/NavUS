@@ -1398,678 +1398,672 @@
       "IsBusStop": "true"
    },
    "234": {
-      "Name": "PGP HOUSE 15",
-      "Latitude": "1.293137",
-      "Longitude": "103.777804",
-      "IsBusStop": "true"
-   },
-   "235": {
       "Name": "PGP7",
       "Latitude": "1.293186",
       "Longitude": "103.777831",
       "IsBusStop": "true"
    },
-   "236": {
+   "235": {
       "Name": "PRINCE GEORGE PARK RESIDENCES (PGPR)",
       "Latitude": "1.291011",
       "Longitude": "103.780956",
       "IsBusStop": "true"
    },
-   "237": {
+   "236": {
       "Name": "PRINCE GEORGE'S PARK (PGP)",
       "Latitude": "1.291824",
       "Longitude": "103.780377",
       "IsBusStop": "true"
    },
-   "238": {
+   "237": {
       "Name": "RAFFLES HALL",
       "Latitude": "1.300985",
       "Longitude": "103.772682",
       "IsBusStop": "true"
    },
-   "239": {
+   "238": {
       "Name": "RC4-SR1-2",
       "Latitude": "1.308243234",
       "Longitude": "103.7728826",
       "IsBusStop": "false"
    },
-   "240": {
+   "239": {
       "Name": "RC4-SR3",
       "Latitude": "1.308231167",
       "Longitude": "103.7728417",
       "IsBusStop": "false"
    },
-   "241": {
+   "240": {
       "Name": "RC4-SR4",
       "Latitude": "1.3082311149999999",
       "Longitude": "103.7729502",
       "IsBusStop": "false"
    },
-   "242": {
+   "241": {
       "Name": "RMI-SR1",
       "Latitude": "1.292612864",
       "Longitude": "103.7754822",
       "IsBusStop": "false"
    },
-   "243": {
+   "242": {
       "Name": "RVR-MPR01",
       "Latitude": "1.297348058",
       "Longitude": "103.7768769",
       "IsBusStop": "false"
    },
-   "244": {
+   "243": {
       "Name": "RVR-MPR02",
       "Latitude": "1.297431185",
       "Longitude": "103.7767401",
       "IsBusStop": "false"
    },
-   "245": {
+   "244": {
       "Name": "RVR-SRM01",
       "Latitude": "1.297365354",
       "Longitude": "103.7768241",
       "IsBusStop": "false"
    },
-   "246": {
+   "245": {
       "Name": "RVR-SRM02",
       "Latitude": "1.297391632",
       "Longitude": "103.7767739",
       "IsBusStop": "false"
    },
-   "247": {
+   "246": {
       "Name": "RVR-SRM03",
       "Latitude": "1.29745982",
       "Longitude": "103.7767809",
       "IsBusStop": "false"
    },
-   "248": {
+   "247": {
       "Name": "S 17",
       "Latitude": "1.297478",
       "Longitude": "103.781455",
       "IsBusStop": "true"
    },
-   "249": {
+   "248": {
       "Name": "S11-0301",
       "Latitude": "1.296731975",
       "Longitude": "103.7788629",
       "IsBusStop": "false"
    },
-   "250": {
+   "249": {
       "Name": "S11-0302",
       "Latitude": "1.296655723",
       "Longitude": "103.7787671",
       "IsBusStop": "false"
    },
-   "251": {
+   "250": {
       "Name": "S11-0401A",
       "Latitude": "1.296737341",
       "Longitude": "103.778843",
       "IsBusStop": "false"
    },
-   "252": {
+   "251": {
       "Name": "S12-0402A",
       "Latitude": "1.296947003",
       "Longitude": "103.7787679",
       "IsBusStop": "false"
    },
-   "253": {
+   "252": {
       "Name": "S12-0402B",
       "Latitude": "1.296938958",
       "Longitude": "103.7787598",
       "IsBusStop": "false"
    },
-   "254": {
+   "253": {
       "Name": "S12-0403",
       "Latitude": "1.296958266",
       "Longitude": "103.7788303",
       "IsBusStop": "false"
    },
-   "255": {
+   "254": {
       "Name": "S13-0313",
       "Latitude": "1.296708292",
       "Longitude": "103.7792697",
       "IsBusStop": "false"
    },
-   "256": {
+   "255": {
       "Name": "S13-M-09",
       "Latitude": "1.296772747",
       "Longitude": "103.7790883",
       "IsBusStop": "false"
    },
-   "257": {
+   "256": {
       "Name": "S14-0503",
       "Latitude": "1.296841387",
       "Longitude": "103.7797238",
       "IsBusStop": "false"
    },
-   "258": {
+   "257": {
       "Name": "S14-0619",
       "Latitude": "1.296786141",
       "Longitude": "103.7797015",
       "IsBusStop": "false"
    },
-   "259": {
+   "258": {
       "Name": "S14-0620",
       "Latitude": "1.296735091",
       "Longitude": "103.7795925",
       "IsBusStop": "false"
    },
-   "260": {
+   "259": {
       "Name": "S16-03-0506",
       "Latitude": "1.2967088",
       "Longitude": "103.7803574",
       "IsBusStop": "false"
    },
-   "261": {
+   "260": {
       "Name": "S16-0307",
       "Latitude": "1.296810823",
       "Longitude": "103.7802048",
       "IsBusStop": "false"
    },
-   "262": {
+   "261": {
       "Name": "S16-0309",
       "Latitude": "1.29687838",
       "Longitude": "103.7801456",
       "IsBusStop": "false"
    },
-   "263": {
+   "262": {
       "Name": "S16-0431",
       "Latitude": "1.296761441",
       "Longitude": "103.7804697",
       "IsBusStop": "false"
    },
-   "264": {
+   "263": {
       "Name": "S16-0436",
       "Latitude": "1.296717767",
       "Longitude": "103.7805736",
       "IsBusStop": "false"
    },
-   "265": {
+   "264": {
       "Name": "S17-0404",
       "Latitude": "1.297721945",
       "Longitude": "103.7806959",
       "IsBusStop": "false"
    },
-   "266": {
+   "265": {
       "Name": "S17-0405",
       "Latitude": "1.297690245",
       "Longitude": "103.7806298",
       "IsBusStop": "false"
    },
-   "267": {
+   "266": {
       "Name": "S17-0406",
       "Latitude": "1.297651072",
       "Longitude": "103.7805481",
       "IsBusStop": "false"
    },
-   "268": {
+   "267": {
       "Name": "S17-0511",
       "Latitude": "1.297786757",
       "Longitude": "103.7808387",
       "IsBusStop": "false"
    },
-   "269": {
+   "268": {
       "Name": "S17-0512",
       "Latitude": "1.297712771",
       "Longitude": "103.7808335",
       "IsBusStop": "false"
    },
-   "270": {
+   "269": {
       "Name": "S1A-0217",
       "Latitude": "1.295920825",
       "Longitude": "103.7781661",
       "IsBusStop": "false"
    },
-   "271": {
+   "270": {
       "Name": "S1A-03LAB1",
       "Latitude": "1.2959638",
       "Longitude": "103.7782827",
       "IsBusStop": "false"
    },
-   "272": {
+   "271": {
       "Name": "S1A-04LAB3",
       "Latitude": "1.2959363",
       "Longitude": "103.7783194",
       "IsBusStop": "false"
    },
-   "273": {
+   "272": {
       "Name": "S2-03LAB7",
       "Latitude": "1.2956254",
       "Longitude": "103.7781376",
       "IsBusStop": "false"
    },
-   "274": {
+   "273": {
       "Name": "S2-0414",
       "Latitude": "1.295497993",
       "Longitude": "103.7780519",
       "IsBusStop": "false"
    },
-   "275": {
+   "274": {
       "Name": "S2-0415",
       "Latitude": "1.295519824",
       "Longitude": "103.7779926",
       "IsBusStop": "false"
    },
-   "276": {
+   "275": {
       "Name": "S4A-0308",
       "Latitude": "1.295772248",
       "Longitude": "103.7792606",
       "IsBusStop": "false"
    },
-   "277": {
+   "276": {
       "Name": "S5-01GEN",
       "Latitude": "1.295533338",
       "Longitude": "103.7798622",
       "IsBusStop": "false"
    },
-   "278": {
+   "277": {
       "Name": "S5-0224",
       "Latitude": "1.295629735",
       "Longitude": "103.7796368",
       "IsBusStop": "false"
    },
-   "279": {
+   "278": {
       "Name": "S5-0410",
       "Latitude": "1.29550439",
       "Longitude": "103.7797147",
       "IsBusStop": "false"
    },
-   "280": {
+   "279": {
       "Name": "S8-0314",
       "Latitude": "1.296106677",
       "Longitude": "103.7792463",
       "IsBusStop": "false"
    },
-   "281": {
+   "280": {
       "Name": "S8-0402",
       "Latitude": "1.296072324",
       "Longitude": "103.779374",
       "IsBusStop": "false"
    },
-   "282": {
+   "281": {
       "Name": "SDE2-ES1",
       "Latitude": "1.297208932",
       "Longitude": "103.7711316",
       "IsBusStop": "false"
    },
-   "283": {
+   "282": {
       "Name": "SDE2-ES2",
       "Latitude": "1.297325846",
       "Longitude": "103.7711746",
       "IsBusStop": "false"
    },
-   "284": {
+   "283": {
       "Name": "SDE2-MEZZ",
       "Latitude": "1.297163703",
       "Longitude": "103.7711316",
       "IsBusStop": "false"
    },
-   "285": {
+   "284": {
       "Name": "SDE4-EXR1-2",
       "Latitude": "1.296862409",
       "Longitude": "103.7703793",
       "IsBusStop": "false"
    },
-   "286": {
+   "285": {
       "Name": "SDE-ER4",
       "Latitude": "1.297372091",
       "Longitude": "103.7711203",
       "IsBusStop": "false"
    },
-   "287": {
+   "286": {
       "Name": "SDE-ER5",
       "Latitude": "1.297104165",
       "Longitude": "103.77096",
       "IsBusStop": "false"
    },
-   "288": {
+   "287": {
       "Name": "SPSWETLAB",
       "Latitude": "1.296855328",
       "Longitude": "103.7803021",
       "IsBusStop": "false"
    },
-   "289": {
+   "288": {
       "Name": "SR_LT19",
       "Latitude": "1.293712583",
       "Longitude": "103.7743288",
       "IsBusStop": "false"
    },
-   "290": {
+   "289": {
       "Name": "TCOMS",
       "Latitude": "1.293719601",
       "Longitude": "103.7768181",
       "IsBusStop": "true"
    },
-   "291": {
+   "290": {
       "Name": "TC-SR3",
       "Latitude": "1.30586469",
       "Longitude": "103.7735062",
       "IsBusStop": "false"
    },
-   "292": {
+   "291": {
       "Name": "TC-SR5",
       "Latitude": "1.305845562",
       "Longitude": "103.7734061",
       "IsBusStop": "false"
    },
-   "293": {
+   "292": {
       "Name": "TC-SR6",
       "Latitude": "1.305872377",
       "Longitude": "103.7734909",
       "IsBusStop": "false"
    },
-   "294": {
+   "293": {
       "Name": "THE JAPANESE PRIMARY SCHOOL",
       "Latitude": "1.300752",
       "Longitude": "103.769964",
       "IsBusStop": "true"
    },
-   "295": {
+   "294": {
       "Name": "TP-GLR",
       "Latitude": "1.303997804",
       "Longitude": "103.7734088",
       "IsBusStop": "false"
    },
-   "296": {
+   "295": {
       "Name": "TP-SR1",
       "Latitude": "1.303997804",
       "Longitude": "103.7734088",
       "IsBusStop": "false"
    },
-   "297": {
+   "296": {
       "Name": "TP-SR3",
       "Latitude": "1.303997804",
       "Longitude": "103.7734088",
       "IsBusStop": "false"
    },
-   "298": {
+   "297": {
       "Name": "TP-SR5",
       "Latitude": "1.303997804",
       "Longitude": "103.7734088",
       "IsBusStop": "false"
    },
-   "299": {
+   "298": {
       "Name": "TP-SR7",
       "Latitude": "1.303997804",
       "Longitude": "103.7734088",
       "IsBusStop": "false"
    },
-   "300": {
+   "299": {
       "Name": "UNIVERSITY HALL (UHALL)",
       "Latitude": "1.297216",
       "Longitude": "103.778701",
       "IsBusStop": "true"
    },
-   "301": {
+   "300": {
       "Name": "UNIVERSITY HEALTH CENTRE (UHC)",
       "Latitude": "1.298922",
       "Longitude": "103.776159",
       "IsBusStop": "true"
    },
-   "302": {
+   "301": {
       "Name": "UNIVERSITY TOWN (UTOWN)",
       "Latitude": "1.303639",
       "Longitude": "103.774611",
       "IsBusStop": "true"
    },
-   "303": {
+   "302": {
       "Name": "USP-SR1",
       "Latitude": "1.306495884",
       "Longitude": "103.7731326",
       "IsBusStop": "false"
    },
-   "304": {
+   "303": {
       "Name": "USP-SR2",
       "Latitude": "1.306742081",
       "Longitude": "103.7730387",
       "IsBusStop": "false"
    },
-   "305": {
+   "304": {
       "Name": "USP-TR1",
       "Latitude": "1.306576129",
       "Longitude": "103.7731484",
       "IsBusStop": "false"
    },
-   "306": {
+   "305": {
       "Name": "USP-TR2",
       "Latitude": "1.3065424",
       "Longitude": "103.7731593",
       "IsBusStop": "false"
    },
-   "307": {
+   "306": {
       "Name": "UT22-07-02",
       "Latitude": "1.303728797",
       "Longitude": "103.7735513",
       "IsBusStop": "false"
    },
-   "308": {
+   "307": {
       "Name": "UT-AUD1",
       "Latitude": "1.304010122",
       "Longitude": "103.7733525",
       "IsBusStop": "false"
    },
-   "309": {
+   "308": {
       "Name": "UT-AUD2",
       "Latitude": "1.304382852",
       "Longitude": "103.7727275",
       "IsBusStop": "false"
    },
-   "310": {
+   "309": {
       "Name": "UT-AUD3",
       "Latitude": "1.307261677",
       "Longitude": "103.7730467",
       "IsBusStop": "false"
    },
-   "311": {
+   "310": {
       "Name": "UTSRC-GLR",
       "Latitude": "1.304262184",
       "Longitude": "103.7731782",
       "IsBusStop": "false"
    },
-   "312": {
+   "311": {
       "Name": "UTSRC-LT50",
       "Latitude": "1.304179314",
       "Longitude": "103.7727812",
       "IsBusStop": "false"
    },
-   "313": {
+   "312": {
       "Name": "UTSRC-LT51",
       "Latitude": "1.304054618",
       "Longitude": "103.7729824",
       "IsBusStop": "false"
    },
-   "314": {
+   "313": {
       "Name": "UTSRC-LT52",
       "Latitude": "1.304127312",
       "Longitude": "103.7730052",
       "IsBusStop": "false"
    },
-   "315": {
+   "314": {
       "Name": "UTSRC-LT53",
       "Latitude": "1.304149817",
       "Longitude": "103.7729716",
       "IsBusStop": "false"
    },
-   "316": {
+   "315": {
       "Name": "UTSRC-SR1",
       "Latitude": "1.304273167",
       "Longitude": "103.7728241",
       "IsBusStop": "false"
    },
-   "317": {
+   "316": {
       "Name": "UTSRC-SR2",
       "Latitude": "1.304304586",
       "Longitude": "103.7726685",
       "IsBusStop": "false"
    },
-   "318": {
+   "317": {
       "Name": "VENTUS (OPP LT13)",
       "Latitude": "1.295205",
       "Longitude": "103.770521",
       "IsBusStop": "true"
    },
-   "319": {
+   "318": {
       "Name": "WT-LAB",
       "Latitude": "1.297212239",
       "Longitude": "103.771118",
       "IsBusStop": "false"
    },
-   "320": {
+   "319": {
       "Name": "Y-ARTSSTUD",
       "Latitude": "1.307876661",
       "Longitude": "103.7720988",
       "IsBusStop": "false"
    },
-   "321": {
+   "320": {
       "Name": "Y-BLACKBOX",
       "Latitude": "1.307488881",
       "Longitude": "103.7720275",
       "IsBusStop": "false"
    },
-   "322": {
+   "321": {
       "Name": "Y-COMPLAB",
       "Latitude": "1.307215401",
       "Longitude": "103.7724698",
       "IsBusStop": "false"
    },
-   "323": {
+   "322": {
       "Name": "Y-CR1",
       "Latitude": "1.305810289",
       "Longitude": "103.771751",
       "IsBusStop": "false"
    },
-   "324": {
+   "323": {
       "Name": "Y-CR12",
       "Latitude": "1.306441772",
       "Longitude": "103.7722984",
       "IsBusStop": "false"
    },
-   "325": {
+   "324": {
       "Name": "Y-CR14",
       "Latitude": "1.306695724",
       "Longitude": "103.7721508",
       "IsBusStop": "false"
    },
-   "326": {
+   "325": {
       "Name": "Y-CR15",
       "Latitude": "1.306831945",
       "Longitude": "103.7723545",
       "IsBusStop": "false"
    },
-   "327": {
+   "326": {
       "Name": "Y-CR17",
       "Latitude": "1.308105126",
       "Longitude": "103.7725096",
       "IsBusStop": "false"
    },
-   "328": {
+   "327": {
       "Name": "Y-CR18",
       "Latitude": "1.308150175",
       "Longitude": "103.7720983",
       "IsBusStop": "false"
    },
-   "329": {
+   "328": {
       "Name": "Y-CR3",
       "Latitude": "1.305788837",
       "Longitude": "103.7722875",
       "IsBusStop": "false"
    },
-   "330": {
+   "329": {
       "Name": "Y-CR4",
       "Latitude": "1.305548037",
       "Longitude": "103.7719803",
       "IsBusStop": "false"
    },
-   "331": {
+   "330": {
       "Name": "Y-CR7",
       "Latitude": "1.305554473",
       "Longitude": "103.7720809",
       "IsBusStop": "false"
    },
-   "332": {
+   "331": {
       "Name": "Y-ELMCL",
       "Latitude": "1.306537573",
       "Longitude": "103.7720372",
       "IsBusStop": "false"
    },
-   "333": {
+   "332": {
       "Name": "Y-GLRM1",
       "Latitude": "1.307272785",
       "Longitude": "103.7723775",
       "IsBusStop": "false"
    },
-   "334": {
+   "333": {
       "Name": "Y-KCHANRAI",
       "Latitude": "1.306441772",
       "Longitude": "103.7722984",
       "IsBusStop": "false"
    },
-   "335": {
+   "334": {
       "Name": "Y-LT1",
       "Latitude": "1.305897706",
       "Longitude": "103.7719227",
       "IsBusStop": "false"
    },
-   "336": {
+   "335": {
       "Name": "Y-PERFHALL",
       "Latitude": "1.307022332",
       "Longitude": "103.7719463",
       "IsBusStop": "false"
    },
-   "337": {
+   "336": {
       "Name": "Y-PGRM1",
       "Latitude": "1.306963339",
       "Longitude": "103.7723786",
       "IsBusStop": "false"
    },
-   "338": {
+   "337": {
       "Name": "Y-PGRM2",
       "Latitude": "1.306997126",
       "Longitude": "103.7723893",
       "IsBusStop": "false"
    },
-   "339": {
+   "338": {
       "Name": "YSTCM-ER2",
       "Latitude": "1.302482643",
       "Longitude": "103.7724757",
       "IsBusStop": "false"
    },
-   "340": {
+   "339": {
       "Name": "YSTCM-ER3",
       "Latitude": "1.302329063",
       "Longitude": "103.7721522",
       "IsBusStop": "false"
    },
-   "341": {
+   "340": {
       "Name": "YSTCM-MLAB",
       "Latitude": "1.302365403",
       "Longitude": "103.7727294",
       "IsBusStop": "false"
    },
-   "342": {
+   "341": {
       "Name": "YSTCM-SR3",
       "Latitude": "1.3025707",
       "Longitude": "103.7725628",
       "IsBusStop": "false"
    },
-   "343": {
+   "342": {
       "Name": "YSTCM-SR4",
       "Latitude": "1.302261271",
       "Longitude": "103.7729421",
       "IsBusStop": "false"
    },
-   "344": {
+   "343": {
       "Name": "YSTCM-SR8",
       "Latitude": "1.302343504",
       "Longitude": "103.7721394",
       "IsBusStop": "false"
    },
-   "345": {
+   "344": {
       "Name": "Y-TCTLT",
       "Latitude": "1.306667836",
       "Longitude": "103.7719956",
       "IsBusStop": "false"
    },
-   "346": {
+   "345": {
       "Name": "YUSOF ISHAK HOUSE (YIH)",
       "Latitude": "1.298874",
       "Longitude": "103.774347",
