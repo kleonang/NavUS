@@ -1,4 +1,4 @@
-# install dependencies first
+# Install dependencies first
 # pip3 install firebase-admin
 # pip3 install Flask
 
@@ -79,6 +79,7 @@ class Node:
         self.adjacent = {}
         self.service = svc
         self.dist = math.inf
+        self.edgecount = 0
         self.visited = False
         self.prev = None
     
@@ -102,6 +103,12 @@ class Node:
     
     def get_dist(self):
         return self.dist
+    
+    def set_edgecount(self, edgecount):
+        self.edgecount = edgecount
+    
+    def get_edgecount(self):
+        return self.edgecount
 
     def set_prev(self, prev):
         self.prev = prev
@@ -119,7 +126,7 @@ class Node:
     
     def __lt__(self, other):
         if self.dist == other.dist:
-            return self.service != other.service
+            return self.edgecount < other.edgecount
         else:
             return self.dist < other.dist
     
@@ -172,7 +179,7 @@ def update_shortest_path(node, path):
         path.append((node.prev.get_name(), node.prev.get_service()))
         update_shortest_path(node.prev, path)
     return
-
+        
 # Dijkstra's Algorithm
 # The argument source is a Node object, dest_name is a string representing the destination
 def dijkstra(graph, source, dest_name):
@@ -198,6 +205,7 @@ def dijkstra(graph, source, dest_name):
             new_dist = current.get_dist() + current.get_weight(nxt)
             if nxt.get_dist() > new_dist:
                 nxt.set_dist(new_dist)
+                nxt.set_edgecount(current.get_edgecount() + 1)
                 nxt.set_prev(current)
                 # Insert nxt into priority queue
                 heapq.heappush(pq, nxt)
@@ -276,7 +284,7 @@ def getpath(source, destination):
     return json_data # return the json object
 
 # FOR OFFLINE TESTING
-# getpath("KENT RIDGE MRT (KR MRT)", "COM 2")
+# getpath("KENT RIDGE MRT (KR MRT)", "AS 5")
 
 if __name__ == '__main__':
 	app.run(host="0.0.0.0")
