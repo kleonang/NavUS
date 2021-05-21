@@ -110,61 +110,56 @@
       "Services": ["A2", "B1", "B2", "D1"]
    },
    "23": {
-      "Name": "PGP7",
-      "NextBusAlias": "PGP7",
-      "Services": ["A1"]
-   },
-   "24": {
       "Name": "PRINCE GEORGE PARK RESIDENCES (PGPR)",
       "NextBusAlias": "PGP",
       "Services": ["D2"]
    },
-   "25": {
+   "24": {
       "Name": "PRINCE GEORGE'S PARK (PGP)",
       "NextBusAlias": "PGPT",
       "Services": ["A1", "A1E", "A2", "BTC1", "D2"]
    },
-   "26": {
+   "25": {
       "Name": "RAFFLES HALL",
       "NextBusAlias": "RAFFLES",
       "Services": ["B2", "C"]
    },
-   "27": {
+   "26": {
       "Name": "S 17",
       "NextBusAlias": "S17",
       "Services": ["A2", "A2E", "C", "D2"]
    },
-   "28": {
+   "27": {
       "Name": "TCOMS",
       "NextBusAlias": "PGP12",
       "Services": ["A2", "D2"]
    },
-   "29": {
+   "28": {
       "Name": "THE JAPANESE PRIMARY SCHOOL",
       "NextBusAlias": "JP-SCH-16151",
       "Services": ["C"]
    },
-   "30": {
+   "29": {
       "Name": "UNIVERSITY HALL (UHALL)",
       "NextBusAlias": "UHALL",
       "Services": ["A1", "C", "D2"]
    },
-   "31": {
+   "30": {
       "Name": "UNIVERSITY HEALTH CENTRE (UHC)",
       "NextBusAlias": "STAFFCLUB",
       "Services": ["A2", "C", "D2"]
    },
-   "32": {
+   "31": {
       "Name": "UNIVERSITY TOWN (UTOWN)",
       "NextBusAlias": "UTown",
       "Services": ["B1", "B2", "C", "D1", "D2"]
    },
-   "33": {
+   "32": {
       "Name": "VENTUS (OPP LT13)",
       "NextBusAlias": "LT13-OPP",
       "Services": ["A2", "A2E", "B2", "D1"]
    },
-   "34": {
+   "33": {
       "Name": "YUSOF ISHAK HOUSE (YIH)",
       "NextBusAlias": "YIH",
       "Services": ["A1", "B1", "BTC1", "D1"]
