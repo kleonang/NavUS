@@ -22,6 +22,14 @@ Telegram           |  Android App
 :-------------------------:|:-------------------------:
 <img src="https://user-images.githubusercontent.com/35805635/119498649-6d380a80-bd98-11eb-9992-95b0dc00a5a2.png" width="350" height="600"> |  <img src="https://user-images.githubusercontent.com/35805635/119499100-f2bbba80-bd98-11eb-9b49-6a3a276345a0.png" width="350" height="600">
 
+## Technical Stack
+- Firebase
+- Flask
+- NUS NextBus API
+- Telegram API
+- Android
+- Google Maps API
+
 
 ## Setup Instructions
 The `Data` directory contains 3 `JSON` and 3 `Python3` files used to populate Firebase, as well as 1 `Python3` file for the logic of the path calculation. Before running the scripts, ensure that `firebase.json` is replaced with yours downloaded from the `Firebase Console`. Also, edit the file `firebaseurl.txt` to your Firebase's URL from the `Firebase Console`.
