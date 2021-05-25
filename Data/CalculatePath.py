@@ -8,6 +8,7 @@ from firebase_admin import db
 import json, requests
 import math
 import heapq
+import datetime
 from flask import Flask
 app = Flask(__name__)
 
@@ -60,8 +61,8 @@ for busstop in json_array: # loop through each item
 # #function to get arrival time of buses
 # def getarrivaltime(busstop):
 # 	reply={} #empty dict to store data to be returned
-# 	response = requests.get("https://better-nextbus.appspot.com/ShuttleService?busstopname=" + nextbusdict[busstop]) #make a request to the url
-# 	if response.status_code == 200: #request successful
+#   response = requests.get("https://better-nextbus.appspot.com/ShuttleService?busstopname=" + busstopdict[busstop]["NextBusAlias"]) #make a request to the url
+#	if response.status_code == 200: #request successful
 # 		data = json.loads(response.text)
 # 		for busroute in data["ShuttleServiceResult"]["shuttles"]:
 # 			reply[busroute["name"]] = busroute["arrivalTime"]
@@ -253,13 +254,20 @@ def getpath(source, destination):
     # Handle unnecessary changes at source node
     while path[0][0] == path[1][0]:
         del path[0]
-    # Handle COM2 D1 direction
+    # Manual handling of directions at COM2 and UTown
     for i in range(len(path)):
+        # Handle COM2 D1 direction
         if path[i][0] == "COM 2" and path[i][1] == "D1" and i != len(path) - 1:
             if path[i+1][0] == "BIZ 2" and path[i+1][1] == "D1":
                 path[i] = (path[i][0], "D1 (To BIZ 2)")
             elif path[i+1][0] == "VENTUS (OPP LT13)" and path[i+1][1] == "D1":
                 path[i] = (path[i][0], "D1 (To UTown)")
+        # Handle UTown C direction
+        if path[i][0] == "UNIVERSITY TOWN (UTOWN)" and path[i][1] == "C" and i != len(path) - 1:
+            if path[i+1][0] == "UNIVERSITY HEALTH CENTRE (UHC)" and path[i+1][1] == "C":
+                path[i] = (path[i][0], "C (To FOS)")
+            elif path[i+1][0] == "RAFFLES HALL" and path[i+1][1] == "C":
+                path[i] = (path[i][0], "C (To KRT)")
     print("Source: " + source + ", Destination: " + destination + "\n")
     print("Recommended route:")
     print(path)
@@ -278,13 +286,16 @@ def getpath(source, destination):
         currentwaypoint["Longitude"] = venuedict[busstop][1]
         currentwaypoint["IsBusStop"] = venuedict[busstop][2]
         waypointslist.append(currentwaypoint) # add the waypoints to the list
-        
+    
+    now = datetime.datetime.now()
+    eta = now + datetime.timedelta(minutes = dest.get_dist())
     data['Waypoints'] = waypointslist
+    data['ETA'] = eta.astimezone().replace(microsecond=0).isoformat()
     json_data = json.dumps(data) # create a json object
     return json_data # return the json object
 
 # FOR OFFLINE TESTING
-# getpath("KENT RIDGE MRT (KR MRT)", "AS 5")
+# getpath("OPP UNIVERSITY HEALTH CENTRE (OPP UHC)", "RAFFLES HALL")
 
 if __name__ == '__main__':
 	app.run(host="0.0.0.0")
