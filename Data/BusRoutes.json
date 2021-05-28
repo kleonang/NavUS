@@ -64,11 +64,11 @@
          },
          "3": {
             "Name": "OPP UNIVERSITY HEALTH CENTRE (OPP UHC)",
-            "Time": 3
+            "Time": 2
          },
          "4": {
             "Name": "CENTRAL LIBRARY (CLB)",
-            "Time": 4
+            "Time": 3
          },
          "5": {
             "Name": "BIZ 2",
@@ -144,7 +144,7 @@
        },
        "2": {
           "Name": "INFORMATION TECHNOLOGY (IT)",
-          "Time": 4
+          "Time": 7
        },
        "3": {
           "Name": "S 17",
