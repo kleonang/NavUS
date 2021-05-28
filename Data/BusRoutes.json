@@ -2,7 +2,7 @@
    "A1": {
       "1": {
             "Name": "PRINCE GEORGE'S PARK (PGP)",
-            "Time": 2
+            "Time": 4
          },
          "2": {
             "Name": "KENT RIDGE MRT (KR MRT)",
@@ -10,11 +10,11 @@
          },
          "3": {
             "Name": "LT 27",
-            "Time": 2
+            "Time": 1
          },
          "4": {
             "Name": "UNIVERSITY HALL (UHALL)",
-            "Time": 2
+            "Time": 1
          },
          "5": {
             "Name": "OPP UNIVERSITY HEALTH CENTRE (OPP UHC)",
@@ -34,7 +34,7 @@
          },
          "9": {
             "Name": "AS 5",
-            "Time": 1
+            "Time": 2
          },
          "10": {
             "Name": "COM 2",
@@ -68,11 +68,11 @@
          },
          "4": {
             "Name": "CENTRAL LIBRARY (CLB)",
-            "Time": 3
+            "Time": 4
          },
          "5": {
             "Name": "BIZ 2",
-            "Time": 2
+            "Time": 3
          },
          "6": {
             "Name": "PRINCE GEORGE'S PARK (PGP)",
@@ -86,7 +86,7 @@
          },
          "2": {
             "Name": "TCOMS",
-            "Time": 2
+            "Time": 1
          },
          "3": {
             "Name": "OPP HON SUI SEN MEMORIAL LIBRARY (OPP HSSML)",
@@ -94,7 +94,7 @@
          },
          "4": {
             "Name": "OPP NUSS",
-            "Time": 1
+            "Time": 2
          },
          "5": {
             "Name": "COM 2",
@@ -106,19 +106,19 @@
          },
          "7": {
             "Name": "INFORMATION TECHNOLOGY (IT)",
-            "Time": 2
+            "Time": 1
          },
          "8": {
             "Name": "OPP YUSOF ISHAK HOUSE (OPP YIH)",
-            "Time": 3
+            "Time": 1
          },
          "9": {
             "Name": "MUSEUM",
-            "Time": 1
+            "Time": 2
          },
          "10": {
             "Name": "UNIVERSITY HEALTH CENTRE (UHC)",
-            "Time": 2
+            "Time": 1
          },
          "11": {
             "Name": "OPP UNIVERSITY HALL (OPP UHALL)",
@@ -126,11 +126,11 @@
          },
          "12": {
             "Name": "S 17",
-            "Time": 2
+            "Time": 3
          },
          "13": {
             "Name": "OPP KENT RIDGE MRT (OPP KR MRT)",
-            "Time": 2
+            "Time": 5
          },
          "14": {
             "Name": "PRINCE GEORGE PARK RESIDENCES (PGPR)",
@@ -144,11 +144,11 @@
        },
        "2": {
           "Name": "INFORMATION TECHNOLOGY (IT)",
-          "Time": 1
+          "Time": 4
        },
        "3": {
           "Name": "S 17",
-          "Time": 2
+          "Time": 3
        },
        "4": {
           "Name": "OPP KENT RIDGE MRT (OPP KR MRT)",
@@ -162,15 +162,15 @@
        },
        "2": {
           "Name": "INFORMATION TECHNOLOGY (IT)",
-          "Time": 2
+          "Time": 1
        },
        "3": {
           "Name": "OPP YUSOF ISHAK HOUSE (OPP YIH)",
-          "Time": 3
+          "Time": 1
        },
        "4": {
           "Name": "UNIVERSITY TOWN (UTOWN)",
-          "Time": 2
+          "Time": 3
        },
        "5": {
           "Name": "YUSOF ISHAK HOUSE (YIH)",
@@ -208,23 +208,23 @@
        },
        "4": {
           "Name": "INFORMATION TECHNOLOGY (IT)",
-          "Time": 2
+          "Time": 1
        },
        "5": {
           "Name": "OPP YUSOF ISHAK HOUSE (OPP YIH)",
-          "Time": 3
+          "Time": 1
        },
        "6": {
           "Name": "UNIVERSITY TOWN (UTOWN)",
-          "Time": 3
+          "Time": 2
        },
        "7": {
           "Name": "RAFFLES HALL",
-          "Time": 1
+          "Time": 2
        },
        "8": {
           "Name": "EA",
-          "Time": 1
+          "Time": 3
        },
        "9": {
           "Name": "KENT RIDGE BUS TERMINAL (KR BUS TERMINAL)",
@@ -238,15 +238,15 @@
        },
        "2": {
           "Name": "THE JAPANESE PRIMARY SCHOOL",
-          "Time": 2
+          "Time": 1
        },
        "3": {
           "Name": "KENT VALE (KV)",
-          "Time": 1
+          "Time": 3
        },
        "4": {
           "Name": "MUSEUM",
-          "Time": 2
+          "Time": 1
        },
        "5": {
           "Name": "UNIVERSITY TOWN (UTOWN)",
@@ -254,7 +254,7 @@
        },
        "6": {
           "Name": "UNIVERSITY HEALTH CENTRE (UHC)",
-          "Time": 2
+          "Time": 1
        },
        "7": {
           "Name": "OPP UNIVERSITY HALL (OPP UHALL)",
@@ -262,15 +262,15 @@
        },
        "8": {
           "Name": "S 17",
-          "Time": 1
+          "Time": 2
        },
        "9": {
           "Name": "LT 27",
-          "Time": 2
+          "Time": 1
        },
        "10": {
           "Name": "UNIVERSITY HALL (UHALL)",
-          "Time": 2
+          "Time": 1
        },
        "11": {
           "Name": "OPP UNIVERSITY HEALTH CENTRE (OPP UHC)",
@@ -278,15 +278,15 @@
        },
        "12": {
           "Name": "UNIVERSITY TOWN (UTOWN)",
-          "Time": 3
+          "Time": 2
        },
        "13": {
           "Name": "RAFFLES HALL",
-          "Time": 1
+          "Time": 2
        },
        "14": {
           "Name": "EA",
-          "Time": 1
+          "Time": 3
        },
        "15": {
           "Name": "KENT RIDGE BUS TERMINAL (KR BUS TERMINAL)",
@@ -300,7 +300,7 @@
        },
        "2": {
           "Name": "OPP NUSS",
-          "Time": 1
+          "Time": 2
        },
        "3": {
           "Name": "COM 2",
@@ -312,19 +312,19 @@
        },
        "5": {
           "Name": "INFORMATION TECHNOLOGY (IT)",
-          "Time": 2
+          "Time": 1
        },
        "6": {
           "Name": "OPP YUSOF ISHAK HOUSE (OPP YIH)",
-          "Time": 3
+          "Time": 1
        },
        "7": {
           "Name": "MUSEUM",
-          "Time": 2
+          "Time": 1
        },
        "8": {
           "Name": "UNIVERSITY TOWN (UTOWN)",
-          "Time": 2
+          "Time": 3
        },
        "9": {
           "Name": "YUSOF ISHAK HOUSE (YIH)",
@@ -340,7 +340,7 @@
        },
        "12": {
           "Name": "AS 5",
-          "Time": 1
+          "Time": 2
        },
        "13": {
           "Name": "COM 2",
@@ -358,7 +358,7 @@
        },
        "2": {
           "Name": "PRINCE GEORGE'S PARK (PGP)",
-          "Time": 2
+          "Time": 4
        },
        "3": {
           "Name": "KENT RIDGE MRT (KR MRT)",
@@ -366,11 +366,11 @@
        },
        "4": {
           "Name": "LT 27",
-          "Time": 2
+          "Time": 1
        },
        "5": {
           "Name": "UNIVERSITY HALL (UHALL)",
-          "Time": 2
+          "Time": 1
        },
        "6": {
           "Name": "OPP UNIVERSITY HEALTH CENTRE (OPP UHC)",
@@ -378,7 +378,7 @@
        },
        "7": {
           "Name": "MUSEUM",
-          "Time": 2
+          "Time": 1
        },
        "8": {
           "Name": "UNIVERSITY TOWN (UTOWN)",
@@ -386,7 +386,7 @@
        },
        "9": {
           "Name": "UNIVERSITY HEALTH CENTRE (UHC)",
-          "Time": 2
+          "Time": 1
        },
        "10": {
           "Name": "OPP UNIVERSITY HALL (OPP UHALL)",
@@ -394,15 +394,15 @@
        },
        "11": {
           "Name": "S 17",
-          "Time": 2
+          "Time": 3
        },
        "12": {
           "Name": "OPP KENT RIDGE MRT (OPP KR MRT)",
-          "Time": 2
+          "Time": 5
        },
        "13": {
           "Name": "PRINCE GEORGE PARK RESIDENCES (PGPR)",
-          "Time": 1
+          "Time": 3
        },
        "14": {
           "Name": "TCOMS",
@@ -412,15 +412,15 @@
    "BTC1": {
        "1": {
           "Name": "KENT RIDGE BUS TERMINAL (KR BUS TERMINAL)",
-          "Time": 2
+          "Time": 3
        },
        "2": {
           "Name": "KENT VALE (KV)",
-          "Time": 1
+          "Time": 3
        },
        "3": {
           "Name": "MUSEUM",
-          "Time": 1
+          "Time": 2
        },
        "4": {
           "Name": "YUSOF ISHAK HOUSE (YIH)",
@@ -440,15 +440,15 @@
        },
        "8": {
           "Name": "BIZ 2",
-          "Time": 2
+          "Time": 3
        },
        "9": {
           "Name": "PRINCE GEORGE'S PARK (PGP)",
-          "Time": 14
+          "Time": 15
        },
        "10": {
           "Name": "COLLEGE GREEN",
-          "Time": 2
+          "Time": 3
        },
        "11": {
           "Name": "OEI TIONG HAM BUILDING (OTH BLDG)",
@@ -458,19 +458,19 @@
    "BTC2": {
       "1": {
           "Name": "OEI TIONG HAM BUILDING (OTH BLDG)",
-          "Time": 3
+          "Time": 2
        },
        "2": {
           "Name": "BOTANIC GARDENS MRT",
-          "Time": 17
+          "Time": 15
        },
        "3": {
           "Name": "MUSEUM",
-          "Time": 3
+          "Time": 1
        },
        "4": {
           "Name": "EA",
-          "Time": 1
+          "Time": 3
        },
        "5": {
           "Name": "KENT RIDGE BUS TERMINAL (KR BUS TERMINAL)",
