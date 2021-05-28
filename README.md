@@ -44,3 +44,5 @@ The `Data` directory contains 3 `JSON` and 3 `Python3` files used to populate Fi
   - `BusRoutes.json` contains the bus *routing information* and *time taken* to each stop.
   - `BusStop.json` contains the bus stop's *Name*, *NextBusAlias* and *Services*.
   - `Venue List.json` contains the venue's *Name*, *Latitude*, *Longitude* and *IsBusStop*.
+
+The `App` directory contains the code for the `Android` application. Update `App\src\main\java\com\example\navus\APIKeys.java` with your Firebase's URL and `App\src\debug\res\values\google_maps_api.xml` with your Google map API key.
