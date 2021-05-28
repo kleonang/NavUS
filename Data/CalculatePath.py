@@ -55,24 +55,6 @@ for busstop in json_array: # loop through each item
 		busstopdict[busstop["Name"]]["NextBusAlias"] = busstop["NextBusAlias"] # assign NextBusAlias
 		busstopdict[busstop["Name"]]["Services"] = busstop["Services"] # assign Services
 
-# =============================================================================
-# REALTIME DATA
-#
-# #function to get arrival time of buses
-# def getarrivaltime(busstop):
-# 	reply={} #empty dict to store data to be returned
-#   response = requests.get("https://better-nextbus.appspot.com/ShuttleService?busstopname=" + busstopdict[busstop]["NextBusAlias"]) #make a request to the url
-#	if response.status_code == 200: #request successful
-# 		data = json.loads(response.text)
-# 		for busroute in data["ShuttleServiceResult"]["shuttles"]:
-# 			reply[busroute["name"]] = busroute["arrivalTime"]
-# 	return reply
-# 
-# #Example on how to use the function getarrivaltime
-# reply = getarrivaltime("COM 2") 
-# print("Arrival Timing at COM 2 | A1:", reply["A1"], " A2", reply["A2"], " D1(To BIZ2):", reply["D1(To BIZ2)"], " D1(To UTown)", reply["D1(To UTown)"])
-# =============================================================================
-
 # Node class to store bus stops
 class Node:
     def __init__(self, name, svc):
