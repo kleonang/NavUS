@@ -9,6 +9,11 @@ When you’re trying to look for a classroom and you entered the venue in Google
 3. As a visitor to NUS, I want to be able to locate nearby amenities even without prior knowledge of the NUS campus layout.
 4. As an NUS teaching staff, I want to know how to get from one lecture location to my next tutorial location across campus using the ISB.
 
+## Demonstration
+Telegram           |  Android App
+:-------------------------:|:-------------------------:
+<img src="https://user-images.githubusercontent.com/35805635/119498649-6d380a80-bd98-11eb-9992-95b0dc00a5a2.png" width="350" height="600"> |  <img src="https://user-images.githubusercontent.com/35805635/119499100-f2bbba80-bd98-11eb-9b49-6a3a276345a0.png" width="350" height="600">
+
 ## Implementation Overview
 The **Telegram Bot** provides a chat-like interface for users to query the route to their destination.
 
@@ -16,11 +21,10 @@ A **Flask Server** will share a common database on `firebase` with the Telegram 
 
 The **Android app** provides a visual interface for the user to enter his destination and suggests a route based on his current location.
 
+## Comparisons with existing applications
+**NUS NextBus** app provides us with the bus routes and arrival times of buses but assumes you know the closest bus stop to your destination. Also, there is no functionality to enter a bus stop and be guided from your location.
 
-## Demonstration
-Telegram           |  Android App
-:-------------------------:|:-------------------------:
-<img src="https://user-images.githubusercontent.com/35805635/119498649-6d380a80-bd98-11eb-9992-95b0dc00a5a2.png" width="350" height="600"> |  <img src="https://user-images.githubusercontent.com/35805635/119499100-f2bbba80-bd98-11eb-9b49-6a3a276345a0.png" width="350" height="600">
+**NUSMODS** provides us with the location of your classroom but not the routing information to there.
 
 ## Technical Stack
 - Firebase
