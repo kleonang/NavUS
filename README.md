@@ -29,7 +29,8 @@ A **Flask Server** will share a common database on `firebase` with the Telegram 
 The **Android app** provides a visual interface for the user to enter his destination and suggests a route based on his current location.
 
 <img width="1094" alt="NavUS Graph_v1" src="https://user-images.githubusercontent.com/35778042/120532399-386c2900-c412-11eb-9cdd-efba99bf36f8.png">
-This chart illustrates the graph model currently used for calculating the shortest time taken from a given source and destination. A "supernode" is constructed that serves as a starting point for running the shortest path algorithm. 
+This chart illustrates the graph model currently used for calculating the shortest time taken from a given source and destination. The source in the given diagram is "KR MRT". A "supernode" is constructed (with outgoing edges representing the bus arrival times leading to their respective services) that serves as a starting point for running the shortest path algorithm. 
+
 
 _Note: Variables a, b, c, d, e, f, g, h, i, j represent live bus arrival timings. Edges without variables are weighted with static bus travel times._
 
