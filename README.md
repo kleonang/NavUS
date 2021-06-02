@@ -28,6 +28,11 @@ A **Flask Server** will share a common database on `firebase` with the Telegram 
 
 The **Android app** provides a visual interface for the user to enter his destination and suggests a route based on his current location.
 
+<img width="1094" alt="NavUS Graph_v1" src="https://user-images.githubusercontent.com/35778042/120532399-386c2900-c412-11eb-9cdd-efba99bf36f8.png">
+This chart illustrates the graph model currently used for calculating the shortest time taken from a given source and destination. A "supernode" is constructed that serves as a starting point for running the shortest path algorithm. 
+
+_Note: Variables a, b, c, d, e, f, g, h, i, j represent live bus arrival timings. Edges without variables are weighted with static bus travel times._
+
 ## Comparisons with existing applications
 **NUS NextBus** app provides us with the bus routes and arrival times of buses but assumes you know the closest bus stop to your destination. Also, there is no functionality to enter a bus stop and be guided from your location.
 
@@ -49,7 +54,7 @@ Week           |  Task
 6 (14/6 - 20/6)            | Implement Telegram bot
 7 (21/6 - 27/6)            | Refine Telegram bot
 8 (28/6 - 4/7)             | Design Android UI
-9 (5/7 - 11/7/)            | Refine and improve Android UI
+9 (5/7 - 11/7)             | Refine and improve Android UI
 10 (12/7 - 18/7)           | Testing and debugging
 11 (19/7 - 25/7)           | Further testing and debugging, while polishing the application as a whole
 
