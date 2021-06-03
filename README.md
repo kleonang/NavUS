@@ -15,11 +15,11 @@ Telegram           |  Android App
 <img src="https://user-images.githubusercontent.com/35805635/119498649-6d380a80-bd98-11eb-9992-95b0dc00a5a2.png" width="350" height="600"> |  <img src="https://user-images.githubusercontent.com/35805635/119499100-f2bbba80-bd98-11eb-9b49-6a3a276345a0.png" width="350" height="600">
 
 ## Features
-- Android UI for user to enter his source and destination, as well as detailed steps to his destination
-- Google Maps UI to show the route
-- Estimated arrival time taking into account bus arrival/transit times
-- Shortest path from source to destination (via ISB)
-- Telegram bot which allows user to enter his source and destination for directions
+- **Android UI** for user to enter his source and destination, as well as detailed steps to his destination
+- **Google Maps** interface to show the route
+- **Estimated Time of Arrival (ETA)** taking into account bus arrival/transit times
+- **Shortest path route** from source to destination (via ISB)
+- **Telegram bot** which allows user to enter his source and destination for directions
 
 ## Implementation Overview
 The **Telegram Bot** provides a chat-like interface for users to query the route to their destination.
