@@ -42,7 +42,7 @@
    "9": {
       "Name": "KENT RIDGE BUS TERMINAL (KR BUS TERMINAL)",
       "NextBusAlias": "KR-BT",
-      "Services": ["B1", "BTC1", "C"]
+      "Services": ["B1", "B2", "BTC1", "BTC2", "C"]
    },
    "10": {
       "Name": "KENT RIDGE MRT (KR MRT)",
@@ -72,7 +72,7 @@
    "15": {
       "Name": "OEI TIONG HAM BUILDING (OTH BLDG)",
       "NextBusAlias": "BUKITTIMAH-BTC2",
-      "Services": ["BTC2"]
+      "Services": ["BTC1", "BTC2"]
    },
    "16": {
       "Name": "OPP HON SUI SEN MEMORIAL LIBRARY (OPP HSSML)",
@@ -112,7 +112,7 @@
    "23": {
       "Name": "PRINCE GEORGE PARK RESIDENCES (PGPR)",
       "NextBusAlias": "PGP",
-      "Services": ["D2"]
+      "Services": ["A2", "D2"]
    },
    "24": {
       "Name": "PRINCE GEORGE'S PARK (PGP)",
