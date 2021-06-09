@@ -107,7 +107,9 @@ def getarrivaltime(busstop, service):
 					busroute["arrivalTime"] = "1"
 				if busroute["nextArrivalTime"] == "Arr":
 					busroute["nextArrivalTime"] = "1"
-				busarrivaltimedict[busstop][busroute["name"]] = {"arrivalTime": busroute["arrivalTime"], "nextArrivalTime": busroute["nextArrivalTime"]}
+
+				service = busroute["name"].split("(")[0] #to remove (To BIZ 2) etc
+				busarrivaltimedict[busstop][service] = {"arrivalTime": busroute["arrivalTime"], "nextArrivalTime": busroute["nextArrivalTime"]}
 	return busarrivaltimedict[busstop][service]
 
 # Node class to store bus stops
@@ -305,23 +307,23 @@ def getpath(source, destination):
 
 
 # COMMENT OUT NEXT LINE FOR OFFLINE TESTING
-@app.route('/getpath/<sourcelat>/<sourcelong>/<destination>') # access at 127.0.0.1:5000/getpath/your_source/your_destination
-def getpath2(sourcelat, sourcelong, destination):
-	slat = sourcelat
-	slong = sourcelong
-	dlat = busstopcoordinates[destination][0]
-	dlong = busstopcoordinates[destination][1]
+@app.route('/getpath/<parameter1>/<parameter2>/<parameter3>') 
+def getpathusingonecoordinate(parameter1, parameter2, parameter3):
+	try:
+		float(parameter1) #source was sent as coordinates
+		slat = parameter1
+		slong = parameter2
+		dlat = busstopcoordinates[parameter3][0]
+		dlong = busstopcoordinates[parameter3][1]
+
+	except ValueError: #destination was sent as coordinates
+		slat = busstopcoordinates[parameter1][0]
+		slong = busstopcoordinates[parameter1][1]
+		dlat = parameter2
+		dlong = parameter3
+
 	return getpathusingcoordinates(slat, slong, dlat, dlong)
 
-
-# COMMENT OUT NEXT LINE FOR OFFLINE TESTING
-@app.route('/getpath/<source>/<destlat>/<destlong>') # access at 127.0.0.1:5000/getpath/your_source/your_destination
-def getpath3(source, destlat, destlong):
-	slat = busstopcoordinates[source][0]
-	slong = busstopcoordinates[source][1]
-	dlat = destlat
-	dlong = destlong
-	return getpathusingcoordinates(slat, slong, dlat, dlong)
 
 
 # LATITUDE AND LONGITUDE VERSION (3 nearest bus stops to given lat/long)
