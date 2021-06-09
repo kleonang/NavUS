@@ -1,7 +1,6 @@
 # Install dependencies first
 # pip3 install firebase-admin
 # pip3 install Flask
-# pip3 install multipledispatch
 
 import firebase_admin
 from firebase_admin import credentials
@@ -10,7 +9,6 @@ import json, requests
 import math
 import heapq
 import datetime
-from multipledispatch import dispatch
 from flask import Flask
 app = Flask(__name__)
 
@@ -18,21 +16,27 @@ routedict={} # Stores bus route as key and value as list of pairs
 venuedict={} # Stores all venue names including Bus Stops as key and latitude, longitude as pairs
 busstopcoordinates={} # Stores coordinates of all bus stops
 busstopdict={} # Stores all the bus stop name, NextBusAlias and bus services
+busarrivaltimedict = {} #acts as a cache for each request, i.e. it will be cleared after every request
+
+#read apiurl
+f = open("nextbusurl.txt", "r")
+apiurl = f.read()
+f.close()
 
 # Check if firebase app is already initialised to prevent initialisation error
 if not firebase_admin._apps:
-    # Fetch the service account key JSON file contents
-    cred = credentials.Certificate("firebase.json")
+	# Fetch the service account key JSON file contents
+	cred = credentials.Certificate("firebase.json")
 
-    # Read firebaseurl
-    f = open("firebaseurl.txt", "r")
-    firebaseurl = f.read()
-    f.close()
-    
-    # Initialize the app with a None auth variable, limiting the server's access
-    firebase_admin.initialize_app(cred, {
-        'databaseURL': firebaseurl
-    })
+	# Read firebaseurl
+	f = open("firebaseurl.txt", "r")
+	firebaseurl = f.read()
+	f.close()
+	
+	# Initialize the app with a None auth variable, limiting the server's access
+	firebase_admin.initialize_app(cred, {
+		'databaseURL': firebaseurl
+	})
 
 ref = db.reference("/BusRoutes") # access /BusRoutes
 json_array = ref.get() # returns array of json
@@ -60,20 +64,20 @@ for busstop in json_array: # loop through each item
 
 # Store coordinates of bus stops in busstopcoordinates
 for venue in venuedict:
-    if venuedict[venue][2] == 'true':
-        busstopcoordinates[venue] = (float(venuedict[venue][0]), float(venuedict[venue][1]))
+	if venuedict[venue][2] == 'true':
+		busstopcoordinates[venue] = (float(venuedict[venue][0]), float(venuedict[venue][1]))
 
 # Delimiter to append id to repeated nodes
 delimiter = "_"
 
 # Function to modify names with given id
 def append_id(tup, id_num):
-    name = tup[0]
-    time = tup[1]
-    return (name + delimiter + str(id_num), time)
+	name = tup[0]
+	time = tup[1]
+	return (name + delimiter + str(id_num), time)
 
 stops_with_repeated_nodes = [("COM 2", "D1"), ("KENT RIDGE BUS TERMINAL (KR BUS TERMINAL)", "C"), \
-                             ("PRINCE GEORGE'S PARK (PGP)", "A1"), ("UNIVERSITY TOWN (UTOWN)", "C")]
+							 ("PRINCE GEORGE'S PARK (PGP)", "A1"), ("UNIVERSITY TOWN (UTOWN)", "C")]
 
 # Split repeated nodes
 # A1: PGP
@@ -91,189 +95,197 @@ routedict["D1"][12] = append_id(routedict["D1"][12], 1)
 
 # REALTIME DATA
 #function to get arrival time of buses
-def getarrivaltime(busstop):
-    reply={} #empty dict to store data to be returned
-    f = open("nextbusurl.txt", "r")
-    apiurl = f.read()
-    f.close()
-    # Query API
-    response = requests.get(apiurl + busstopdict[busstop]["NextBusAlias"]) #make a request to the url
-    if response.status_code == 200: #request successful
-        data = json.loads(response.text)
-        for busroute in data["ShuttleServiceResult"]["shuttles"]:
-            reply[busroute["name"]] = busroute["arrivalTime"]
-    return reply
+def getarrivaltime(busstop, service):
+	if busstop not in busarrivaltimedict: #not cached, so query
+		busarrivaltimedict[busstop] = {} #initialise as empty dict
+		response = requests.get(apiurl + busstopdict[busstop]["NextBusAlias"]) #make a request to the url
+		if response.status_code == 200: #request successful
+			data = json.loads(response.text)
+			for busroute in data["ShuttleServiceResult"]["shuttles"]:
+				#handle Arr case
+				if busroute["arrivalTime"] == "Arr":
+					busroute["arrivalTime"] = "1"
+				if busroute["nextArrivalTime"] == "Arr":
+					busroute["nextArrivalTime"] = "1"
+				busarrivaltimedict[busstop][busroute["name"]] = {"arrivalTime": busroute["arrivalTime"], "nextArrivalTime": busroute["nextArrivalTime"]}
+	return busarrivaltimedict[busstop][service]
 
 # Node class to store bus stops
 class Node:
-    def __init__(self, name, svc):
-        self.name = name
-        self.adjacent = {}
-        self.service = svc
-        self.dist = math.inf
-        self.edgecount = 0
-        self.visited = False
-        self.prev = None
-    
-    def add_neighbour(self, neighbour, weight):
-        self.adjacent[neighbour] = weight
-    
-    def get_neighbours(self):
-        return self.adjacent.keys()
-    
-    def get_service(self):
-        return self.service
-    
-    def get_name(self):
-        return self.name
-    
-    def get_weight(self, neighbour):
-        return self.adjacent[neighbour]
-    
-    def set_dist(self, dist):
-        self.dist = dist
-    
-    def get_dist(self):
-        return self.dist
-    
-    def set_edgecount(self, edgecount):
-        self.edgecount = edgecount
-    
-    def get_edgecount(self):
-        return self.edgecount
+	def __init__(self, name, svc):
+		self.name = name
+		self.adjacent = {}
+		self.service = svc
+		self.dist = math.inf
+		self.edgecount = 0
+		self.visited = False
+		self.prev = None
+	
+	def add_neighbour(self, neighbour, weight):
+		self.adjacent[neighbour] = weight
+	
+	def get_neighbours(self):
+		return self.adjacent.keys()
+	
+	def get_service(self):
+		return self.service
+	
+	def get_name(self):
+		return self.name
+	
+	def get_weight(self, neighbour):
+		return self.adjacent[neighbour]
+	
+	def set_dist(self, dist):
+		self.dist = dist
+	
+	def get_dist(self):
+		return self.dist
+	
+	def set_edgecount(self, edgecount):
+		self.edgecount = edgecount
+	
+	def get_edgecount(self):
+		return self.edgecount
 
-    def set_prev(self, prev):
-        self.prev = prev
-    
-    def visit(self):
-        self.visited = True
-    
-    def is_visited(self):
-        return self.visited
-    
-    def __eq__(self, other):
-        if isinstance(other, Node):
-            return other.name == self.name and other.service == self.service
-        return False
-    
-    def __hash__(self):
-        return hash((self.name, self.service))
-    
-    def __lt__(self, other):
-        if self.dist == other.dist:
-            return self.edgecount < other.edgecount
-        else:
-            return self.dist < other.dist
-    
-    def __str__(self):
-        return "( " + str(self.name) + ", " + str(self.service) + " ) is adjacent to: " \
-            + str([(x.name, x.service) for x in self.adjacent])
+	def set_prev(self, prev):
+		self.prev = prev
+	
+	def visit(self):
+		self.visited = True
+	
+	def is_visited(self):
+		return self.visited
+	
+	def __eq__(self, other):
+		if isinstance(other, Node):
+			return other.name == self.name and other.service == self.service
+		return False
+	
+	def __hash__(self):
+		return hash((self.name, self.service))
+	
+	def __lt__(self, other):
+		if self.dist == other.dist:
+			return self.edgecount < other.edgecount
+		else:
+			return self.dist < other.dist
+	
+	def __str__(self):
+		return "( " + str(self.name) + ", " + str(self.service) + " ) is adjacent to: " \
+			+ str([(x.name, x.service) for x in self.adjacent])
 
 # Graph class represents the map of bus stops
 # In this graph, bus stops are vertices and directed edges go from one vertex
 # to another if a bus route travels between their respective bus stops 
 class Graph:
-    def __init__(self):
-        self.nodes = {}
-        self.num_vertices = 0
-    
-    def __iter__(self):
-        return iter(self.nodes.values())
-    
-    def add_node(self, name, service):
-        self.num_vertices += 1
-        new_busstop = Node(name, service)
-        self.nodes[(name, service)] = new_busstop
-        return new_busstop
-    
-    def get_node(self, name, service):
-        if (name, service) in self.nodes:
-            return self.nodes[(name, service)]
-        else:
-            return None
-    
-    def add_directed_edge(self, frm, to, cost, frm_svc, to_svc):
-        self.nodes[(frm, frm_svc)].add_neighbour(self.nodes[(to, to_svc)], cost)
-    
-    def add_undirected_edge(self, frm, to, cost, frm_svc, to_svc):
-        self.nodes[(frm, frm_svc)].add_neighbour(self.nodes[(to, to_svc)], cost)
-        self.nodes[(to, to_svc)].add_neighbour(self.nodes[(frm, frm_svc)], cost)
-        
-    def get_nodes(self):
-        return self.nodes.keys()
+	def __init__(self):
+		self.nodes = {}
+		self.num_vertices = 0
+	
+	def __iter__(self):
+		return iter(self.nodes.values())
+	
+	def add_node(self, name, service):
+		self.num_vertices += 1
+		new_busstop = Node(name, service)
+		self.nodes[(name, service)] = new_busstop
+		return new_busstop
+	
+	def get_node(self, name, service):
+		if (name, service) in self.nodes:
+			return self.nodes[(name, service)]
+		else:
+			return None
+	
+	def add_directed_edge(self, frm, to, cost, frm_svc, to_svc):
+		self.nodes[(frm, frm_svc)].add_neighbour(self.nodes[(to, to_svc)], cost)
+	
+	def add_undirected_edge(self, frm, to, cost, frm_svc, to_svc):
+		self.nodes[(frm, frm_svc)].add_neighbour(self.nodes[(to, to_svc)], cost)
+		self.nodes[(to, to_svc)].add_neighbour(self.nodes[(frm, frm_svc)], cost)
+		
+	def get_nodes(self):
+		return self.nodes.keys()
 
-    def set_prev(self, curr):
-        self.previous = curr
+	def set_prev(self, curr):
+		self.previous = curr
 
-    def get_prev(self):
-        return self.previous
+	def get_prev(self):
+		return self.previous
 
 # Traces back the shortest path from the given Node to the start Node
 def update_shortest_path(node, path):
-    if node.prev:
-        path.append((node.prev.get_name(), node.prev.get_service()))
-        update_shortest_path(node.prev, path)
-    return
+	if node.prev:
+		path.append((node.prev.get_name(), node.prev.get_service()))
+		update_shortest_path(node.prev, path)
+	return
 
 def trace_path(node):
-    # Reconstruct path
-    path = [(node.get_name(), node.get_service())]
-    update_shortest_path(node, path)
-    path.reverse()
-    
-    # Handle unnecessary changes at source node
-    while path[0][0].split(delimiter)[0] == path[1][0].split(delimiter)[0]:
-        del path[0]
-    
-    # Handle unnecessary changes at end node
-    while path[-1][0].split(delimiter)[0] == path[-2][0].split(delimiter)[0]:
-        del path[-1]
-    
-    # Manual handling of directions at COM2 and UTown
-    for i in range(len(path)):
-        name_split = path[i][0].split(delimiter)
-        service = path[i][1]
-        # Handle COM2 D1 direction
-        if service == "D1" and name_split[0] == "COM 2":
-            path[i] = ("COM 2", "D1 (To UTown)") if name_split[1] == 0 else ("COM 2", "D1 (To BIZ 2)")
-        # Handle UTown C direction
-        elif service == "C" and name_split[0] == "UNIVERSITY TOWN (UTOWN)":
-            path[i] = ("UNIVERSITY TOWN (UTOWN)", "C (To FOS)") if name_split[1] == 0 else ("UNIVERSITY TOWN (UTOWN)", "C (To KRT)")
-        else:
-            path[i] = (name_split[0], service)
-    
-    return path
+	# Reconstruct path
+	path = [(node.get_name(), node.get_service())]
+	update_shortest_path(node, path)
+	path.reverse()
+	
+	# Handle unnecessary changes at source node
+	while path[0][0].split(delimiter)[0] == path[1][0].split(delimiter)[0]:
+		del path[0]
+	
+	# Handle unnecessary changes at end node
+	while path[-1][0].split(delimiter)[0] == path[-2][0].split(delimiter)[0]:
+		del path[-1]
+	
+	# Manual handling of directions at COM2 and UTown
+	for i in range(len(path)):
+		name_split = path[i][0].split(delimiter)
+		service = path[i][1]
+		# Handle COM2 D1 direction
+		if service == "D1" and name_split[0] == "COM 2":
+			path[i] = ("COM 2", "D1 (To UTown)") if name_split[1] == 0 else ("COM 2", "D1 (To BIZ 2)")
+		# Handle UTown C direction
+		elif service == "C" and name_split[0] == "UNIVERSITY TOWN (UTOWN)":
+			path[i] = ("UNIVERSITY TOWN (UTOWN)", "C (To FOS)") if name_split[1] == 0 else ("UNIVERSITY TOWN (UTOWN)", "C (To KRT)")
+		else:
+			path[i] = (name_split[0], service)
+	
+	return path
 
 # Dijkstra's Algorithm
 # The argument source is a Node object, dest_name is a string representing the destination
 def dijkstra(graph, source, dest_name):
-    # Set the distance for the start node to zero 
-    source.set_dist(0)
-    # Put start node into the priority queue
-    pq = [source]
-    heapq.heapify(pq)
+	# Set the distance for the start node to zero 
+	source.set_dist(0)
+	# Put start node into the priority queue
+	pq = [source]
+	heapq.heapify(pq)
 
-    while len(pq):
-        # Pop the Node with smallest dist from the priority queue
-        current = heapq.heappop(pq)
-        current.visit()
-        # Stop if destination is reached
-        if current.get_name().split(delimiter)[0] == dest_name:
-            return current
-        # Iterate through neighbours of current Node
-        for nxt in current.adjacent:
-            # If next Node is visited, skip it
-            if nxt.is_visited():
-                continue
-            # Else relax next Node
-            new_dist = current.get_dist() + current.get_weight(nxt)
-            if nxt.get_dist() > new_dist:
-                nxt.set_dist(new_dist)
-                nxt.set_edgecount(current.get_edgecount() + 1)
-                nxt.set_prev(current)
-                if nxt not in pq:
-                    # Insert nxt into priority queue
-                    heapq.heappush(pq, nxt)
+	while len(pq):
+		# Pop the Node with smallest dist from the priority queue
+		current = heapq.heappop(pq)
+		current.visit()
+		# Stop if destination is reached
+		if current.get_name().split(delimiter)[0] == dest_name:
+			return current
+		# Iterate through neighbours of current Node
+		for nxt in current.adjacent:
+			# If next Node is visited, skip it
+			if nxt.is_visited():
+				continue
+			# Else relax next Node
+			new_dist = current.get_dist() + current.get_weight(nxt)
+			if nxt.get_dist() > new_dist:
+				nxt.set_dist(new_dist)
+				nxt.set_edgecount(current.get_edgecount() + 1)
+				nxt.set_prev(current)
+				if nxt not in pq:
+					# Insert nxt into priority queue
+					heapq.heappush(pq, nxt)
+
+
+# Calculates euclidean distance between two points
+def euclidean_distance(thislat, thislong, otherlat, otherlong):
+	return math.sqrt(math.pow(thislat - otherlat, 2) + math.pow(thislong - otherlong, 2))
+
 
 # DECLARE NUMBER OF SOURCE-DESTINATION COMBINATIONS
 numsources = 3
@@ -284,108 +296,123 @@ pathlist = []
 
 # COMMENT OUT NEXT LINE FOR OFFLINE TESTING
 @app.route('/getpath/<source>/<destination>') # access at 127.0.0.1:5000/getpath/your_source/your_destination
-@dispatch(str, str)
 def getpath(source, destination):
-    slat = busstopcoordinates[source][0]
-    slong = busstopcoordinates[source][1]
-    dlat = busstopcoordinates[destination][0]
-    dlong = busstopcoordinates[destination][1]
-    return getpath(slat, slong, dlat, dlong)
+	slat = busstopcoordinates[source][0]
+	slong = busstopcoordinates[source][1]
+	dlat = busstopcoordinates[destination][0]
+	dlong = busstopcoordinates[destination][1]
+	return getpathusingcoordinates(slat, slong, dlat, dlong)
 
-# Calculates euclidean distance between two points
-def euclidean_distance(thislat, thislong, otherlat, otherlong):
-    return math.sqrt(math.pow(thislat - otherlat, 2) + math.pow(thislong - otherlong, 2))
+
+# COMMENT OUT NEXT LINE FOR OFFLINE TESTING
+@app.route('/getpath/<sourcelat>/<sourcelong>/<destination>') # access at 127.0.0.1:5000/getpath/your_source/your_destination
+def getpath2(sourcelat, sourcelong, destination):
+	slat = sourcelat
+	slong = sourcelong
+	dlat = busstopcoordinates[destination][0]
+	dlong = busstopcoordinates[destination][1]
+	return getpathusingcoordinates(slat, slong, dlat, dlong)
+
+
+# COMMENT OUT NEXT LINE FOR OFFLINE TESTING
+@app.route('/getpath/<source>/<destlat>/<destlong>') # access at 127.0.0.1:5000/getpath/your_source/your_destination
+def getpath3(source, destlat, destlong):
+	slat = busstopcoordinates[source][0]
+	slong = busstopcoordinates[source][1]
+	dlat = destlat
+	dlong = destlong
+	return getpathusingcoordinates(slat, slong, dlat, dlong)
+
 
 # LATITUDE AND LONGITUDE VERSION (3 nearest bus stops to given lat/long)
 # COMMENT OUT NEXT LINE FOR OFFLINE TESTING
 @app.route('/getpath/<sourcelat>/<sourcelong>/<destlat>/<destlong>') # access at 127.0.0.1:5000/getpath/sourcelat/sourcelong/destlat/destlong
-@dispatch(str, str, str, str)
-def getpath(sourcelat, sourcelong, destlat, destlong):
-    sourcelat = float(sourcelat)
-    sourcelong = float(sourcelong)
-    destlat = float(destlat)
-    destlong = float(destlong)
-    
-    sources = []
-    dests = []
-    sources_pq = []
-    heapq.heapify(sources_pq)
-    dests_pq = []
-    heapq.heapify(dests_pq)
-    
-    for stop in busstopcoordinates:
-        dist_to_source = euclidean_distance(sourcelat, sourcelong, busstopcoordinates[stop][0], busstopcoordinates[stop][1])
-        heapq.heappush(sources_pq, (dist_to_source, stop))
-        dist_to_dest = euclidean_distance(destlat, destlong, busstopcoordinates[stop][0], busstopcoordinates[stop][1])
-        heapq.heappush(dests_pq, (dist_to_dest, stop))
-    
-    for i in range(numsources):
-        s = heapq.heappop(sources_pq)
-        sources.append(s[1])
-    for j in range(numdests):
-        d = heapq.heappop(dests_pq)
-        dests.append(d[1])
-    
-    for destination in dests:
-        for source in sources:
-            # Construct Graph
-            graph = Graph()
-            # Add vertices to graph
-            for busroute in routedict:
-                busroute_len = len(routedict[busroute])
-                for i in range(busroute_len):
-                    graph.add_node(routedict[busroute][i][0], busroute)
-            # Add directed edges to graph
-            for busroute in routedict:
-                busroute_len = len(routedict[busroute])
-                for i in range(busroute_len):
-                    if routedict[busroute][i][1] != 0:
-                            graph.add_directed_edge(routedict[busroute][i][0], routedict[busroute][i+1][0], 
-                                                    routedict[busroute][i][1], busroute, busroute)
-            # Add undirected edges to graph
-            for busstop in busstopdict:
-                busstoptuples = []
-                busservices = busstopdict[busstop]["Services"]
-                for service in busservices:
-                    if (busstop, service) in stops_with_repeated_nodes:
-                        for i in range(2):
-                            busstoptuples.append((busstop + delimiter + str(i), service))
-                    else:
-                        busstoptuples.append((busstop, service))
-                services_len = len(busstoptuples)
-                for i in range(services_len):
-                    for j in range(i + 1, services_len):
-                        graph.add_undirected_edge(busstoptuples[i][0], busstoptuples[j][0], \
-                                                  0, busstoptuples[i][1], busstoptuples[j][1])
-            
-        # =============================================================================
-        #     # Add source supernode
-        #     graph.add_node(source, "START")
-        #     start_arr_times = getarrivaltime(source)
-        #     for service in start_arr_times:
-        #         timing = start_arr_times[service]
-        #         if timing == "Arr":
-        #             timing = 0 
-        #         elif timing == "-" or int(timing) < 0:
-        #             timing = math.inf
-        #         else:
-        #             timing = int(timing)
-        #             
-        #         if service == "D1(To UTown)":
-        #             graph.add_directed_edge(source, source + delimiter + "0", timing, "START", "D1")
-        #         elif service == "D1(To BIZ2)":
-        #             graph.add_directed_edge(source, source + delimiter + "1", timing, "START", "D1")
-        #         elif service == "C(To FOS)":
-        #             graph.add_directed_edge(source, source + delimiter + "0", timing, "START", "C")
-        #         elif service == "C(To KRT)":
-        #             graph.add_directed_edge(source, source + delimiter + "1", timing, "START", "C")
-        #         elif (source == "PRINCE GEORGE'S PARK (PGP)" and service == "A1") or \
-        #              (source == "KENT RIDGE BUS TERMINAL (KR BUS TERMINAL)" and service == "C"):
-        #             graph.add_directed_edge(source, source + delimiter + "0", timing, "START", service)
-        #         else:
-        #             graph.add_directed_edge(source, source, timing, "START", service)
-        # =============================================================================
-                
+def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
+	sourcelat = float(sourcelat)
+	sourcelong = float(sourcelong)
+	destlat = float(destlat)
+	destlong = float(destlong)
+	
+	sources = []
+	dests = []
+	sources_pq = []
+	heapq.heapify(sources_pq)
+	dests_pq = []
+	heapq.heapify(dests_pq)
+	
+	for stop in busstopcoordinates:
+		dist_to_source = euclidean_distance(sourcelat, sourcelong, busstopcoordinates[stop][0], busstopcoordinates[stop][1])
+		heapq.heappush(sources_pq, (dist_to_source, stop))
+		dist_to_dest = euclidean_distance(destlat, destlong, busstopcoordinates[stop][0], busstopcoordinates[stop][1])
+		heapq.heappush(dests_pq, (dist_to_dest, stop))
+	
+	for i in range(numsources):
+		s = heapq.heappop(sources_pq)
+		sources.append(s[1])
+	for j in range(numdests):
+		d = heapq.heappop(dests_pq)
+		dests.append(d[1])
+	
+	for destination in dests:
+		for source in sources:
+			# Construct Graph
+			graph = Graph()
+			# Add vertices to graph
+			for busroute in routedict:
+				busroute_len = len(routedict[busroute])
+				for i in range(busroute_len):
+					graph.add_node(routedict[busroute][i][0], busroute)
+			# Add directed edges to graph
+			for busroute in routedict:
+				busroute_len = len(routedict[busroute])
+				for i in range(busroute_len):
+					if routedict[busroute][i][1] != 0:
+							graph.add_directed_edge(routedict[busroute][i][0], routedict[busroute][i+1][0], 
+													routedict[busroute][i][1], busroute, busroute)
+			# Add undirected edges to graph
+			for busstop in busstopdict:
+				busstoptuples = []
+				busservices = busstopdict[busstop]["Services"]
+				for service in busservices:
+					if (busstop, service) in stops_with_repeated_nodes:
+						for i in range(2):
+							busstoptuples.append((busstop + delimiter + str(i), service))
+					else:
+						busstoptuples.append((busstop, service))
+				services_len = len(busstoptuples)
+				for i in range(services_len):
+					for j in range(i + 1, services_len):
+						graph.add_undirected_edge(busstoptuples[i][0], busstoptuples[j][0], \
+												  0, busstoptuples[i][1], busstoptuples[j][1])
+			
+		# =============================================================================
+		#     # Add source supernode
+		#     graph.add_node(source, "START")
+		#     start_arr_times = getarrivaltime(source)
+		#     for service in start_arr_times:
+		#         timing = start_arr_times[service]
+		#         if timing == "Arr":
+		#             timing = 0 
+		#         elif timing == "-" or int(timing) < 0:
+		#             timing = math.inf
+		#         else:
+		#             timing = int(timing)
+		#             
+		#         if service == "D1(To UTown)":
+		#             graph.add_directed_edge(source, source + delimiter + "0", timing, "START", "D1")
+		#         elif service == "D1(To BIZ2)":
+		#             graph.add_directed_edge(source, source + delimiter + "1", timing, "START", "D1")
+		#         elif service == "C(To FOS)":
+		#             graph.add_directed_edge(source, source + delimiter + "0", timing, "START", "C")
+		#         elif service == "C(To KRT)":
+		#             graph.add_directed_edge(source, source + delimiter + "1", timing, "START", "C")
+		#         elif (source == "PRINCE GEORGE'S PARK (PGP)" and service == "A1") or \
+		#              (source == "KENT RIDGE BUS TERMINAL (KR BUS TERMINAL)" and service == "C"):
+		#             graph.add_directed_edge(source, source + delimiter + "0", timing, "START", service)
+		#         else:
+		#             graph.add_directed_edge(source, source, timing, "START", service)
+		# =============================================================================
+				
 # =============================================================================
 #             # Print graph statistics
 #             num_v = 0
@@ -399,58 +426,125 @@ def getpath(sourcelat, sourcelong, destlat, destlong):
 #             print("Number of vertices: " + str(num_v))
 #             print("Number of edges: " + str(num_e) + "\n")
 # =============================================================================
-            
-            # Call Dijkstra's Algorithm
-            first_service = busstopdict[source]["Services"][0]
-            src = graph.get_node(source, first_service)
-            dest = dijkstra(graph, src, destination)
-            if dest == None:
-                print("There is no valid route at the current time.")
-                return
-            else:
-                pathdict = {}
-                path = trace_path(dest)
-                pathdict["Source"] = source
-                pathdict["Destination"] = destination
-                pathdict["Route"] = path
-                pathdict["TravelTime"] = dest.get_dist()
-                pathlist.append(pathdict)
-    
-    returndict = {}
-    count = 0
-    for p in pathlist:
-        print("Source: " + p["Source"] + ", Destination: " + p["Destination"])
-        print("Recommended route:")
-        print(p["Route"])
-        print("Total route time: " + str(p["TravelTime"]) + " mins\n")
-    
-        # Store data in JSON format
-        data = {}
-        waypointslist = [] # list to store all waypoints (busstops)
-        
-        for pair in p["Route"]:
-            busstop = pair[0]    	
-            currentwaypoint = {}
-            currentwaypoint["Name"] = busstop
-            currentwaypoint["Service"] = pair[1]
-            currentwaypoint["Latitude"] = venuedict[busstop][0]
-            currentwaypoint["Longitude"] = venuedict[busstop][1]
-            currentwaypoint["IsBusStop"] = venuedict[busstop][2]
-            # TODO: Add Arrival Timing (live data) [select one]
-            waypointslist.append(currentwaypoint) # add the waypoints to the list
-            
-        now = datetime.datetime.now()
-        eta = now + datetime.timedelta(minutes = p["TravelTime"])
-        data['Source'] = p["Source"]
-        data['Destination'] = p["Destination"]
-        data['Waypoints'] = waypointslist # TODO: return empty list if no route possible
-        data['ETA'] = eta.strftime("%-I:%M %p")
-        returndict[count] = data
-        count += 1
-    
-    json_data = json.dumps(returndict) # create a json object
-    return json_data # return the json object
-        
+			
+			# Call Dijkstra's Algorithm
+			first_service = busstopdict[source]["Services"][0]
+			src = graph.get_node(source, first_service)
+			dest = dijkstra(graph, src, destination)
+			if dest == None:
+				print("There is no valid route at the current time.")
+				return
+			else:
+				pathdict = {}
+				path = trace_path(dest)
+				pathdict["Source"] = source
+				pathdict["Destination"] = destination
+				pathdict["Route"] = path
+				pathdict["TravelTime"] = dest.get_dist()
+				pathlist.append(pathdict)
+	
+	count = 0
+	totaltimelist = [] #to store the time taken for each path
+	for path in pathlist:
+		print("Source: " + path["Source"] + ", Destination: " + path["Destination"])
+		print("Recommended route:")
+		print(path["Route"])
+		print("Total route time: " + str(path["TravelTime"]) + " mins\n")
+
+		totaltime = 0 #sum of time, includes waiting and travel time
+		rawpath = path["Route"]
+		addtraveltime = False #flag for special handling when calculating travel time
+
+		for i in range(len(rawpath)): #iterate through the bus stops of every path
+			busstop, service = rawpath[i]
+			service = service.split(" ")[0] #service.split as we only want D1 and remove (TO BIZ2)
+
+			if i == 0: #source bus stop, query arrival time
+				busarrivaltime = getarrivaltime(busstop, service)
+				if busarrivaltime["arrivalTime"]=="-": #service is not operating
+					print("Service " + service + " is currently not operating at " + busstop + "\n")
+					break #skip this route
+				else:
+					totaltime += int(busarrivaltime["arrivalTime"]) #add bus waiting time at source bus stop
+					print("Service " + service + " is arriving in " + busarrivaltime["arrivalTime"] + " mins at "+ busstop)
+
+			elif busstop==rawpath[i-1][0]: #else if current busstop name is the same as the previous, transfer needed
+				busarrivaltime = getarrivaltime(busstop, service) #contains both arrivalTime and nextArrivalTime
+				if busarrivaltime["arrivalTime"]=="-": #service is not operating
+					print("Service " + service + " is currently not operating at " + busstop + "\n")
+					break #skip this route
+				else:
+					if totaltime < int(busarrivaltime["arrivalTime"]):
+						totaltime += int(busarrivaltime["arrivalTime"]) - totaltime #must subtract current total time for net waiting time
+						print("Service " + service + " is arriving in " + busarrivaltime["arrivalTime"] + " mins at "+ busstop)
+
+					elif totaltime < int(busarrivaltime["nextArrivalTime"]): #cannot make it for the next bus, count subsequent bus instead
+						totaltime += int(busarrivaltime["nextArrivalTime"]) - totaltime #must subtract current total time for net waiting time
+						print("Missed! Subsequent service " + service + " is arriving in " + busarrivaltime["nextArrivalTime"] + " mins at "+ busstop)
+
+					else: #cannot estimate ETA as data for third subsequent bus is not available
+						print("Missed both next and subsequent bus!\n")
+						break #skip this route
+
+			if i!=len(rawpath)-1: #if last bus stop, need to skip adding the last busstop as we are at destination already
+				if busstop!=rawpath[i-1][0] or addtraveltime: #if we are at transit bus stop do not add duplicate unless the transit stop is the last stop of a route
+					for bs, time in routedict[service]: #to get the travel time from one bus stop to another
+						if bs == busstop:#found the busstop
+							print(busstop, time)
+							if int(time) == 0: #special handling as end of bus route so need to still add travel time from last bus stop in route to next bus stop
+								addtraveltime = True
+							else:
+								totaltime += int(time)
+								addtraveltime = False
+							break
+
+			else: #means the calculation is complete, i.e. did not break halfway due to service not operating
+				print("Estimated travel time: " + str(totaltime) + "\n")
+				totaltimelist.append((count, totaltime)) #add (index, totaltime)
+
+		count += 1 #increment counter
+
+	print("No of HTTP Requests: ", len(busarrivaltimedict))
+	busarrivaltimedict.clear() #clear cache for bus arrival time
+
+	if len(totaltimelist)!=0: #if there's a route found
+		besttimetaken = 1000000 #initialise as a large value
+		bestindex = -1 #initialise as a dummy index
+
+		for index, totaltime in totaltimelist:
+			if totaltime < besttimetaken:
+				besttimetaken = totaltime
+				bestindex = index
+
+		# Store best route in JSON format
+		data = {}
+		waypointslist = [] # list to store all waypoints (busstops)
+		path = pathlist[bestindex]
+
+		for pair in path["Route"]:
+			busstop = pair[0]    	
+			currentwaypoint = {}
+			currentwaypoint["Name"] = busstop
+			currentwaypoint["Service"] = pair[1]
+			currentwaypoint["Latitude"] = venuedict[busstop][0]
+			currentwaypoint["Longitude"] = venuedict[busstop][1]
+			currentwaypoint["IsBusStop"] = venuedict[busstop][2]
+			waypointslist.append(currentwaypoint) # add the waypoints to the list
+			
+		now = datetime.datetime.now()
+		eta = now + datetime.timedelta(minutes = besttimetaken)
+		data['Source'] = path["Source"]
+		data['Destination'] = path["Destination"]
+		data['Waypoints'] = waypointslist # TODO: return empty list if no route possible
+		data['ETA'] = eta.strftime("%-I:%M %p")
+
+
+		print("The best route is:")
+		print(path)
+
+	json_data = json.dumps(data) # create a json object
+	return json_data # return the json object
+		
 
 # UNCOMMENT FOR OFFLINE TESTING
 #getpath(1.294823,103.784387, 1.294316, 103.773756)
