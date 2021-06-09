@@ -374,7 +374,10 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 			# Add undirected edges to graph
 			for busstop in busstopdict:
 				busstoptuples = []
-				busservices = busstopdict[busstop]["Services"]
+				rawbusservices = busstopdict[busstop]["Services"] # may include repeated service for 2 directions
+				for i in range(len(rawbusservices)):
+					rawbusservices[i] = rawbusservices[i].split(" ")[0]
+				busservices = list(set(rawbusservices)) # only unique services at each bus stop
 				for service in busservices:
 					if (busstop, service) in stops_with_repeated_nodes:
 						for i in range(2):
@@ -463,7 +466,7 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 
 			if i == 0: #source bus stop, query arrival time
 				busarrivaltime = getarrivaltime(busstop, service)
-				if busarrivaltime["arrivalTime"]=="-": #service is not operating
+				if busarrivaltime["arrivalTime"] == "-" or int(busarrivaltime["arrivalTime"]) < 0: #service is not operating
 					print("Service " + service + " is currently not operating at " + busstop + "\n")
 					break #skip this route
 				else:
@@ -472,7 +475,7 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 
 			elif busstop==rawpath[i-1][0]: #else if current busstop name is the same as the previous, transfer needed
 				busarrivaltime = getarrivaltime(busstop, service) #contains both arrivalTime and nextArrivalTime
-				if busarrivaltime["arrivalTime"]=="-": #service is not operating
+				if busarrivaltime["arrivalTime"] == "-" or int(busarrivaltime["arrivalTime"]) < 0: #service is not operating
 					print("Service " + service + " is currently not operating at " + busstop + "\n")
 					break #skip this route
 				else:
@@ -508,9 +511,10 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 
 	print("No of HTTP Requests: ", len(busarrivaltimedict))
 	busarrivaltimedict.clear() #clear cache for bus arrival time
-
-	if len(totaltimelist)!=0: #if there's a route found
-		besttimetaken = 1000000 #initialise as a large value
+    
+	data = {}
+	if len(totaltimelist) != 0: #if there's a route found
+		besttimetaken = math.inf #initialise to infinity
 		bestindex = -1 #initialise as a dummy index
 
 		for index, totaltime in totaltimelist:
@@ -519,7 +523,7 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 				bestindex = index
 
 		# Store best route in JSON format
-		data = {}
+		
 		waypointslist = [] # list to store all waypoints (busstops)
 		path = pathlist[bestindex]
 
@@ -543,13 +547,13 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 
 		print("The best route is:")
 		print(path)
-
+    
 	json_data = json.dumps(data) # create a json object
 	return json_data # return the json object
 		
 
 # UNCOMMENT FOR OFFLINE TESTING
-#getpath(1.294823,103.784387, 1.294316, 103.773756)
+#getpathusingcoordinates(1.294823, 103.784387, 1.294316, 103.773756)
 #getpath("KENT RIDGE MRT (KR MRT)", "COM 2")
 #getpath("COM 2", "VENTUS (OPP LT13)")
 #print(getarrivaltime("KENT RIDGE MRT (KR MRT)"))
