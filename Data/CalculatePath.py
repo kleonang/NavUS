@@ -230,11 +230,11 @@ def trace_path(node):
 	path.reverse()
 	
 	# Handle unnecessary changes at source node
-	while path[0][0].split(delimiter)[0] == path[1][0].split(delimiter)[0]:
+	while len(path) > 1 and path[0][0].split(delimiter)[0] == path[1][0].split(delimiter)[0]:
 		del path[0]
 	
 	# Handle unnecessary changes at end node
-	while path[-1][0].split(delimiter)[0] == path[-2][0].split(delimiter)[0]:
+	while len(path) > 1 and path[-1][0].split(delimiter)[0] == path[-2][0].split(delimiter)[0]:
 		del path[-1]
 	
 	# Manual handling of directions at COM2 and UTown
