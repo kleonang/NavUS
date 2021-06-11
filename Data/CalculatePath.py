@@ -18,7 +18,7 @@ busstopcoordinates={} # Stores coordinates of all bus stops
 busstopdict={} # Stores all the bus stop name, NextBusAlias and bus services
 busarrivaltimedict = {} #acts as a cache for each request, i.e. it will be cleared after every request
 
-#read apiurl
+# Read apiurl
 f = open("nextbusurl.txt", "r")
 apiurl = f.read()
 f.close()
@@ -455,7 +455,7 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 
 	for path in pathlist:
 		print("Source: " + path["Source"] + ", Destination: " + path["Destination"])
-		print("Recommended route:")
+		print("Route waypoints:")
 		print(path["Route"])
 		print("Total route time: " + str(path["TravelTime"]) + " mins\n")
 
@@ -537,8 +537,6 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 				else:
 					allroutelist.append((route, math.inf)) #since there's no ETA just initialise to infinity
 
-
-    
 	data = {} #initialise as empty
 	data['Route'] = []
 	data['ETA'] = ""
@@ -581,12 +579,3 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 # COMMENT OUT BELOW FOR OFFLINE TESTING
 if __name__ == '__main__':
 	app.run(host="0.0.0.0")
-
-# Starting stops for all services
-# KR Bus Terminal: B1, BTC1, C
-# KR MRT: A1E
-# Opp HSSML: B2, D1
-# Opp TCOMS: D2
-# OTH: BTC2
-# PGP: A1, A2
-# Ventus: A2E
