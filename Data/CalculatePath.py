@@ -311,7 +311,6 @@ def getpath(source, destination):
 	dlong = busstopcoordinates[destination][1]
 	return getpathusingcoordinates(slat, slong, dlat, dlong)
 
-
 # COMMENT OUT NEXT LINE FOR OFFLINE TESTING
 @app.route('/getpath/<parameter1>/<parameter2>/<parameter3>') 
 def getpathusingonecoordinate(parameter1, parameter2, parameter3):
@@ -329,8 +328,6 @@ def getpathusingonecoordinate(parameter1, parameter2, parameter3):
 		dlong = parameter3
 
 	return getpathusingcoordinates(slat, slong, dlat, dlong)
-
-
 
 # LATITUDE AND LONGITUDE VERSION (3 nearest bus stops to given lat/long)
 # COMMENT OUT NEXT LINE FOR OFFLINE TESTING
@@ -538,7 +535,7 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 				if etavalid:
 					allroutelist.append((route, totaltime))
 				else:
-					allroutelist.append((route, 100000+totaltime)) #since there's no ETA just initialise to a huge number
+					allroutelist.append((route, math.inf)) #since there's no ETA just initialise to infinity
 
 
     
@@ -557,7 +554,7 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 		# Store best route in JSON format
 		data['Route'] = bestroute
 
-		if besttimetaken > 100000: #this is the route with no ETA
+		if math.isinf(besttimetaken): #this is the route with no ETA
 			data['ETA'] = "-"
 		else:
 			eta = datetime.datetime.now() + datetime.timedelta(minutes = besttimetaken)
@@ -584,3 +581,12 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 # COMMENT OUT BELOW FOR OFFLINE TESTING
 if __name__ == '__main__':
 	app.run(host="0.0.0.0")
+
+# Starting stops for all services
+# KR Bus Terminal: B1, BTC1, C
+# KR MRT: A1E
+# Opp HSSML: B2, D1
+# Opp TCOMS: D2
+# OTH: BTC2
+# PGP: A1, A2
+# Ventus: A2E
