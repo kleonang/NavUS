@@ -1,0 +1,166 @@
+{
+    "A1" : {
+        "Weekdays": {
+            "Start": "0715",
+            "End": "2300"
+        },
+        "Saturdays": {
+            "Start": "0715",
+            "End": "2300"
+        },
+        "SundaysandPH": {
+            "Start": "0900",
+            "End": "2300"
+        }
+    },
+
+    "A1E": {
+        "Weekdays": {
+            "Start": "0730",
+            "End": "1000"
+        },
+        "Saturdays": {
+            "Start": null,
+            "End": null
+        },
+        "SundaysandPH": {
+            "Start": null,
+            "End": null
+        }
+    },
+
+    "A2" : {
+        "Weekdays": {
+            "Start": "0715",
+            "End": "2300"
+        },
+        "Saturdays": {
+            "Start": "0715",
+            "End": "2300"
+        },
+        "SundaysandPH": {
+            "Start": "0900",
+            "End": "2300"
+        }
+    },
+
+    "A2E" :{
+        "Weekdays": {
+            "Start": "1730",
+            "End": "1900"
+        },
+        "Saturdays": {
+            "Start": null,
+            "End": null
+        },
+        "SundaysandPH": {
+            "Start": null,
+            "End": null
+        }
+    },
+
+    "B1" : {
+        "Weekdays": {
+            "Start": "0715",
+            "End": "1900"
+        },
+        "Saturdays": {
+            "Start": null,
+            "End": null
+        },
+        "SundaysandPH": {
+            "Start": null,
+            "End": null
+        }
+    },
+
+    "B2" : {
+        "Weekdays": {
+            "Start": "0715",
+            "End": "2300"
+        },
+        "Saturdays": {
+            "Start": "0730",
+            "End": "1900"
+        },
+        "SundaysandPH": {
+            "Start": null,
+            "End": null
+        }
+    },
+
+    "BTC1" : {
+        "Weekdays": {
+            "Start": "0720",
+            "End": "2130"
+        },
+        "Saturdays": {
+            "Start": "0830",
+            "End": "1230"
+        },
+        "SundaysandPH": {
+            "Start": null,
+            "End": null
+        }
+    },
+
+    "BTC2" : {
+        "Weekdays": {
+            "Start": "0720",
+            "End": "2130"
+        },
+        "Saturdays": {
+            "Start": "0830",
+            "End": "1230"
+        },
+        "SundaysandPH": {
+            "Start": null,
+            "End": null
+        }
+    },
+
+    "C" : {
+        "Weekdays": {
+            "Start": "0715",
+            "End": "2300"
+        },
+        "Saturdays": {
+            "Start": "0730",
+            "End": "1900"
+        },
+        "SundaysandPH": {
+            "Start": null,
+            "End": null
+        }
+    },
+
+    "D1" : {
+        "Weekdays": {
+            "Start": "0715",
+            "End": "2300"
+        },
+        "Saturdays": {
+            "Start": "0715",
+            "End": "2300"
+        },
+        "SundaysandPH": {
+            "Start": "0900",
+            "End": "2300"
+        }
+    },
+
+    "D2" : {
+        "Weekdays": {
+            "Start": "0715",
+            "End": "2300"
+        },
+        "Saturdays": {
+            "Start": "0715",
+            "End": "2300"
+        },
+        "SundaysandPH": {
+            "Start": "0900",
+            "End": "2300"
+        }
+    }
+}
