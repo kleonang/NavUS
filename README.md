@@ -53,10 +53,10 @@ Week           |  Task
 :-------------------------:|:-------------------------:
 4 (31/5 - 6/6)             | Graph Modelling
 5 (7/6 - 13/6)             | Integrate real-time bus arrival timings to graph
-6 (14/6 - 20/6)            | Implement Telegram bot
-7 (21/6 - 27/6)            | Refine Telegram bot
-8 (28/6 - 4/7)             | Design Android UI
-9 (5/7 - 11/7)             | Refine and improve Android UI
+6 (14/6 - 20/6)            | Design Android UI
+7 (21/6 - 27/6)            | Refine and improve Android UI
+8 (28/6 - 4/7)             | Implement Telegram bot
+9 (5/7 - 11/7)             | Refine Telegram bot
 10 (12/7 - 18/7)           | Testing and debugging
 11 (19/7 - 25/7)           | Further testing and debugging, while polishing the application as a whole
 
