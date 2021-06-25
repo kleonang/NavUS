@@ -13,14 +13,26 @@ When you’re trying to look for a classroom and you entered the venue in Google
 ## Demonstration
 Telegram           |  Android App
 :-------------------------:|:-------------------------:
-<img src="https://user-images.githubusercontent.com/35805635/119498649-6d380a80-bd98-11eb-9992-95b0dc00a5a2.png" width="350" height="600"> |  <img src="https://user-images.githubusercontent.com/35805635/119499100-f2bbba80-bd98-11eb-9b49-6a3a276345a0.png" width="350" height="600">
+<img src="https://user-images.githubusercontent.com/35805635/119498649-6d380a80-bd98-11eb-9992-95b0dc00a5a2.png" width="350" height="600"> |  <img src="https://user-images.githubusercontent.com/35805635/123387498-6d5f3c00-d5ca-11eb-8852-bc17b2470ae9.png" width="350" height="600">
+
 
 ## Features
-- **Android UI** for user to enter his source and destination, as well as detailed steps to his destination
-- **Google Maps** interface to show the route
-- **Estimated Time of Arrival (ETA)** taking into account bus arrival/transit times
-- **Shortest path route** from source to destination (via ISB)
-- **Telegram bot** which allows user to enter his source and destination for directions
+- **Android App**
+  - **Dark mode** support
+  - **Estimated Time of Arrival (ETA)** taking into account bus arrival/transit times
+  - **Favourites** list for user to store his frequently visited locations
+  - **Google Maps** interface to show the route
+  - **Multiple routes** suggestions for user to choose from
+  - **Real time** bus arrival information at source and transit bus stops
+  - **Satelite view** for user to quickly identify landmarks
+  - **UI** for user to enter his source and destination, as well as detailed steps to his destination
+
+- **Telegram Bot**
+  - **Estimated Time of Arrival (ETA)** taking into account bus arrival/transit times
+  - **Messaging UI** for user to enter his source and destination, as well as detailed steps to his destination
+  - **Multiple routes** suggestions for user to choose from
+  - **Suggestions** when user enters a typo in the source/destination
+  - **Real time** bus arrival information at source and transit bus stops
 
 ## Implementation Overview
 The **Telegram Bot** provides a chat-like interface for users to query the route to their destination.
