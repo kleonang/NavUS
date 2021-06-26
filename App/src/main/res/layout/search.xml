@@ -4,59 +4,86 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <TableLayout
-        android:id="@+id/mainTable"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginLeft="5dip"
-        android:layout_marginRight="5dip"
-        android:paddingLeft="3dip"
-        android:paddingRight="3dip"
-        android:stretchColumns="*">
 
-        <TableRow>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:paddingLeft="6dp"
+        android:paddingRight="6dp"
+        android:weightSum="2">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:weightSum="10">
+
             <TextView
                 android:id="@+id/sourcelabel"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:gravity="center_vertical"
+                android:layout_weight="3"
                 android:text="@string/source"
-                android:textSize="16sp"
-                android:layout_weight="13"/>
+                android:gravity="center_vertical"
+                android:textSize="18sp" />
+
 
             <EditText
                 android:id="@+id/source"
-                android:layout_width="wrap_content"
+                android:textColor="@color/text_default"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="5"
-                android:gravity="center_vertical"
+                android:layout_weight="7"
                 android:hint="@string/search_hint"
                 android:inputType="text"
-                android:textSize="16sp" />
+                android:drawableEnd="@drawable/cross"
+                android:drawablePadding="8dp"
+                android:textSize="18sp" />
 
-        </TableRow>
-        <TableRow>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:weightSum="10">
+
+
             <TextView
                 android:id="@+id/destinationlabel"
                 android:layout_width="0dp"
+                android:layout_weight="3"
                 android:layout_height="match_parent"
-                android:gravity="center_vertical"
                 android:text="@string/destination"
-                android:textSize="16sp"
-                android:layout_weight="13"/>
+                android:gravity="center_vertical"
+                android:textSize="18sp" />
 
             <EditText
                 android:id="@+id/destination"
-                android:layout_width="wrap_content"
+                android:textColor="@color/text_default"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="5"
+                android:layout_weight="7"
                 android:gravity="center_vertical"
                 android:hint="@string/search_hint"
                 android:inputType="text"
-                android:textSize="16sp" />
-        </TableRow>
+                android:drawableEnd="@drawable/cross"
+                android:drawablePadding="8dp"
+                android:textSize="18sp" />
+        </LinearLayout>
 
-    </TableLayout>
+    </LinearLayout>
+
+    <CheckBox android:id="@+id/exactmatch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/exact_match"/>
+
     <ListView
         android:id="@+id/listresults"
         android:layout_width="match_parent"

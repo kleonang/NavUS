@@ -1,18 +1,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/linearlayout"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MapsActivity"
     android:orientation="vertical"
-    android:weightSum="1">
+    android:scrollbars="vertical"
+    android:weightSum="1"
+    tools:context=".MapsActivity">
 
-    <SearchView
+    <EditText
         android:id="@+id/searchbutton"
+        android:drawableLeft="@drawable/magnifyingglass"
+        android:windowSoftInputMode="stateHidden"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:queryHint="@string/search_hint" />
+        android:layout_height="60dp"
+        android:paddingLeft="10dp"
+        android:drawablePadding="5dp"
+        android:inputType="none"
+        android:background="@android:color/transparent"
+        android:focusable="false"
+        android:hint="@string/search_hint" />
 
 
     <fragment
@@ -20,13 +28,70 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MapsActivity" />
+        tools:context=".MapsActivity">
 
-    <TextView
-        android:id="@+id/directionstext"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="TextView" />
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|top"
+            android:padding="10dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginRight="2dp">
+
+            <ImageButton
+                android:id="@+id/maptypebutton"
+                android:layout_width="39dp"
+                android:layout_height="39dp"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:background="@android:color/transparent"
+                android:src="@drawable/satellite"/>
+
+            <TextView
+                android:id="@+id/maptypelabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="10dp" />
+
+        </FrameLayout>
+    </fragment>
+
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/leftbutton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/lessthan" />
+
+        <TextView
+            android:id="@+id/directionstext"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="8"
+            android:gravity="center_vertical"
+            android:scrollbars="vertical"/>
+
+        <TextView
+            android:id="@+id/eta"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:layout_gravity="center_vertical"/>
+
+        <Button
+            android:id="@+id/rightbutton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/greaterthan" />
+    </LinearLayout>
 
 
 </LinearLayout>

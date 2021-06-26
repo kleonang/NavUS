@@ -6,16 +6,18 @@ public class WayPoint {
     String Longitude;
     String IsBusStop;
     String Service;
+    String BusArrivalTime;
 
     public WayPoint() {
     }
 
-    public WayPoint(String name, String latitude, String longitude, String isBusStop, String service) {
+    public WayPoint(String name, String latitude, String longitude, String isBusStop, String service, String busArrivalTime) {
         Name = name;
         Latitude = latitude;
         Longitude = longitude;
         IsBusStop = isBusStop;
         Service = service;
+        BusArrivalTime = busArrivalTime;
     }
 
     public String getName() {
@@ -56,5 +58,13 @@ public class WayPoint {
 
     public void setService(String service) {
         Service = service;
+    }
+
+    public String getBusArrivalTime() {
+        return BusArrivalTime;
+    }
+
+    public void setBusArrivalTime(String busArrivalTime) {
+        BusArrivalTime = busArrivalTime;
     }
 }
