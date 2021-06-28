@@ -139,7 +139,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
                     //Get shortest path from source to destination
-                    String url = "http://192.168.1.126:5000/getpath/" + source.getLatitude() + "/" + source.getLongitude() + "/" + destination.getLatitude() + "/" + destination.getLongitude();
+                    String url = "http://kleonang.pythonanywhere.com/getpath/" + source.getLatitude() + "/" + source.getLongitude() + "/" + destination.getLatitude() + "/" + destination.getLongitude();
                     //String url = "https://navus-312709.uc.r.appspot.com/getpath/" + source.getLatitude() + "/" + source.getLongitude() + "/" + destination.getLatitude() + "/" + destination.getLongitude();
                     new getbestpath().execute(url);
 
