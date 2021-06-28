@@ -41,11 +41,11 @@ A **Flask Server** will share a common database on `firebase` with the Telegram 
 
 The **Android app** provides a visual interface for the user to enter his destination and suggests a route based on his current location.
 
-<img width="1094" alt="NavUS Graph_v1" src="https://user-images.githubusercontent.com/35778042/120532399-386c2900-c412-11eb-9cdd-efba99bf36f8.png">
-This chart illustrates the graph model currently used for calculating the shortest time taken from a given source and destination. The source in the given diagram is "KR MRT". A "supernode" is constructed (with outgoing edges representing the bus arrival times leading to their respective services) that serves as a starting point for running the shortest path algorithm. 
+<img width="975" alt="NavUS Graph_static" src="https://user-images.githubusercontent.com/35778042/123673505-1fb92c80-d873-11eb-80ad-59da9ef6326b.png">
+This chart illustrates the graph model currently used for calculating the shortest time taken from a given source and destination. The source in the given diagram is "KR MRT" on service D2, assuming that service D2 is in operation.
 
 
-_Note: Variables a, b, c, d, e, f, g, h, i, j represent live bus arrival timings. Edges without variables are weighted with static bus travel times._
+_Note: Unlabelled edges are weighted with static travel times._
 
 ## Comparisons with existing applications
 **NUS NextBus** app provides us with the bus routes and arrival times of buses but assumes you know the closest bus stop to your destination. Also, there is no functionality to enter a bus stop and be guided from your location.
@@ -81,6 +81,7 @@ The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Fi
   - `InsertBusStops.py` is used to populate Firebase at the `/BusStops` reference. It contains all the bus stop's *Name*, *NextBusAlias* (used to query for bus arrival timings) and *Services* (used to determine the bus services at each bus stop).
   - `InsertVenue.py` is used to populate Firebase at the `/Venues` reference. It contains all the venue's *Name*, *Latitude*, *Longitude* and *IsBusStop* (used to determine if a venue is a bus stop).
   - `CalculatePath.py` constructs a graph with vertices representing a unique busstop and service combination and weighted edges representing the travel time between vertices. Dijkstra's Algorithm is used to calculate the shortest path from the given source to the given destination, and the `getpath` method returns this information in `JSON` format.
+  - `VenueFinder.py` queries the NUSMods API for the list of lesson venues in a given Academic Year and Semester, then scrapes the NUSMods website to get the coordinates (latitude and longitude) of all available venues.
 
 - `JSON Files`
   - `BusOperatingHours.json` contains the bus *operating hours*.
