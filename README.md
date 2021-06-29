@@ -139,6 +139,6 @@ The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Fi
   - `BusStop.json` contains the bus stop's *Name*, *NextBusAlias* and *Services*.
   - `Venue List.json` contains the venue's *Name*, *Latitude*, *Longitude* and *IsBusStop*.
 
-The `App` directory contains the code for the `Android` application. Update `App\src\main\java\com\example\navus\APIKeys.java` with your Firebase's URL and `App\src\debug\res\values\google_maps_api.xml` with your Google map API key.
+The `App` directory contains the code for the `Android` application. Update `App\src\main\java\com\example\navus\APIKeys.java` with your Firebase's URL and `App\src\debug\res\values\google_maps_api.xml` with your Google map API key. Add `google_services.json` downloaded from Firebase Console to the `App` directory.
 
 The `APK` file can be downloaded [here](https://github.com/alvintan01/NavUS/raw/main/App/NavUS.apk).
