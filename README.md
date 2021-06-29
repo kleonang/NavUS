@@ -36,7 +36,7 @@ Telegram           |  Android App
 
 ## UI Screenshots
 ### Android UI
-Screen Name                | Image                     | Description
+Screen Name                | Demonstration            | Description
 :-------------------------:|:-------------------------|:-------------------------
 Splash                     | <img src="https://user-images.githubusercontent.com/35805635/123784797-64dc6d80-d90a-11eb-890b-69084903e2ca.gif"> | <ul><li>Screen shown when user launches the application</li></ul>
 Main                        | <img src="https://user-images.githubusercontent.com/35805635/123784805-673ec780-d90a-11eb-8760-d8bd121b23df.gif"> | <ul><li>All bus stops around NUS are shown to the user</li><li>Users can tap on any of the bus stop to view the location and name of that bus stop</li></ul>
@@ -51,6 +51,9 @@ The **Telegram Bot** provides a chat-like interface for users to query the route
 A **Flask Server** will share a common database on `firebase` with the Telegram Bot as well as the Android app and provide the functionality of computing the route from the user’s location to destination.
 
 The **Android app** provides a visual interface for the user to enter his destination and suggests a route based on his current location.
+![NavUS Implementation](https://user-images.githubusercontent.com/35805635/123807030-16d36400-d922-11eb-92a8-57c6214f3b6b.png)
+The figure above illustrates how the backend of NavUS is implemented.
+
 
 <img width="975" alt="NavUS Graph_static" src="https://user-images.githubusercontent.com/35778042/123673505-1fb92c80-d873-11eb-80ad-59da9ef6326b.png">
 This chart illustrates the graph model currently used for calculating the shortest time taken from a given source and destination. The source in the given diagram is "KR MRT" on service D2, assuming that service D2 is in operation.
