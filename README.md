@@ -34,6 +34,18 @@ Telegram           |  Android App
   - **Suggestions** when user enters a typo in the source/destination
   - **Real time** bus arrival information at source and transit bus stops
 
+## UI Screenshots
+### Android UI
+Screen Name                | Image                     | Description
+:-------------------------:|:-------------------------|:-------------------------
+Splash                     | <img src="https://user-images.githubusercontent.com/35805635/123784797-64dc6d80-d90a-11eb-890b-69084903e2ca.gif"> | <ul><li>Screen shown when user launches the application</li></ul>
+Main                        | <img src="https://user-images.githubusercontent.com/35805635/123784805-673ec780-d90a-11eb-8760-d8bd121b23df.gif"> | <ul><li>All bus stops around NUS are shown to the user</li><li>Users can tap on any of the bus stop to view the location and name of that bus stop</li></ul>
+Search                      | <img src="https://user-images.githubusercontent.com/35805635/123784462-0a431180-d90a-11eb-89e1-a926509e48aa.gif"> | <ul><li>Source is populated with user's location if he enabled location services</li><li>Users can type in part of his destination and be suggested with his destination name</li><li>Users can tap on star icon to add the venue to his favourites.</li><li>Favourites will be shown at the top the next time when the user searches for his destination</li></ul>
+Route Selection             | <img src="https://user-images.githubusercontent.com/35805635/123786796-aff78000-d90c-11eb-8229-ba570de2f2b4.gif"> | <ul><li>Users can make use of the left and right arrow keys to select their route</li><li>ETA gives the user an estimate of what time he will arrive at his destination</li><li>Number of transits informs the number of times the user must switch buses throughout his route.</li></ul>
+Route                       | <img src="https://user-images.githubusercontent.com/35805635/123788655-db7b6a00-d90e-11eb-8c5d-e690983fb4e8.gif"> | <ul><li>Users will be asked to head to their source bus stop</li><li>The arrival timing of the buses will be shown to the user</li><li>Users will be informed where to alight for transits via a blue pin as well as the arrival timing of the transit bus service if applicable</li><li>Users will be informed of the bus stop to alight at</li><li>Users will be shown the location of their destination via a red pin and instructed to walk to their destination</li><li>ETA gives the user an estimate of what time he will arrive at his destination</li></ul>
+
+
+
 ## Implementation Overview
 The **Telegram Bot** provides a chat-like interface for users to query the route to their destination.
 
@@ -124,4 +136,4 @@ The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Fi
 
 The `App` directory contains the code for the `Android` application. Update `App\src\main\java\com\example\navus\APIKeys.java` with your Firebase's URL and `App\src\debug\res\values\google_maps_api.xml` with your Google map API key.
 
-The `APK` file can be downloaded [here](https://github.com/alvintan01/NavUS/blob/main/App/NavUS.apk).
+The `APK` file can be downloaded [here](https://github.com/alvintan01/NavUS/raw/main/App/NavUS.apk).
