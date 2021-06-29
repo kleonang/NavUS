@@ -47,6 +47,39 @@ This chart illustrates the graph model currently used for calculating the shorte
 
 _Note: Unlabelled edges are weighted with static travel times._
 
+### Firebase Data Structure
+- BusOperatingHours
+  - Service (A1, A2, ...)
+    - Saturdays
+      - Start (String)
+      - End (String)
+    - SundaysandPH
+      - Start (String)
+      - End (String)
+    - Weekdays
+      - Start (String)
+      - End (String)
+- BusRoutes
+  - Service (A1, A2, ...)
+    - ID
+      - Direction (String)
+      - Name (String)
+      - Time (String)
+- BusStops
+  - ID
+    - Name (String)
+    - NextBusAlias (String)
+    - Services (JSONArray String)
+- LastUpdated
+  - 1
+    -   UpdatedDate (String datetime)
+- Venues
+  - ID
+    - IsBusStop (String true/false)
+    - Latitude (String)
+    - Longitude (String)
+    - Name (String)
+
 ## Comparisons with existing applications
 **NUS NextBus** app provides us with the bus routes and arrival times of buses but assumes you know the closest bus stop to your destination. Also, there is no functionality to enter a bus stop and be guided from your location.
 
@@ -90,3 +123,5 @@ The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Fi
   - `Venue List.json` contains the venue's *Name*, *Latitude*, *Longitude* and *IsBusStop*.
 
 The `App` directory contains the code for the `Android` application. Update `App\src\main\java\com\example\navus\APIKeys.java` with your Firebase's URL and `App\src\debug\res\values\google_maps_api.xml` with your Google map API key.
+
+The `APK` file can be downloaded [here](https://github.com/alvintan01/NavUS/blob/main/App/NavUS.apk).
