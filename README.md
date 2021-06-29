@@ -95,7 +95,7 @@ _Note: Unlabelled edges are weighted with static travel times._
     - Name (String)
 
 ## Testing
-Currently, we had generated a script to test all possible source and destination to ensure that our server is capable of handling simultaneous requests and does not run into any errors. We have also fixed bugs found in the Android application and improved the UI based on feedback.
+Currently, we had generated a script to test all the possible sources and destinations to ensure that our server is capable of handling simultaneous requests and does not run into any errors. We have also fixed bugs found in the Android application and improved the UI based on feedback. We plan to get more users to try out the application.
 
 ## Comparisons with existing applications
 **NUS NextBus** app provides us with the bus routes and arrival times of buses but assumes you know the closest bus stop to your destination. Also, there is no functionality to enter a bus stop and be guided from your location.
