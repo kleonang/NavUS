@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">NavUS</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_splash_screen">SplashScreen</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="source">Source:</string>
+    <string name="destination">Destination:</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="search_hint">Search for a place</string>
+    <string name="title_activity_search">search</string>
+    <string name="route_server_unavailable">Could not connect to route server. Please try again later.</string>
+    <string name="google_server_unavailable">Could not connect to Google\'s server. Please try again later.</string>
+    <string name="calculating_route">Calculating Route</string>
+    <string name="enable_location">Please enable location services to avoid entering your source.</string>
+    <string name="lessthan">&lt;</string>
+    <string name="greaterthan">&gt;</string>
+    <string name="no_route_found">No route found.</string>
+    <string name="no_eta_available">Not available as there is no information on the third and subsequent buses.</string>
+    <string name="na">NA</string>
+    <string name="walk_to_destination">You are within walking distance to your destination.</string>
+    <string name="route">&lt;b&gt;Route %1$d of %2$d&lt;/b&gt;&lt;br /&gt;ETA: %3$s&lt;br /&gt;No of transits: %4$d</string>
+    <string name="select">Select</string>
+    <string name="reattempt">Reattempting to connect to server.</string>
+    <string name="reattempt2">Reattempting to connect to server again.</string>
+    <string name="eta">ETA: </string>
+    <string name="map">Map</string>
+    <string name="satellite">Satellite</string>
+    <string name="board">Board %1$s arriving in %2$s mins at %3$s</string>
+    <string name="alight">Alight at %1$s</string>
+    <string name="transfer">Transfer from %1$s to %2$s at %3$s\nArriving at %4$s</string>
+    <string name="back_again">Tap back again to exit the NavUS</string>
+    <string name="your_location">YOUR LOCATION</string>
+    <string name="exact_match">Exact match for source (if applicable) and destination</string>
+    <string name="head_to">Head to %1$s</string>
+    <string name="walk_from">Walk from %1$s to %2$s</string>
+</resources>
