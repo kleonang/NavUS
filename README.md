@@ -125,7 +125,7 @@ Week           |  Task
 ## Setup Instructions
 The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Firebase, as well as 1 `Python3` file for the logic of the path calculation and 1 `Python3` file used to collect venue data. Before running the scripts, ensure that `firebase.json` is replaced with yours downloaded from the `Firebase Console`. Also, edit the file `firebaseurl.txt` to your Firebase's URL from the `Firebase Console`.
 
-- ### `Python3 Scripts`
+- ### `Python3` Scripts
   - `InsertBusOperatingHours.py` is used to populate Firebase at the `/BusOperatingHours` reference. It contains all the bus operating hours on *Weekdays*, *Saturdays*, and *Sundays and Public Holidays*.
   - `InsertBusRoutes.py` is used to populate Firebase at the `/BusRoutes` reference. It contains all the bus *routes* as well as the *time taken* to travel to the next busstop.
   - `InsertBusStops.py` is used to populate Firebase at the `/BusStops` reference. It contains all the bus stop's *Name*, *NextBusAlias* (used to query for bus arrival timings) and *Services* (used to determine the bus services at each bus stop).
@@ -133,7 +133,7 @@ The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Fi
   - `CalculatePath.py` constructs a graph with vertices representing a unique busstop and service combination and weighted edges representing the travel time between vertices. Dijkstra's Algorithm is used to calculate the shortest path from the given source to the given destination, and the `getpath` method returns this information in `JSON` format.
   - `VenueFinder.py` queries the NUSMods API for the list of lesson venues in a given Academic Year and Semester, then scrapes the NUSMods website to get the coordinates (latitude and longitude) of all available venues.
 
-- ### `JSON Files`
+- ### `JSON` Files
   - `BusOperatingHours.json` contains the bus *operating hours*.
   - `BusRoutes.json` contains the bus *routing information* and *time taken* to each stop.
   - `BusStop.json` contains the bus stop's *Name*, *NextBusAlias* and *Services*.
