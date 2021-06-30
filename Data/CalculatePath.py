@@ -418,7 +418,7 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 		dests.append(d[1])
 
 	for destination in dests:
-		for source in sources:
+		for source in sources:			
 			graph = copy.deepcopy(mastergraph)
 			# Get first available service at source bus stop
 			all_services = set(busstopdict[source]["Services"])
@@ -427,10 +427,19 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 				print("There are currently no services operating at " + source + ".")
 				continue
 			first_service = list(available_services)[0]
-			src = graph.get_node(source, first_service)
+			# Continue if trivial case of source and destination being the same
+			if source == destination:
+				p = {}
+				p["Route"] = [(source, first_service)]
+				p["RouteLength"] = 1
+				p["TravelTime"] = 0
+				p["Source"] = source
+				p["Destination"] = destination
+				pathlist.append(p)
+				continue
+			src = graph.get_node(source, first_service) if (source, first_service) not in stops_with_repeated_nodes else graph.get_node(source + delimiter + "0", first_service)
 			# Call Dijkstra's Algorithm
 			pathdicts = dijkstra(graph, src, destination)
-
 			if pathdicts == None:
 				print("There is no valid route at the current time.")
 				continue
