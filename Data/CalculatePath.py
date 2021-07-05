@@ -3,19 +3,21 @@
 # pip3 install Flask
 # pip3 install holidays
 # pip3 install requests
+# pip3 install aiohttp
 
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
-import json, requests
+import json
 import math
 import heapq
 import datetime
 import holidays
 import copy
+import asyncio
+import aiohttp
 import os
 import time
-from time import sleep
 from flask import Flask
 app = Flask(__name__)
 
@@ -57,36 +59,39 @@ def checkoperatingservices():
 
 
 # REALTIME DATA
-#function to get arrival time of buses
-def getarrivaltime(busstop, service):
-	for i in range(3): #retry 3 times
-		try:
-			if busstop in busarrivaltimedict: #cached, so check query time
-				if gettime() - busarrivaltimedict[busstop]["QueryTime"] < datetime.timedelta(minutes=1): #less than 1 min
-					return busarrivaltimedict[busstop][service]
+# Fetches live bus arrival times from NextBus API
+async def fetcharrivaltime(session, busstop):
+	if busstop in busarrivaltimedict: #cached, so check query time
+		if gettime() - busarrivaltimedict[busstop]["QueryTime"] < datetime.timedelta(minutes=1): #less than 1 min
+			# Do nothing if busstop is in busarrivaltimedict and updated <1 min ago	
+			return
+	
+	busarrivaltimedict[busstop] = {} #initialise as empty dict
+	busarrivaltimedict[busstop]["QueryTime"] = gettime() #set query time
+	async with session.get(apiurl + busstopdict[busstop]["NextBusAlias"], timeout=10) as response:
+		data = await response.json(content_type='text/html')
+		for busroute in data["ShuttleServiceResult"]["shuttles"]:
+			# Handle Arr case
+			if busroute["arrivalTime"] == "Arr":
+				busroute["arrivalTime"] = "0"
+			if busroute["nextArrivalTime"] == "Arr":
+				busroute["nextArrivalTime"] = "0"
+			# Handle negative case
+			if busroute["arrivalTime"] != "-" and int(busroute["arrivalTime"]) < 0:
+				busroute["arrivalTime"] = "-"
+			if busroute["arrivalTime"] != "-" and int(busroute["nextArrivalTime"]) < 0:
+				busroute["nextArrivalTime"] = "-"
+			busservice = busroute["name"].upper().replace(" ", "")#to capitalise D1 (To BIZ 2) etc and remove spaces
+			busarrivaltimedict[busstop][busservice] = {"arrivalTime": busroute["arrivalTime"], "nextArrivalTime": busroute["nextArrivalTime"]}
+		return
 
-			busarrivaltimedict[busstop] = {} #initialise as empty dict
-			busarrivaltimedict[busstop]["QueryTime"] = gettime() #set query time
-			response = requests.get(apiurl + busstopdict[busstop]["NextBusAlias"], timeout=10) #make a request to the url
-			if response.status_code == 200: #request successful
-
-				data = json.loads(response.text)
-				for busroute in data["ShuttleServiceResult"]["shuttles"]:
-					#handle Arr case
-					if busroute["arrivalTime"] == "Arr":
-						busroute["arrivalTime"] = "1"
-					if busroute["nextArrivalTime"] == "Arr":
-						busroute["nextArrivalTime"] = "1"
-
-					busservice = busroute["name"].upper().replace(" ", "")#to capitalise D1 (To BIZ 2) etc and remove spaces
-					busarrivaltimedict[busstop][busservice] = {"arrivalTime": busroute["arrivalTime"], "nextArrivalTime": busroute["nextArrivalTime"]}
-			return busarrivaltimedict[busstop][service]
-		except Exception as e:
-			print("Error getting bus arrival timings at " + busstop + ", service " + service + ". Exception is " + str(e))
-			sleep(1) #to delay retry
-
-	#return as - to prevent crash
-	return {"arrivalTime": "-", "nextArrivalTime": "-"}
+# Get live bus arrival times asynchronously
+async def getarrivaltimes(stopstoquery):
+	async with aiohttp.ClientSession() as session:
+		tasks = []
+		for stop in stopstoquery:
+			tasks.append(asyncio.ensure_future(fetcharrivaltime(session, stop)))
+		await asyncio.gather(*tasks)
 
 # Node class to store bus stops
 class Node:
@@ -325,10 +330,6 @@ def constructmastergraph(operatingservices):
 				mastergraph.add_undirected_edge(busstoptuples[i][0], busstoptuples[j][0], \
 											  0, busstoptuples[i][1], busstoptuples[j][1])
 
-	#if mastergraph == Graph():
-	#	print("No buses are currently in service.\n")
-	#	return
-
 	# Print graph statistics
 	num_v = 0
 	num_e = 0
@@ -459,6 +460,22 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 	print()
 
 	allroutelist = [] #to store the all route information, and total travel time in a tuple
+	
+	# ASYNC WORKFLOW
+	# 1. Get set of all bus stops to be queried
+	# 2. Query NextBus API for all bus stops in set asynchronously into dict
+	# 3. After awaiting all http queries, in loop below, all data to be queried from dict
+	
+	stopstoquery = set()
+	
+	for path in pathlist:
+		route = path["Route"]
+		for i in range(len(route) - 1):
+			if len(route) > 1 and (i == 0 or route[i][0] == route[i + 1][0]):
+				stopstoquery.add(route[i][0])
+	stopstoquery = list(stopstoquery)
+	asyncio.run(getarrivaltimes(stopstoquery))
+	
 	for path in pathlist:
 		print("Source: " + path["Source"] + ", Destination: " + path["Destination"])
 		print("Route waypoints:")
@@ -483,13 +500,12 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 				totaltime += walkingtime
 				print("Walking time to " + busstop +" is", str(walkingtime))
 
-
-			if (i==0 or busstop==rawpath[i-1][0]) and len(rawpath) > 1: # if source bus stop or current busstop name is the same as the previous, transfer needed
-				bustimings = getarrivaltime(busstop, servicewithoutspaces) #contains both arrivalTime and nextArrivalTime
+			if (i==0 or busstop==rawpath[i-1][0]) and len(rawpath) > 1: # if source bus stop or current busstop name is the same as the previous (transfer needed)
+				bustimings = busarrivaltimedict[busstop][servicewithoutspaces] #contains both arrivalTime and nextArrivalTime
 				if bustimings["arrivalTime"] == "-" or int(bustimings["arrivalTime"]) < 0: #service is not operating
 					print("Service " + service + " is currently not operating at " + busstop + "\n")
 					break #skip this route
-				else:
+				else: #service is operating
 					if totaltime < int(bustimings["arrivalTime"]):
 						busarrivaltime = bustimings["arrivalTime"]
 						totaltime += int(busarrivaltime) - totaltime #must subtract current total time for net waiting time
@@ -501,7 +517,10 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 						print("Missed! Subsequent service " + service + " is arriving in " + busarrivaltime + " mins at "+ busstop)
 
 					else: #cannot estimate ETA as data for third subsequent bus is not available
-						print("Missed both next and subsequent bus! Service " + service + " next bus is arriving in " + bustimings["arrivalTime"] + " mins and subsequent bus is arriving in " + bustimings["nextArrivalTime"]  +" mins! No ETA available.\n")
+						print("Missed both next and subsequent bus! Service " + service + \
+							" next bus is arriving in " + bustimings["arrivalTime"] + \
+							" mins and subsequent bus is arriving in " + bustimings["nextArrivalTime"] + \
+							" mins! No ETA available.\n")
 						etavalid = False #invalidate ETA
 
 			elif i==len(rawpath)-1: #destination bus stop
@@ -528,13 +547,12 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 
 			if i!=len(rawpath)-1: #if last bus stop, need to skip adding the last busstop as we are at destination already
 				if busstop!=rawpath[i-1][0] or addtraveltime: #if we are at transit bus stop do not add duplicate unless the transit stop is the last stop of a route
-					for bs, time, direction in routedict[rawservice]: #to get the travel time from one bus stop to another
+					for bs, timing, direction in routedict[rawservice]: #to get the travel time from one bus stop to another
 						if bs == busstop:#found the busstop
-							#print(busstop, time)
-							if int(time) == 0: #special handling as end of bus route so need to still add travel time from last bus stop in route to next bus stop
+							if int(timing) == 0: #special handling as end of bus route so need to still add travel time from last bus stop in route to next bus stop
 								addtraveltime = True
 							else:
-								totaltime += int(time)
+								totaltime += int(timing)
 								addtraveltime = False
 							break
 
@@ -545,10 +563,7 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 				else:
 					allroutelist.append((route, 100000+totaltime)) #since there's no ETA just initialise to a huge number
 
-
-
 	allroutelist = sorted(allroutelist, key=lambda x: x[1]) #sort all routes by time
-
 
 	if len(allroutelist) != 0: #if there's a route found
 		sourcedestlist = [] #list for matching source and destination
@@ -614,8 +629,6 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 				eta = gettime() + datetime.timedelta(minutes = totaltime)
 				data[i]['ETA'] = eta.strftime("%-I:%M %p")
 
-
-
 	print("No of HTTP Requests: ", len(busarrivaltimedict))
 	allroutelist.clear() #clear route list for next query
 	pathlist.clear() #clear path list for next query
@@ -623,9 +636,7 @@ def getpathusingcoordinates(sourcelat, sourcelong, destlat, destlong):
 	json_data = json.dumps(data) # create a json object
 	return json_data # return the json object
 
-
-
-
+# DECLARE GLOBAL VARIABLES
 routedict={} # Stores bus route as key and value as list of pairs
 venuedict={} # Stores all venue names including Bus Stops as key and latitude, longitude as pairs
 busstopcoordinates={} # Stores coordinates of all bus stops
@@ -640,7 +651,6 @@ numdests = 3
 
 # Delimiter to append id to repeated nodes
 delimiter = "_"
-
 
 # Read apiurl
 f = open("nextbusurl.txt", "r")
@@ -711,7 +721,6 @@ for service in json_array: # loop through each item
 			busoperatinghoursdict[service][day] = {} # initalise as dictionary
 			for startend in json_array[service][day]: #to get the start and end timings
 				busoperatinghoursdict[service][day][startend] = json_array[service][day][startend] #store to busoperatinghoursdict
-
 
 # Store coordinates of bus stops in busstopcoordinates
 for venue in venuedict:
