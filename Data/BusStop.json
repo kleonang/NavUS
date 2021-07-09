@@ -51,7 +51,8 @@
         "Services": [
             "A1",
             "A2",
-            "D1"
+            "D1 (To BIZ 2)",
+            "D1 (To UTOWN)"
         ]
     },
     "7": {
@@ -282,7 +283,8 @@
         "Services": [
             "B1",
             "B2",
-            "C",
+            "C (To FOS)",
+            "C (To KRT)",
             "D1",
             "D2"
         ]
