@@ -5,18 +5,27 @@
 
     <TextView
         android:id="@+id/listviewtext"
-        android:layout_width="wrap_content"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:textSize="20sp"
-        android:layout_weight="99"
+        android:layout_weight="98"
         android:paddingLeft="10dp"
         android:layout_gravity="center"
         />
 
     <ImageView
+        android:id="@+id/busstopicon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:paddingRight="10dp"/>
+
+    <ImageView
         android:id="@+id/favouriteicon"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_gravity="center"
         android:layout_weight="1"
         android:paddingRight="10dp"/>
 

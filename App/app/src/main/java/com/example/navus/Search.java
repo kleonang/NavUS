@@ -22,21 +22,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SearchView;
 
+import java.io.SyncFailedException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import tourguide.tourguide.Overlay;
+import tourguide.tourguide.Pointer;
+import tourguide.tourguide.ToolTip;
+import tourguide.tourguide.TourGuide;
 
 public class Search extends AppCompatActivity {
     private static final String TAG = "MyActivity";
@@ -47,6 +59,11 @@ public class Search extends AppCompatActivity {
     Boolean validsource = false; //flag to know if source is valid
     Boolean validdestination = false; //flag to know if destination is valid
     EditText sourceedittext, destinationedittext;
+    SharedPreferences.Editor editor;
+    Deque<String> history = new LinkedList<>();
+    Deque<String> favourites = new LinkedList<>();
+    TourGuide mTourGuideHandler;
+    int guideid = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +78,7 @@ public class Search extends AppCompatActivity {
         //ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, venue_list);
         CustomArrayAdapter arrayAdapter = new CustomArrayAdapter(this, venue_list);
         listView.setAdapter(arrayAdapter);
+
 
         if (LocationEnabled==true){
             sourceedittext.setText(getString(R.string.your_location));
@@ -95,9 +113,57 @@ public class Search extends AppCompatActivity {
         populatelist("");//populate list initially
         arrayAdapter.notifyDataSetChanged();//refresh listview
 
+        if (guideid==1) {
+            guideuser(guideid);
+            destinationedittext.requestFocus();//so that tooltip will close when user taps on source
+        }
+
+        View.OnTouchListener source_on_touch_listener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_UP && sourceedittext.getCompoundDrawables()[2] != null) {
+                    if(event.getRawX() >= (sourceedittext.getRight() - sourceedittext.getCompoundDrawables()[2].getBounds().width())) {
+                        // clear text and hide icon
+                        sourceedittext.setText("");
+                        sourceedittext.setCompoundDrawables(null,null, null, null);
+                        sourceedittext.requestFocus();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
+
+        View.OnTouchListener destination_on_touch_listener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_UP && destinationedittext.getCompoundDrawables()[2] != null) {
+                    if(event.getRawX() >= (destinationedittext.getRight() - destinationedittext.getCompoundDrawables()[2].getBounds().width())) {
+                        // clear text and hide icon
+                        destinationedittext.setText("");
+                        destinationedittext.setCompoundDrawables(null,null, null, null);
+                        destinationedittext.requestFocus();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
+
+
+        sourceedittext.setOnTouchListener(source_on_touch_listener);
+        destinationedittext.setOnTouchListener(destination_on_touch_listener);
+
         sourceedittext.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
+                if (guideid==1) {
+                    mTourGuideHandler.cleanUp(); //clear source explanation
+                    sourceedittext.setOnTouchListener(source_on_touch_listener);//reset to allow the "x" button to work
+                    destinationedittext.setOnTouchListener(destination_on_touch_listener);
+                    guideid++;
+                    guideuser(guideid);
+                }
                 issource = true;
                 //populate list view
                 populatelist(sourceedittext.getText().toString());
@@ -153,25 +219,17 @@ public class Search extends AppCompatActivity {
         });
 
 
-        sourceedittext.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_UP && sourceedittext.getCompoundDrawables()[2] != null) {
-                    if(event.getRawX() >= (sourceedittext.getRight() - sourceedittext.getCompoundDrawables()[2].getBounds().width())) {
-                        // clear text and hide icon
-                        sourceedittext.setText("");
-                        sourceedittext.setCompoundDrawables(null,null, null, null);
-                        sourceedittext.requestFocus();
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-
         destinationedittext.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
+                if (guideid==2) {
+                    mTourGuideHandler.cleanUp(); //clear destination explanation
+                    sourceedittext.setOnTouchListener(source_on_touch_listener);//reset to allow the "x" button to work
+                    destinationedittext.setOnTouchListener(destination_on_touch_listener);
+                    guideid++;
+                    editor.putInt("GuideID", guideid);
+                    editor.commit(); //save data
+                }
                 issource = false;
                 //populate list view
                 populatelist(destinationedittext.getText().toString());
@@ -217,23 +275,6 @@ public class Search extends AppCompatActivity {
             }
         });
 
-        destinationedittext.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(event.getAction() == MotionEvent.ACTION_UP && destinationedittext.getCompoundDrawables()[2] != null) {
-                    if(event.getRawX() >= (destinationedittext.getRight() - destinationedittext.getCompoundDrawables()[2].getBounds().width())) {
-                        // clear text and hide icon
-                        destinationedittext.setText("");
-                        destinationedittext.setCompoundDrawables(null,null, null, null);
-                        destinationedittext.requestFocus();
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-
-
 
         listView.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
             @Override
@@ -247,7 +288,8 @@ public class Search extends AppCompatActivity {
                 }else{
                     destinationedittext.setText(venueselected);
                     destinationedittext.setSelection(destinationedittext.getText().length());//set cursor to end
-                    sourceedittext.requestFocus();
+                    if (!validsource)
+                        sourceedittext.requestFocus();
                     issource=true;
                 }
             }
@@ -256,8 +298,8 @@ public class Search extends AppCompatActivity {
     }
 
     void populatelist(String search){
-        Map<String, String> favourites = new HashMap<String, String>(); //using map so it is easier to find if a value exists rather than looping through
-
+        favourites.clear();
+        history.clear();
         venue_list.clear();
         if (LocationEnabled && issource){ //add your location option if user enabled location
             venue_list.add(getString(R.string.your_location));
@@ -265,17 +307,31 @@ public class Search extends AppCompatActivity {
 
         if (search.equals("")){ //empty search, add favourites on top
             SharedPreferences sharedpreferences = getSharedPreferences("MySharedPreference", MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedpreferences.edit();
+            editor = sharedpreferences.edit();
             String favouritestring = sharedpreferences.getString("Favourites", "");
+            if (guideid==0) //first launch
+                guideid = sharedpreferences.getInt("GuideID", 1);
 
             if (!favouritestring.equals("")) { //if favourites exists
                 for (String fav: favouritestring.split(",")){ //populate the favourites
-                    favourites.put(fav, "");//empty string as placeholder
+                    favourites.add(fav);
                     venue_list.add(fav); //add favourites first
                 }
             }
+            //Get search history
+            String searchhistory = sharedpreferences.getString("SearchHistory", "");
+
+            if (!searchhistory.equals("")) { //if userhistory exists
+                for (String hist: searchhistory.split(",")){ //populate the history
+                    if (!favourites.contains(hist) && !history.contains(hist)){ //ensure it is not in favourites and history
+                        history.add(hist);
+                        venue_list.add(hist);
+                    }
+                }
+            }
+
             for (String key : venuedict.keySet()) {
-                if (!favourites.containsKey(key)){ //if venue is not in favourites list then add it
+                if (!favourites.contains(key) && !history.contains(key)){ //if venue is not in favourites list and history then add it
                     venue_list.add(key);
                 }
             }
@@ -287,14 +343,20 @@ public class Search extends AppCompatActivity {
                 }
             }
         }
+
         //sort the list
         if (LocationEnabled && issource){
-           // Collections.sort(venue_list.subList(1 + favourites.size(), venue_list.size())); //sort the list except YOUR LOCATION and favourites at the top
-
-            Collections.sort(venue_list.subList(1 + favourites.size(), venue_list.size()), new AlphanumComparator(String.CASE_INSENSITIVE_ORDER));
+             //sort the list except YOUR LOCATION and favourites and history at the top
+            if (search.equals(""))
+                Collections.sort(venue_list.subList(1 + favourites.size() + history.size(), venue_list.size()), new AlphanumComparator(String.CASE_INSENSITIVE_ORDER));
+            else
+                Collections.sort(venue_list.subList(1, venue_list.size()), new AlphanumComparator(String.CASE_INSENSITIVE_ORDER));
         }else{
-            //Collections.sort(venue_list.subList(favourites.size(), venue_list.size())); //sort the list except favourites at the top
-            Collections.sort(venue_list.subList(favourites.size(), venue_list.size()), new AlphanumComparator(String.CASE_INSENSITIVE_ORDER));
+            //sort the list except favourites and history at the top
+            if (search.equals(""))
+                Collections.sort(venue_list.subList(favourites.size() + history.size(), venue_list.size()), new AlphanumComparator(String.CASE_INSENSITIVE_ORDER));
+            else
+                Collections.sort(venue_list, new AlphanumComparator(String.CASE_INSENSITIVE_ORDER));
         }
     }
 
@@ -305,10 +367,63 @@ public class Search extends AppCompatActivity {
             String destination = destinationedittext.getText().toString();
             if (!source.equals(getString(R.string.your_location))){ //if not your location then include source information
                 mainIntent.putExtra("Source", source);
+                //add to search history, remove first if exists
+                if (history.contains(source))
+                    history.remove(source);
+                history.addFirst(source); //add to front
             }
+            //remove first if exists
+            if (history.contains(destination))
+                history.remove(destination);
+            history.addFirst(destination); //add to front
+
+
+            String searchhistory = "";
+
+            int historysize = history.size();
+
+            for (int i=0; i<Math.min(historysize,5); i++){ //keep only up to recent 5 searches
+                if (searchhistory.equals("")) { //first element
+                    searchhistory = history.getFirst();
+                }else {
+                    searchhistory += "," + history.getFirst(); //else need add comma
+                }
+                history.removeFirst();
+            }
+
+            editor.putString("SearchHistory", searchhistory);
+            editor.commit(); //save data
+
             mainIntent.putExtra("Destination", destination);
+            mainIntent.putExtra("GuideID", guideid); //pass back id so maps activity knows if to continue with the tutorial
             setResult(RESULT_OK, mainIntent);
             finish();
+        }
+    }
+
+    public void guideuser(int id){
+        Animation animation = new TranslateAnimation(0f, 0f, 200f, 0f);
+        animation.setDuration(1000);
+        animation.setFillAfter(true);
+        animation.setInterpolator(new BounceInterpolator());
+
+        ToolTip toolTip = new ToolTip()
+                .setTextColor(getResources().getColor(R.color.text_default))
+                .setBackgroundColor(getResources().getColor(R.color.white))
+                .setShadow(true)
+                .setGravity(Gravity.BOTTOM | Gravity.BOTTOM)
+                .setEnterAnimation(animation);
+
+        mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.CLICK);
+        mTourGuideHandler.setOverlay(new Overlay().disableClick(false));
+        mTourGuideHandler.setPointer(new Pointer());
+
+        if (id==1){ //for source
+            mTourGuideHandler.setToolTip(toolTip.setTitle(getString(R.string.source)).setDescription(getString(R.string.source_tap)));
+            mTourGuideHandler.playOn(sourceedittext);
+        }else if(id==2){ //for destination
+            mTourGuideHandler.setToolTip(toolTip.setTitle(getString(R.string.destination)).setDescription(getString(R.string.destination_tap)));
+            mTourGuideHandler.playOn(destinationedittext);
         }
     }
 }

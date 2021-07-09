@@ -3,6 +3,13 @@ plugins {
     id 'com.google.gms.google-services'
 }
 
+repositories {
+    mavenCentral()
+    maven() {
+        url "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+}
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
@@ -45,4 +52,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-database'
     implementation 'com.google.maps.android:android-maps-utils:2.2.3'
+    compile ('com.github.worker8:tourguide:2.0.0-SNAPSHOT@aar') {
+        transitive=true
+    }
 }
