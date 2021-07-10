@@ -13,34 +13,36 @@ When you’re trying to look for a classroom and you entered the venue in Google
 ## Demonstration
 Telegram           |  Android App
 :-------------------------:|:-------------------------:
-<img src="https://user-images.githubusercontent.com/35805635/119498649-6d380a80-bd98-11eb-9992-95b0dc00a5a2.png" width="360" height="740"> |  <img src="https://user-images.githubusercontent.com/35805635/123387498-6d5f3c00-d5ca-11eb-8852-bc17b2470ae9.png" width="360" height="740">
-
+<img src="https://user-images.githubusercontent.com/35805635/125159244-d5a44500-e1a8-11eb-8335-9d144b399543.png" width="360" height="740"> |  <img src="https://user-images.githubusercontent.com/35805635/125159252-e785e800-e1a8-11eb-8ff3-948d27325c65.png" width="360" height="740">
 
 ## Features
 - **Android App**
+  - **Background Notification** that guides user when NavUS in running in the background
   - **Dark mode** support
   - **Estimated Time of Arrival (ETA)** taking into account bus arrival/transit times
   - **Favourites** list for user to store frequently visited locations
-  - **Google Maps** interface to show the route
+  - **Google Maps** interface to show the route, with auto pan and polylines that guides the user based on his current location
   - **Multiple-route recommendation** for user to choose preferred route
-  - **Real-time bus arrival information** at source and transit bus stops
+  - **Real-time bus arrival information** at bus stops
+  - **Recent searches** list that shows the last 5 searches
   - **Satellite view** for user to quickly identify landmarks
+  - **Tutorial** guides the user on how to interact with the application
   - **Interactive UI** for user to enter source and destination, as well as browse through the detailed navigation directions
 
 - **Telegram Bot**
   - **Estimated Time of Arrival (ETA)** taking into account bus arrival/transit times
   - **Messaging UI** for user to enter his source and destination, as well as detailed steps to his destination
   - **Multiple-route recommendation** for user to choose preferred route
-  - **Real-time bus arrival information** at source and transit bus stops
-  - **Text suggestions** when user enters a typo in the source/destination
+  - **Real-time bus arrival information** at bus stops
+  - **Venue suggestions** when user enters a typo in the source/destination
 
 ## UI Screenshots
 ### Android UI
 Screen Name                | Demonstration            | Description
 :-------------------------:|:-------------------------|:-------------------------
 Splash                     | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/SplashScreen.gif"> | <ul><li>Screen shown when user launches the application</li><li>Bus arrival timings at nearest bus stop will be shown</li></ul>
-Main                        | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/Main.gif"> | <ul><li>All bus stops around NUS are shown to the user</li><li>Users can tap on any bus stop to view its name and location</li><li>Satellite view helps users to easily identify landmarks</li></ul>
-Search                      | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/Search.gif"> | <ul><li>Source is populated with user's location if Location Services was enabled</li><li>Users can type in part of the destination and get text suggestions for the full destination name</li><li>Users can tap on a star icon to add the corresponding venue to the favourites list</li><li>Favourites will be shown at the top the next time the user searches for a destination</li><li>Recent top 5 search histroy will be shown under the user's favourites</li></ul>
+Main                        | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/Main.gif"> | <ul><li>All bus stops around NUS are shown to the user</li><li>Users can tap on any bus stop to view its name, location and bus arrival timings</li><li>Satellite view helps users to easily identify landmarks</li></ul>
+Search                      | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/Search.gif"> | <ul><li>Source is populated with user's location if Location Services was enabled</li><li>Users can type in part of the destination and get text suggestions for the full destination name</li><li>Users can tap on a star icon to add the corresponding venue to the favourites list</li><li>Favourites will be shown at the top the next time the user searches for a destination</li><li>Recent top 5 search histroy will be shown under the user's favourites</li><li>A bus icon indicates the location is a bus stop</li></ul>
 Route Selection             | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/Route Selection.gif"> | <ul><li>Users can make use of the left and right arrow keys to select their route</li><li>ETA gives users an estimate of what time they will arrive at their destination</li><li>Number of transits indicates the number of times the user must switch buses throughout the route</li></ul>
 Route Navigation            | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/Route Navigation.gif"> | <ul><li>Users will be shown there current location with a green pin</li><li>Users will be asked to head to their source bus stop</li><li>Arrival timing of buses will be shown to the user</li><li>Users will be informed where to alight for transits with a blue pin as well as the arrival timing of the transit bus service (if applicable)</li><li>Users will be notified of the bus stop to alight at with a red pin</li><li>Users will be shown the location of their destination with a red pin and instructed to walk to their destination</li><li>ETA from the previous screen will be displayed throughout the route (when auto pan is enabled)</li><li>Left and right arrow keys allows user to view the details of their route in advance</li><li>Auto pan follows the user's location and shows the user the next bus stop they are approaching</li><li>Background service allows users to use other applications on their mobile while NavUS will continue to guide them based on the user's location</li></ul>
 Tutorial                | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/Tutorial.gif"> | <ul><li>Users are guided on how to interact with the application during the first launch</li></ul>
