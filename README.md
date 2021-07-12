@@ -135,14 +135,15 @@ Week           |  Task
 11 (19/7 - 25/7)           | Further testing and debugging, while polishing the applications as a whole
 
 ## Setup Instructions
-The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Firebase, as well as 1 `Python3` file for the logic of the path calculation and 1 `Python3` file used to collect venue data. Before running the scripts, ensure that `firebase.json` is replaced with yours downloaded from the `Firebase Console`. Also, edit the file `firebaseurl.txt` to your Firebase's URL from the `Firebase Console`.
+The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Firebase, 1 `Python3` file for the logic of the path calculation and 1 `Python3` file for the logic of the Telegram Bot as well as 1 `Python3` file used to collect venue data. Before running the scripts, ensure that `firebase.json` is replaced with yours downloaded from the `Firebase Console`. Also, edit the file `firebaseurl.txt` to your Firebase's URL from the `Firebase Console` and edit the file `telegramapikey.txt` with yours from `BotFather`.
 
 - ### `Python3` Scripts
   - `InsertBusOperatingHours.py` is used to populate Firebase at the `/BusOperatingHours` reference. It contains all the bus operating hours on *Weekdays*, *Saturdays*, and *Sundays and Public Holidays*.
   - `InsertBusRoutes.py` is used to populate Firebase at the `/BusRoutes` reference. It contains all the bus *routes* as well as the *time taken* to travel to the next busstop.
   - `InsertBusStops.py` is used to populate Firebase at the `/BusStops` reference. It contains all the bus stop's *Name*, *NextBusAlias* (used to query for bus arrival timings) and *Services* (used to determine the bus services at each bus stop).
   - `InsertVenue.py` is used to populate Firebase at the `/Venues` reference. It contains all the venue's *Name*, *Latitude*, *Longitude* and *IsBusStop* (used to determine if a venue is a bus stop).
-  - `CalculatePath.py` constructs a graph with vertices representing a unique busstop and service combination and weighted edges representing the travel time between vertices. Dijkstra's Algorithm is used to calculate the shortest path from the given source to the given destination, and the `getpath` method returns this information in `JSON` format.
+  - `CalculatePath.py` constructs a graph with vertices representing a unique busstop and service combination and weighted edges representing the travel time between vertices. Dijkstra's Algorithm is used to calculate the shortest path from the given source to the given destination, and the `getpath` method returns this information in `JSON` format running on Flask. The `getarrivaltimings` method returns the bus arrival timings in `JSON` format.
+  - `TelegramBot.py` helps to run the Telegram Bot to get the user's input to query the bus arrival timings as well as routing information from `CalculatePath.py`. It then receives the `JSON` data from Flask and formats it into a text message to reply to the user.
   - `VenueFinder.py` queries the NUSMods API for the list of lesson venues in a given Academic Year and Semester, then scrapes the NUSMods website to get the coordinates (latitude and longitude) of all available venues.
 
 - ### `JSON` Files
