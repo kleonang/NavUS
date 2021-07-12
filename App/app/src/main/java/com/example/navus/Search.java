@@ -1,27 +1,18 @@
 package com.example.navus;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
-import android.content.res.Configuration;
+import android.content.res.ColorStateList;;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 
-import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,20 +20,14 @@ import android.view.animation.Animation;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.SearchView;
 
-import java.io.SyncFailedException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import tourguide.tourguide.Overlay;
@@ -298,8 +283,6 @@ public class Search extends AppCompatActivity {
     }
 
     void populatelist(String search){
-        favourites.clear();
-        history.clear();
         venue_list.clear();
         if (LocationEnabled && issource){ //add your location option if user enabled location
             venue_list.add(getString(R.string.your_location));
@@ -313,6 +296,7 @@ public class Search extends AppCompatActivity {
                 guideid = sharedpreferences.getInt("GuideID", 1);
 
             if (!favouritestring.equals("")) { //if favourites exists
+                favourites.clear(); //need to clear as method is called a few times
                 for (String fav: favouritestring.split(",")){ //populate the favourites
                     favourites.add(fav);
                     venue_list.add(fav); //add favourites first
@@ -322,10 +306,11 @@ public class Search extends AppCompatActivity {
             String searchhistory = sharedpreferences.getString("SearchHistory", "");
 
             if (!searchhistory.equals("")) { //if userhistory exists
+                history.clear(); //need to clear as method is called a few times
                 for (String hist: searchhistory.split(",")){ //populate the history
-                    if (!favourites.contains(hist) && !history.contains(hist)){ //ensure it is not in favourites and history
+                    if (!favourites.contains(hist)){ //ensure it is not in favourites
                         history.add(hist);
-                        venue_list.add(hist);
+                        venue_list.add(hist); //add history after favourites
                     }
                 }
             }

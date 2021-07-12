@@ -126,9 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     int guideid = 0; //to know what guide to show user
     SharedPreferences.Editor editor;
     Marker closestbusstop; //to store the closest bus stop
-    //String serverurl = "http://192.168.1.126:5000";
-    String serverurl = "https://navus-312709.uc.r.appspot.com";
-    //String serverurl = "https://kleonang.pythonanywhere.com";
+    String serverurl = "http://192.168.1.126:5000";
 
     //to handle search
     @Override
@@ -549,7 +547,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(true); //for the crosshair icon on the top right
             userslocation = getLocation();
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(userslocation.getLatitude(), userslocation.getLongitude()), 15));//zoom to user's location on launch
+            if (userslocation!=null)
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(userslocation.getLatitude(), userslocation.getLongitude()), 15));//zoom to user's location on launch
         }
     }
 
@@ -678,15 +677,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         else{ //show closest bus stop arrival info
             float bestdistance = Float.MAX_VALUE; //initialise to max first
             float[] distance = new float[1];
-            for (Marker busstop: BusStopMarkerAL){
-                Location.distanceBetween(userslocation.getLatitude(), userslocation.getLongitude(), busstop.getPosition().latitude, busstop.getPosition().longitude, distance);
-                System.out.println(distance[0]);
-                if (distance[0] < bestdistance){
-                    bestdistance = distance[0];
-                    closestbusstop = busstop;
+            if (userslocation!=null){
+                for (Marker busstop: BusStopMarkerAL){
+                    Location.distanceBetween(userslocation.getLatitude(), userslocation.getLongitude(), busstop.getPosition().latitude, busstop.getPosition().longitude, distance);
+                    if (distance[0] < bestdistance){
+                        bestdistance = distance[0];
+                        closestbusstop = busstop;
+                    }
                 }
+                new getarrivaltimings().execute(closestbusstop.getTitle());
             }
-            new getarrivaltimings().execute(closestbusstop.getTitle());
         }
     }
 
@@ -710,7 +710,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                     mMap.setMyLocationEnabled(true);
                     mMap.getUiSettings().setMyLocationButtonEnabled(true); //for the crosshair icon on the top right
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(userslocation.getLatitude(), userslocation.getLongitude()), 15));//zoom to user's location on launch
+                    if (userslocation!=null)
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(userslocation.getLatitude(), userslocation.getLongitude()), 15));//zoom to user's location on launch
                 } else {
                     // Permission Denied
                     Toast.makeText(this, R.string.enable_location, Toast.LENGTH_SHORT).show();
@@ -742,7 +743,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         public void onLocationChanged(final Location location) {
             userslocation = location; //update user's location
             if (routeselected && autopan){ //ensure user has selected route and autopan is enabled
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 17)); //zoom to user's location
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 16)); //zoom to user's location
                 Boolean directionsupdated = false;
                 for (int j=0; j<RouteMarkers.size(); j++){
                     Marker waypoint = RouteMarkers.get(j);
@@ -1261,7 +1262,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 StringBuilder sb = null;
 
                 try {
-                    System.out.println(urls[0]);
+                    System.out.println(serverurl + "/getarrivaltimings/" + urls[0]);
                     url = new URL(serverurl + "/getarrivaltimings/" + urls[0]);
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setRequestMethod("GET");
