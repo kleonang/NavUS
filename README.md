@@ -47,7 +47,16 @@ Route Selection             | <img src="https://github.com/alvintan01/NavUS/blob
 Route Navigation            | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/Route Navigation.gif"> | <ul><li>Users will be shown there current location with a green pin</li><li>Users will be asked to head to their source bus stop</li><li>Arrival timing of buses will be shown to the user</li><li>Users will be informed where to alight for transits with a blue pin as well as the arrival timing of the transit bus service (if applicable)</li><li>Users will be notified of the bus stop to alight at with a red pin</li><li>Users will be shown the location of their destination with a red pin and instructed to walk to their destination</li><li>ETA from the previous screen will be displayed throughout the route (when auto pan is enabled)</li><li>Left and right arrow keys allows user to view the details of their route in advance</li><li>Auto pan follows the user's location and shows the user the next bus stop they are approaching</li><li>Background service allows users to use other applications on their mobile while NavUS will continue to guide them based on the user's location</li></ul>
 Tutorial                | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/Tutorial.gif"> | <ul><li>Users are guided on how to interact with the application during the first launch</li></ul>
 
+### Telegram UI
+Command Name               | Demonstration            | Description
+:-------------------------:|:-------------------------|:-------------------------
+/cancel                  | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/Cancel.gif"> | <ul><li>Allows the user to re-enter his source</li><ul>
+/help                    | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/Help.gif"> | <ul><li>Shows all commands of the NavUS Telegram Bot</li><ul>
+/more                    | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/More.gif"> | <ul><li>Shows alternative routes if queried within 1 min to ensure routes are still accurate</li><ul>
+/query                   | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/Query.gif"> | <ul><li>Allows the user to query bus arrival timings</li><li>Returns a list of all the bus stops for the user to select</li><li>Suggests close matches to user's input in case of typos</li><li>Returns the user the arrival timings of all bus services at that bus stop</li><ul>
+/start                   | <img src="https://github.com/alvintan01/NavUS/blob/main/Gif/Start.gif"> | <ul><li>Allows the user to start communicating with the NavUS Telegram Bot</li><li>Requests the user to send his source via GPS or text</li><li>Requests the user to send his destination via text</li><li>Suggests close matches to user's input in case of typos for both source and destination</li><li>Returns the user the best suggested route with bus arrival timings at source and transits bus stop as well as ETA</li></ul>
 
+  
 ## Implementation Overview
 The **Flask Server** will share a common database on Firebase with the Telegram Bot as well as the Android app and provide the functionality of computing the route from the user’s location (or selected source) to the destination.
 
