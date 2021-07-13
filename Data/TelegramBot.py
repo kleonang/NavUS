@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # INSTALL DEPENDENCIES FIRST
 # pip3 install python-telegram-bot
 # pip3 install requests
@@ -23,8 +25,6 @@ bus_stop_list = []  # Stores all the bus stop names
 data_dict = {}
 # Stores routing information in case user wants more routes, user_id as key
 routing_info_dict = {}
-server_url = "https://navus-312709.uc.r.appspot.com"
-# server_url = "http://127.0.0.1:5000"
 
 
 def get_route(update, user_id):
@@ -127,8 +127,8 @@ def get_instructions(user_id):
     travel_time = str(json_object[route_num]["TravelTime"])
 
     if ETA == "-":  # no ETA
-        ETA = "Not available as there is no information on the \
-            third and subsequent buses."
+        ETA = "Not available as there is no information on the " \
+            + "third and subsequent buses."
 
     if travel_time == "-":
         travel_time = "Travel Time Unavailable"
@@ -421,13 +421,18 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+# Read server url
+f = open("server_url.txt", "r")
+server_url = f.read()
+f.close()
+
 # Check if firebase app is already initialised to prevent initialisation error
 if not firebase_admin._apps:
     # Fetch the service account key JSON file contents
-    cred = credentials.Certificate("Data/firebase.json")
+    cred = credentials.Certificate("firebase.json")
 
     # Read firebase url
-    f = open("Data/firebaseurl.txt", "r")
+    f = open("firebaseurl.txt", "r")
     firebase_url = f.read()
     f.close()
 
@@ -447,7 +452,7 @@ for venue in json_array:  # loop through each item
             bus_stop_list.append(venue["Name"])  # add bus stop to list
 
 # Read Telegram Bot API key and update it
-f = open("Data/telegramapikey.txt", "r")
+f = open("telegramapikey.txt", "r")
 telegram_api_key = f.read()
 f.close()
 updater = Updater(telegram_api_key, use_context=True)
