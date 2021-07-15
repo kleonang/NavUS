@@ -1,24 +1,27 @@
 # NavUS <img src="https://user-images.githubusercontent.com/35805635/120774197-a3257d80-c554-11eb-804c-579cd979efe1.png" width="80" height="80">
 
 ## Table of contents
-- [Motivation](https://github.com/alvintan01/NavUS#motivation)
-- [User Stories](https://github.com/alvintan01/NavUS#user-stories)
-- [Demostration](https://github.com/alvintan01/NavUS#demonstration)
-- [Features](https://github.com/alvintan01/NavUS#features)
-  - [Android App](https://github.com/alvintan01/NavUS#android-app)
-  - [Telegram Bot](https://github.com/alvintan01/NavUS#telegram-bot)
-- [UI Screenshots](https://github.com/alvintan01/NavUS#ui-screenshots)
-  - [Android UI](https://github.com/alvintan01/NavUS#android-ui)
-  - [Telegram UI](https://github.com/alvintan01/NavUS#telegram-ui)
-- [Implementation Overview](https://github.com/alvintan01/NavUS#implementation-overview)
-  - [Firebase Data Structure](https://github.com/alvintan01/NavUS#firebase-data-structure)
-- [Testing](https://github.com/alvintan01/NavUS#testing)
-- [Comparisons with existing applications](https://github.com/alvintan01/NavUS#comparisons-with-existing-applications)
-- [Technical Stack](https://github.com/alvintan01/NavUS#technical-stack)
-- [Project Timeline](https://github.com/alvintan01/NavUS#project-timeline)
-- [Setup Instructions](https://github.com/alvintan01/NavUS#setup-instructions)
-  - [Python3 Scripts](https://github.com/alvintan01/NavUS#python3-scripts)
-  - [JSON Files](https://github.com/alvintan01/NavUS#json-files)
+- [Motivation](#motivation)
+- [User Stories](#user-stories)
+- [Demostration](#demonstration)
+- [Features](#features)
+  - [Android App](#android-app)
+  - [Telegram Bot](#telegram-bot)
+- [UI Screenshots](#ui-screenshots)
+  - [Android UI](#android-ui)
+  - [Telegram UI](#telegram-ui)
+- [Implementation Overview](#implementation-overview)
+  - [Firebase Data Structure](#firebase-data-structure)
+  - [Flask URL Parameters](#flask-url-parameters)
+    - [getpath](#getpath)
+    - [getarrivaltimings](#getarrivaltimings)
+- [Testing](#testing)
+- [Comparisons with existing applications](#comparisons-with-existing-applications)
+- [Technical Stack](#technical-stack)
+- [Project Timeline](#project-timeline)
+- [Setup Instructions](#setup-instructions)
+  - [Python3 Scripts](#python3-scripts)
+  - [JSON Files](#json-files)
 
 ## Motivation
 When you’re trying to look for a classroom and you entered the venue in Google maps, there are no suitable results returned. Currently, students have to manually look up the location of their classrooms/lecture theatres on NUSMods, then look up the individual routes of the NUS ISB to get to their intended destination (either through the NextBus app or static ISB map). This project aims to minimise the lookup time. Users just need to input their current location/via GPS and their destination location within campus (e.g. I3-Auditorium to FoS S12 Bldg) and NavUS should provide step-by-step instructions to get from their current location to their destination. NavUS uses live bus timing data to calculate the estimated travel time required and recommends a route with its bus travel time to the destination’s nearest bus stop.
@@ -125,6 +128,33 @@ _Note: Unlabelled edges are weighted with static travel times._
     - Longitude (String)
     - Name (String)
 
+### Flask URL Parameters
+  #### getpath
+  - getpath/&lt;source&gt;/&lt;destination&gt;
+  - getpath/&lt;source&gt;/&lt;destinationlatitude&gt;/&lt;destinationlongitude&gt;
+  - getpath/&lt;sourcelatitude&gt;/&lt;sourcelongitude&gt;/&lt;destination&gt;/&lt;destinationlongitude&gt;
+ 
+  where source and destination are names found in `Venue List.json`. Returns the result in the following JSON format.
+  - ID (String ID of the route starting from 0)
+    - Route (Array of the waypoints)
+      - Name (String)
+      - Service (String)
+      - Latitude (String)
+      - Longitude (String)
+      - IsBusStop (String true/false)
+      - BusArrivalTime (String in HH:MM am/pm, '-' if unknown)
+      - BusArrivalTimeMins (String mins, '-' if unknown)
+    - ETA (String in HH:MM am/pm, '-' if unknown)
+    - TravelTime (String mins, '-' if unknown)
+  
+  #### getarrivaltimings
+  - getarrivaltimings/&lt;bus stop name&gt;
+  
+  where bus stop name are found in `Venue List.json with IsBusStop == 'true'`. Returns the result in the following JSON array.
+  - Service (String)
+    - arrivalTime (String, '-' if unknown/Not operating)
+    - nextArrivalTime (String, '-' if unknown/Not operating)
+  
 ## Testing
 Currently, we have utilised a script to test all possible combinations of sources and destinations to ensure that our server is capable of handling simultaneous requests and without running into errors. We have also fixed bugs found in the Android application and improved the UI based on initial feedback. We plan to get more users to test out the application as part of their daily commute around NUS.
 
