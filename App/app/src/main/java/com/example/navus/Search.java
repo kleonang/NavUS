@@ -400,8 +400,11 @@ public class Search extends AppCompatActivity {
                 .setEnterAnimation(animation);
 
         mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.CLICK);
-        mTourGuideHandler.setOverlay(new Overlay().disableClick(false));
-        mTourGuideHandler.setPointer(new Pointer());
+
+        //mTourGuideHandler.setOverlay(new Overlay().disableClick(false));
+        Pointer pointer = new Pointer();
+        pointer.setColor(getResources().getColor(R.color.red));
+        mTourGuideHandler.setPointer(pointer);
 
         if (id==1){ //for source
             mTourGuideHandler.setToolTip(toolTip.setTitle(getString(R.string.source)).setDescription(getString(R.string.source_tap)));

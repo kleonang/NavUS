@@ -31,7 +31,7 @@ public class LocationUpdateService extends Service {
     String channelName = "Navigation";
     ArrayList<String> directionstextarray = new ArrayList<String>();
     ArrayList<LatLng> routelatlngarray = new ArrayList<LatLng>();
-    int lastidnotified = -1;
+    int lastidnotified = 0;
 
     @Override
     public void onCreate() {
@@ -58,6 +58,7 @@ public class LocationUpdateService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         directionstextarray = (ArrayList<String>) intent.getExtras().get("directionstextarray");
         routelatlngarray = (ArrayList<LatLng>) intent.getExtras().get("routelatlngarray");
+        lastidnotified = intent.getIntExtra("directionstextidpan",0);
 
         // Create the Foreground Service
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -66,12 +67,18 @@ public class LocationUpdateService extends Service {
         //to return to activity when user taps the notification
         Intent myintent = new Intent(getApplicationContext(), MapsActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, myintent, PendingIntent.FLAG_ONE_SHOT);
+
+        Intent stopintent = new Intent(getApplicationContext(), MapsActivity.class);
+        stopintent.putExtra("stopapp", true);
+        PendingIntent stoppendingIntent = PendingIntent.getActivity(getApplicationContext(), 2, stopintent,PendingIntent.FLAG_ONE_SHOT);
+
         notification = notificationBuilder.setOngoing(true)
                 .setSmallIcon(R.drawable.appicon)
                 .setContentTitle(getString(R.string.app_name))
-                .setContentText(getString(R.string.running))
+                .setContentText((directionstextarray.get(lastidnotified).equals(""))? getString(R.string.running) : directionstextarray.get(lastidnotified))//return directions text if it's not blank else return running
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setContentIntent(pendingIntent)
+                .addAction(R.drawable.ic_launcher_foreground, getString(R.string.stop), stoppendingIntent)
                 .build();
         startForeground(1, notification);
 
@@ -89,18 +96,24 @@ public class LocationUpdateService extends Service {
     private final LocationListener mLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(final Location location) {
-            for (int i=0; i<routelatlngarray.size(); i++) {
+            for (int i = 0; i < routelatlngarray.size(); i++) {
                 LatLng waypoint = routelatlngarray.get(i);
                 Location waypointlocation = new Location("waypoint");
                 waypointlocation.setLatitude(waypoint.latitude);
                 waypointlocation.setLongitude(waypoint.longitude);
 
-                if (location.distanceTo(waypointlocation) < 200 && lastidnotified<i) {//less than 200m and did not notify before
+                if (location.distanceTo(waypointlocation) < 200 && lastidnotified + 1 == i) {//less than 200m and did not notify before
+                    lastidnotified = i;
                     //if directionstext is not empty then notify the user, else it is just a normal bus stop
-                    if (!directionstextarray.get(i).equals("")){
+                    if (!directionstextarray.get(i).equals("")) {
                         //send notification
                         Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
                         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 1, intent, PendingIntent.FLAG_ONE_SHOT);
+
+                        Intent stopintent = new Intent(getApplicationContext(), MapsActivity.class);
+                        stopintent.putExtra("STOPAPP", true);
+                        PendingIntent stoppendingIntent = PendingIntent.getActivity(getApplicationContext(), 2, stopintent,PendingIntent.FLAG_ONE_SHOT);
+
                         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), channelId)
                                 .setSmallIcon(R.drawable.appicon)
                                 .setContentTitle(getString(R.string.app_name))
@@ -108,11 +121,13 @@ public class LocationUpdateService extends Service {
                                 .setAutoCancel(true)
                                 .setPriority(NotificationManager.IMPORTANCE_HIGH)
                                 .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                                .setStyle(new NotificationCompat.BigTextStyle().bigText(directionstextarray.get(i)))
+                                .addAction(R.drawable.ic_launcher_foreground, getString(R.string.stop), stoppendingIntent)
                                 .setContentIntent(pendingIntent);
                         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                         notificationManager.notify(1, notificationBuilder.build()); // 0 is the request code, it should be unique id
+                        break;
                     }
-                    lastidnotified=i;
                 }
 
             }

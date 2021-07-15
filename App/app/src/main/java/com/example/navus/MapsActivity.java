@@ -18,6 +18,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -83,7 +84,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import tourguide.tourguide.Overlay;
 import tourguide.tourguide.Pointer;
 import tourguide.tourguide.ToolTip;
 import tourguide.tourguide.TourGuide;
@@ -107,6 +107,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Button leftbutton, rightbutton;
     ImageButton maptypebutton;
     ArrayList<String> directionstextarray = new ArrayList<String>();
+    ArrayList<String> directionstextarraybackground = new ArrayList<String>(); //to store instructions for notifications
     ArrayList<ArrayList<Polyline>> polylinearray = new ArrayList<ArrayList<Polyline>>();
     int directionstextid = 0;
     EditText searchbar;
@@ -126,7 +127,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     int guideid = 0; //to know what guide to show user
     SharedPreferences.Editor editor;
     Marker closestbusstop; //to store the closest bus stop
-    String serverurl = "http://192.168.1.126:5000";
+    //String serverurl = "http://192.168.1.126:5000";
+    String serverurl = "https://navus-312709.uc.r.appspot.com";
+    //String serverurl = "https://kleonang.pythonanywhere.com";
 
     //to handle search
     @Override
@@ -136,6 +139,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         switch (requestCode) {
             case (0): {
                 if (resultCode == Activity.RESULT_OK) {
+                    if (mTourGuideHandler!=null) //in case user taps on search bar again during tutorial
+                        mTourGuideHandler.cleanUp();
 
                     //disable the left and right buttons first
                     leftbutton.setEnabled(false);
@@ -309,11 +314,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ETAtextview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(guideid==4) { //clear tip box for select route
+                if (mTourGuideHandler!=null) {
                     mTourGuideHandler.cleanUp();
-                    guideid++;
+                    guideid = 5; //set to route instructions
                     guideuser(guideid);
                 }
+
+
                 if (!routeselected) {
                     backbuttoncode = 2;//update the back button code
                     //disable buttons first
@@ -326,7 +333,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     //update ETA
                     try {
-                        ETAtextview.setText(getResources().getString(R.string.eta) + "\n" + routes.getJSONObject(String.valueOf(selectedrouteid)).getString("ETA"));
+                        ETAtextview.setText(getResources().getString(R.string.eta, routes.getJSONObject(String.valueOf(selectedrouteid)).getString("ETA")));
                         ETAtextview.setBackgroundColor(getResources().getColor(R.color.text_default));
                         ETAtextview.setTextSize(12);
                         Marker source = RouteMarkers.get(0);
@@ -372,12 +379,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //ensure route is selected
         if (runservice){
             ArrayList<LatLng> routelatlngarray = new ArrayList<LatLng>();
-            for (Marker marker : RouteMarkers)
-                routelatlngarray.add(marker.getPosition());
+            for (int i = 0; i<RouteMarkers.size(); i++){
+                Marker marker = RouteMarkers.get(i);
+
+                if (i!=RouteMarkers.size()-1 || venuedict.get(marker.getTitle()).getIsBusStop().equals("true")) { //ensure last point is a bus stop then add
+                    routelatlngarray.add(marker.getPosition());
+                }
+            }
+
 
             Intent intent = new Intent(this, LocationUpdateService.class);
-            intent.putExtra("directionstextarray", directionstextarray);
+            intent.putExtra("directionstextarray", directionstextarraybackground);
             intent.putExtra("routelatlngarray", routelatlngarray);
+            intent.putExtra("directionstextidpan", directionstextidpan);
             startService(intent);
         }
     }
@@ -386,6 +400,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onResume();
         //stop service
         stopService(new Intent(getApplicationContext(), LocationUpdateService.class));
+    }
+
+
+    protected void onNewIntent (Intent intent) {
+        super.onNewIntent(intent);
+        //check if user tap on the stop button in the notification
+        if (intent.getExtras()!=null && intent.getExtras().getBoolean("stopapp", false)==true){
+            //stop service
+            stopService(new Intent(getApplicationContext(), LocationUpdateService.class));
+            //close the app
+            this.finishAffinity();
+        }
     }
 
 
@@ -479,10 +505,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 title.setText(marker.getTitle());
                 info.addView(title);
                 title.measure(0,0);//so that we can measure the width later
+                int maxwidth = 0;
 
                 try {
                     TableLayout tbl=new TableLayout(getApplicationContext());
-                    tbl.setLayoutParams(new LinearLayout.LayoutParams(Math.max(600,title.getMeasuredWidth()), LinearLayout.LayoutParams.WRAP_CONTENT)); //set width to min of 500 or larger
+
                     tbl.setStretchAllColumns(true);
 
                     if (marker.getSnippet()!=null) { //ensure there's snippet
@@ -510,12 +537,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                         arrivaltiming = getString(R.string.mins, arrivaltiming);
                                 }
                                 tv.setText(arrivaltiming);
+                                tv.setGravity(Gravity.CENTER);
                                 row.addView(tv);
                             }
 
                             tbl.addView(row);
+                            row.measure(0,0);//so that we can measure the width later
+                            maxwidth = Math.max(maxwidth, row.getMeasuredWidth());
                         }
-
+                        tbl.setLayoutParams(new LinearLayout.LayoutParams((int) Math.max(Math.floor(maxwidth*1.2),title.getMeasuredWidth()), LinearLayout.LayoutParams.WRAP_CONTENT)); //set width to min of 500 or larger
                         info.addView(tbl);
                     }
 
@@ -559,7 +589,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Toast.makeText(getApplicationContext(), R.string.autopan_enabled, Toast.LENGTH_SHORT).show();
                 //update ETA
                 try {
-                    ETAtextview.setText(getResources().getString(R.string.eta) + "\n" + routes.getJSONObject(String.valueOf(selectedrouteid)).getString("ETA"));
+                    ETAtextview.setText(getResources().getString(R.string.eta, routes.getJSONObject(String.valueOf(selectedrouteid)).getString("ETA")));
                     ETAtextview.setBackgroundColor(getResources().getColor(R.color.text_default));
                     ETAtextview.setTextSize(12);
 
@@ -751,13 +781,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     waypointlocation.setLatitude(waypoint.getPosition().latitude);
                     waypointlocation.setLongitude(waypoint.getPosition().longitude);
 
-                    if (location.distanceTo(waypointlocation) < 200 && directionstextidpan <= j){//less than 200m and did not show before
+                    if ((location.distanceTo(waypointlocation) < 150 && directionstextidpan+1 == j) || directionstextidpan==0){//less than 200m and did not show before
+                        int previd = directionstextidpan;
                         directionstextidpan = j;
                         waypoint.showInfoWindow(); //show instructions
                         String text = directionstextarray.get(j);
                         if (!text.equals("")){
                             directionstextview.setText(text); //update directions text view
                             disableenablebuttons(directionstextidpan, directionstextarray.size());
+                            directionstextid = directionstextidpan;
                             directionsupdated = true;
                         }
 
@@ -771,6 +803,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 disableenablebuttons(id, directionstextarray.size());
                             }
                         }
+                        if (previd!=0)
+                            break;
                     }
                 }
             }
@@ -843,6 +877,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // this is executed on the main thread after the process is over
             // update your UI here
             progressbar.setVisibility(View.INVISIBLE); //hide progress bar
+
             if (result==""){//Error accessing server
                 Toast.makeText(getApplicationContext(),R.string.route_server_unavailable, Toast.LENGTH_LONG).show();
                 directionstextview.setText(R.string.route_server_unavailable);
@@ -852,17 +887,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }else{
                 try {
                     routes = new JSONObject(result);
-                    drawRoute(0); //draw the route 0
-                    if (guideid==3){
-                        if (routes.getJSONObject("0").getJSONArray("Route").length()!=0){ //ensure there's a route
+                    if (routes.length()!=0){
+                        drawRoute(0); //draw the route 0
+                        if (guideid==3)
                             guideuser(3);
-                        }else{
+                    }else{
+                        directionstextview.setText(R.string.no_route_found);
+                        Toast.makeText(getApplicationContext(),R.string.no_route_found, Toast.LENGTH_LONG).show();
+                        if (guideid==3)
                             showguideerror();
-                        }
-
                     }
+
                 } catch (JSONException e) {
                     System.out.println(e);
+                    Toast.makeText(getApplicationContext(),R.string.route_server_unavailable, Toast.LENGTH_LONG).show();
+                    directionstextview.setText(R.string.route_server_unavailable);
+                    if (guideid==3){
+                        showguideerror();
+                    }
                 }
             }
         }
@@ -907,7 +949,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Bitmap greenpin = Bitmap.createScaledBitmap(greenpinbitmap.getBitmap(), 100, 100, false);
             Bitmap bluepin = Bitmap.createScaledBitmap(bluepinbitmap.getBitmap(), 100, 100, false);
 
-            //if not route found
+            //if no route found
             if (WayPointJSONArray.length()==0){
                 directionstextview.setText(R.string.no_route_found);
                 Toast.makeText(getApplicationContext(),R.string.no_route_found, Toast.LENGTH_LONG).show();
@@ -915,6 +957,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }else if(WayPointJSONArray.length()==1){ //user can walk there
                 ETAtextview.setVisibility(View.VISIBLE);
                 directionstextarray.add(getResources().getString(R.string.walk_to_destination));
+                directionstextarraybackground.add(getResources().getString(R.string.walk_to_destination));
                 UsersDestinationMarker.showInfoWindow();
                 Marker sourcemarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(source.getLatitude()),Double.parseDouble(source.getLongitude()))).title(getString(R.string.walk_to_destination)).icon(BitmapDescriptorFactory.fromBitmap(greenpin)));
                 RouteMarkers.add(sourcemarker);//add to RouteMarkers
@@ -933,6 +976,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     //draw the blueline
                     new getdirections().execute(url);
                 }
+
 
             }else{
                 ETAtextview.setVisibility(View.VISIBLE);
@@ -973,15 +1017,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(source.getLatitude()),Double.parseDouble(source.getLongitude()))).title(getString(R.string.your_location)).snippet(title).icon(BitmapDescriptorFactory.fromBitmap(greenpin)));
                             RouteMarkers.add(BusStopMarker);
                             directionstextarray.add(title);
+                            directionstextarraybackground.add(title);
 
                             //add string to array for the buttons
                             directionstextarray.add(directionstext);
+                            directionstextarraybackground.add(directionstext);
                             BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(currentbusstop.getLatitude()),Double.parseDouble(currentbusstop.getLongitude()))).title(currentbusstop.getName()).snippet(directionstext).icon(BitmapDescriptorFactory.fromBitmap(bluepin)));
 
                         }else{
                             directionstext = getString(R.string.board, currentbusstop.getService(), currentbusstop.getBusArrivalTimeMins(), currentbusstop.getBusArrivalTime());
                             //add string to array for the buttons
                             directionstextarray.add(directionstext);
+                            directionstextarraybackground.add(directionstext);
                             BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(currentbusstop.getLatitude()),Double.parseDouble(currentbusstop.getLongitude()))).title(currentbusstop.getName()).snippet(directionstext).icon(BitmapDescriptorFactory.fromBitmap(greenpin)));
                         }
 
@@ -997,12 +1044,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(currentbusstop.getLatitude()),Double.parseDouble(currentbusstop.getLongitude()))).title(currentbusstop.getName()).snippet(getString(R.string.alight_here)).icon(BitmapDescriptorFactory.fromBitmap(redpin)));
                         //add string to array for the buttons
                         directionstextarray.add(directionstext);
+                        directionstextarraybackground.add(directionstext + getString(R.string.next_stop));
 
                         //add walk instructions if destination bus stop is not the user's destination
                         if (Double.parseDouble(destination.getLatitude()) != Double.parseDouble(currentbusstop.getLatitude()) ||  Double.parseDouble(destination.getLongitude()) != Double.parseDouble(currentbusstop.getLongitude())){
                             RouteMarkers.add(BusStopMarker);
                             directionstext = getString(R.string.walk_from, currentbusstop.getName(), destination.getName());
                             directionstextarray.add(directionstext);
+
+                            //to combine the last two steps in one for the notifications
+                            String prevtext = directionstextarraybackground.get(directionstextarraybackground.size()-1);
+                            directionstextarraybackground.remove(directionstextarraybackground.size()-1);
+                            directionstextarraybackground.add(prevtext + "\n" + directionstext);
+
                             BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(destination.getLatitude()), Double.parseDouble(destination.getLongitude()))).title(destination.getName()).snippet(getString(R.string.walk_from_here, currentbusstop.getName())));
 
                             //Draw walking path in red
@@ -1017,14 +1071,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         RouteMarkers.get(RouteMarkers.size()-1).remove(); //remove the previous pin
                         RouteMarkers.remove(RouteMarkers.size()-1); //delete from array
                         directionstextarray.remove(directionstextarray.size()-1);
+                        directionstextarraybackground.remove(directionstextarray.size()-1);
                         directionstext = getString(R.string.transfer,routeinfo.get(i-1).getService(), currentbusstop.getService(), currentbusstop.getName(), currentbusstop.getBusArrivalTimeMins(), currentbusstop.getBusArrivalTime());
                         BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(currentbusstop.getLatitude()),Double.parseDouble(currentbusstop.getLongitude()))).title(currentbusstop.getName()).snippet(getString(R.string.transfer_here, routeinfo.get(i-1).getService(), currentbusstop.getService(), currentbusstop.getBusArrivalTimeMins(), currentbusstop.getBusArrivalTime())).icon(BitmapDescriptorFactory.fromBitmap(bluepin))); //set blue pin if need to transfer bus
                         //add string to array for the buttons
                         directionstextarray.add(directionstext);
+                        directionstextarraybackground.add(directionstext + getString(R.string.next_stop));
                         nooftransits++;
                     }else{
                         BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(currentbusstop.getLatitude()),Double.parseDouble(currentbusstop.getLongitude()))).title(currentbusstop.getName()).icon(BitmapDescriptorFactory.fromBitmap(waypointpin))); //else white circle
                         directionstextarray.add("");//add empty string as placeholder
+                        directionstextarraybackground.add("");
                     }
                     if (BusStopMarker!=null){
                         RouteMarkers.add(BusStopMarker);//add to RouteMarkers
@@ -1195,13 +1252,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         RouteMarkers.clear(); //clear the arraylist
         directionstextarray.clear();
+        directionstextarraybackground.clear();
         directionstextid = 0;
         directionstextidpan = 0;
         directionstextview.setText("");
         ETAtextview.setText("");
         ETAtextview.setVisibility(View.INVISIBLE);
 
+
         if (clearpolyline){
+            backbuttoncode = 0;
             for (ArrayList<Polyline> pl: polylinearray)
                 for (Polyline a: pl)
                     a.remove(); //remove polyline
@@ -1223,6 +1283,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onBackPressed() {
+        //in case user presses back button during tutorial and he didn't end tutorial
+        if (mTourGuideHandler!=null && guideid!=8) {
+            mTourGuideHandler.cleanUp();
+            guideid = 4;
+            guideuser(guideid);
+        }
+
         if (backbuttoncode==0) {
             Toast.makeText(this, R.string.back_again, Toast.LENGTH_SHORT).show();
             if (backpressed){
@@ -1343,33 +1410,81 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setEnterAnimation(animation);
 
         mTourGuideHandler = TourGuide.init(this).with(TourGuide.Technique.CLICK);
-        mTourGuideHandler.setOverlay(new Overlay().disableClick(false));
-        mTourGuideHandler.setPointer(new Pointer());
+        //mTourGuideHandler.setOverlay(new Overlay().disableClick(false));
+        Pointer pointer = new Pointer();
+        pointer.setColor(getResources().getColor(R.color.red));
+        mTourGuideHandler.setPointer(pointer);
 
         if (id==0){ //for search bar
             mTourGuideHandler.setToolTip(toolTip.setTitle(getString(R.string.welcome)).setGravity(Gravity.BOTTOM).setDescription(getString(R.string.search_bar_tap)));
             mTourGuideHandler.playOn(searchbar);
 
         }else if(id==3){ //for right buttons
-            mTourGuideHandler.setToolTip(toolTip.setTitle(getString(R.string.route_selection)).setGravity(Gravity.TOP).setDescription(getString(R.string.route_selection_tap)));
-            mTourGuideHandler.playOn(rightbutton);
+            //When there's only one route during tutorial, skip route selection
+
+            if (routes.length()!=0){
+                mTourGuideHandler.setToolTip(toolTip.setTitle(getString(R.string.route_selection)).setGravity(Gravity.TOP).setDescription(getString(R.string.route_selection_tap)));
+                mTourGuideHandler.playOn(rightbutton);
+            }else{
+                guideid++;
+                guideuser(guideid);
+            }
 
         }else if(id==4){ //for select button
-            mTourGuideHandler.setToolTip(toolTip.setTitle(getString(R.string.select_route)).setGravity(Gravity.TOP).setDescription(getString(R.string.select_tap)));
+
+            LinearLayout info = new LinearLayout(getApplicationContext());
+            info.setOrientation(LinearLayout.VERTICAL);
+
+            int[] text = new int[]{R.string.green_icon, R.string.blue_icon, R.string.red_icon, R.string.red_icon_default, R.string.white_icon, R.string.bus_stop_icon};
+            int[] image = new int[]{R.drawable.buspingreen, R.drawable.buspinblue, R.drawable.buspinred, R.drawable.googlemarker, R.drawable.waypoint, R.drawable.appicon};
+
+            TextView tv = new TextView(getApplicationContext());
+            tv.setBackgroundColor(getResources().getColor(R.color.white));
+            tv.setGravity(Gravity.CENTER);
+            tv.setText(R.string.select_route);
+            tv.setTextSize(20);
+            tv.setPadding(0,20,0,20);
+            info.addView(tv);
+
+            for (int i=0; i<text.length; i++) {
+                tv = new TextView(getApplicationContext());
+                tv.setBackgroundColor(getResources().getColor(R.color.white));
+                tv.setGravity(Gravity.CENTER);
+                Drawable img = getResources().getDrawable(image[i]);
+                img.setBounds(0, 0, 100, 100);
+                tv.setCompoundDrawables(img, null, null, null);
+                tv.setText(text[i]);
+                tv.setTextSize(14);
+                info.addView(tv);
+            }
+
+            mTourGuideHandler.setToolTip(toolTip.setCustomView(info).setGravity(Gravity.TOP));
             mTourGuideHandler.playOn(ETAtextview);
 
+
         }else if(id==5){ //for route instructions
-            mTourGuideHandler.setToolTip(toolTip.setTitle(getString(R.string.route_instructions)).setGravity(Gravity.TOP).setDescription(getString(R.string.route_instructions_tap)));
-            //to handle route within walking distance so user can dismiss the box by tapping anywhere
-            mTourGuideHandler.getOverlay().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mTourGuideHandler.cleanUp();
+            try {
+                //When there's only one step in the route during tutorial, skip route steps
+                if (routes.getJSONObject(String.valueOf(selectedrouteid)).getJSONArray("Route").length() == 1) {
                     guideid++;
                     guideuser(guideid);
+                }else{
+                    mTourGuideHandler.setToolTip(toolTip.setTitle(getString(R.string.route_instructions)).setGravity(Gravity.TOP).setDescription(getString(R.string.route_instructions_tap)));
+                    //to handle route within walking distance so user can dismiss the box by tapping anywhere
+                   /* mTourGuideHandler.getOverlay().setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mTourGuideHandler.cleanUp();
+                            guideid++;
+                            guideuser(guideid);
+                        }
+                    });*/
+                    mTourGuideHandler.playOn(rightbutton);
                 }
-            });
-            mTourGuideHandler.playOn(rightbutton);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
         }else if(id==6){ //for satellite view
             mTourGuideHandler.setToolTip(toolTip.setTitle(getString(R.string.satellite)).setGravity(Gravity.TOP).setDescription(getString(R.string.satellite_tap)));
             mTourGuideHandler.playOn(maptypebutton);
@@ -1385,6 +1500,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             guideid = 8;
                             editor.putInt("GuideID", guideid); //update flag
                             editor.apply(); //save data
+                            clearui(true);
+                            maptypebutton.performClick();
+                            mTourGuideHandler = null;
                         }
             }).show();
         }
