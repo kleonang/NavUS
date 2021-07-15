@@ -1,5 +1,22 @@
 # NavUS <img src="https://user-images.githubusercontent.com/35805635/120774197-a3257d80-c554-11eb-804c-579cd979efe1.png" width="80" height="80">
 
+## Table of contents
+- [Motivation](https://github.com/alvintan01/NavUS#motivation)
+- [User Stories](https://github.com/alvintan01/NavUS#user-stories)
+- [Demostration](https://github.com/alvintan01/NavUS#demonstration)
+- [Features](https://github.com/alvintan01/NavUS#features)
+- [UI Screenshots](https://github.com/alvintan01/NavUS#ui-screenshots)
+  - [Android UI](https://github.com/alvintan01/NavUS#android-ui)
+  - [Telegram UI](https://github.com/alvintan01/NavUS#telegram-ui)
+- [Implementation Overview](https://github.com/alvintan01/NavUS#implementation-overview)
+- [Firebase Data Structure](https://github.com/alvintan01/NavUS#firebase-data-structure)
+- [Testing](https://github.com/alvintan01/NavUS#testing)
+- [Comparisons with existing applications](https://github.com/alvintan01/NavUS#comparisons-with-existing-applications)
+- [Technical Stack](https://github.com/alvintan01/NavUS#technical-stack)
+- [Project Timeline](https://github.com/alvintan01/NavUS#project-timeline)
+- [Setup Instructions](https://github.com/alvintan01/NavUS#setup-instructions)
+  - [Python3 Scripts](https://github.com/alvintan01/NavUS#python3-scripts)
+  - [JSON Files](https://github.com/alvintan01/NavUS#json-files)
 
 ## Motivation
 When you’re trying to look for a classroom and you entered the venue in Google maps, there are no suitable results returned. Currently, students have to manually look up the location of their classrooms/lecture theatres on NUSMods, then look up the individual routes of the NUS ISB to get to their intended destination (either through the NextBus app or static ISB map). This project aims to minimise the lookup time. Users just need to input their current location/via GPS and their destination location within campus (e.g. I3-Auditorium to FoS S12 Bldg) and NavUS should provide step-by-step instructions to get from their current location to their destination. NavUS uses live bus timing data to calculate the estimated travel time required and recommends a route with its bus travel time to the destination’s nearest bus stop.
@@ -16,7 +33,7 @@ Telegram           |  Android App
 <img src="https://user-images.githubusercontent.com/35805635/125159244-d5a44500-e1a8-11eb-8335-9d144b399543.png" width="360" height="740"> |  <img src="https://user-images.githubusercontent.com/35805635/125159252-e785e800-e1a8-11eb-8ff3-948d27325c65.png" width="360" height="740">
 
 ## Features
-- **Android App**
+- ### Android App
   - **Background Notification** that guides user when NavUS in running in the background
   - **Dark mode** support
   - **Estimated Time of Arrival (ETA)** taking into account bus arrival/transit times
@@ -29,7 +46,7 @@ Telegram           |  Android App
   - **Tutorial** guides the user on how to interact with the application
   - **Interactive UI** for user to enter source and destination, as well as browse through the detailed navigation directions
 
-- **Telegram Bot**
+- ### Telegram Bot
   - **Estimated Time of Arrival (ETA)** taking into account bus arrival/transit times
   - **Messaging UI** for user to enter his source and destination, as well as detailed steps to his destination
   - **Multiple-route recommendation** for user to choose preferred route
