@@ -16,6 +16,7 @@
     - [getpath](#getpath)
     - [getarrivaltimings](#getarrivaltimings)
 - [Testing](#testing)
+- [Software Engineering Practices](#software-engineering-practices)
 - [Comparisons with existing applications](#comparisons-with-existing-applications)
 - [Technical Stack](#technical-stack)
 - [Project Timeline](#project-timeline)
@@ -156,8 +157,19 @@ _Note: Unlabelled edges are weighted with static travel times._
     - nextArrivalTime (String, '-' if unknown/Not operating)
   
 ## Testing
-Currently, we have utilised a script to test all possible combinations of sources and destinations to ensure that our server is capable of handling simultaneous requests and without running into errors. We have also fixed bugs found in the Android application and improved the UI based on initial feedback. We plan to get more users to test out the application as part of their daily commute around NUS.
+Currently, we have utilised a script to test all possible combinations of sources and destinations to ensure that our server is capable of handling simultaneous requests and without running into errors. We have also fixed bugs found in the Android application and improved the UI based on initial feedback. 
+  
+We have also released the Android application to a select group of beta testers who are able to provide feedback with their usage experience. We plan to roll out the Android application to more users (when initial deployment issues are resolved) for testing by using the application as part of their daily commute around NUS.
 
+## Software Engineering Practices
+### Separation of working and production copies of code
+A working copy of our entire codebase is kept in a shared Google Drive folder that is only accessible to the developers. Similar to GitHub's version history, Google Drive has functionality to update a file to a new version while keeping all past iterations of the file. This helps us keep track of changes to our code and enables us to easily revert back to previous versions if needed. 
+
+A production copy (that is able to be run by the end-user) is maintained on GitHub, and is publicly accessible. An advantage of separating our working and production codebase is keeping public and private files securely segregated. This ensures that essential private information like API keys are only accessible to NavUS developers via Google Drive while the majority of our code is kept open-source on GitHub. 
+  
+### Adherance to established code style
+For our main server-run Python scripts, `CalculatePath.py` and `TelegramBot.py`, we ensured that the code conforms to the [PEP 8 Style Guide](https://www.python.org/dev/peps/pep-0008/). This makes the code for these essential files more readable and enables other software developers from outside the NavUS development team to comprehend our code more easily. In the above Python scripts, we adhered to the naming conventions, styles as well as formatting recommendations of code and comments in PEP 8.
+  
 ## Comparisons with existing applications
 **NUS NextBus** app provides us with the bus routes and arrival times of buses but assumes you know the closest bus stop to your destination. Also, there is no functionality to enter a bus stop and get directions from your location to your intended destination.
 
@@ -203,4 +215,6 @@ The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Fi
 
 The `App` directory contains the code for the `Android` application. Update `App\src\main\java\com\example\navus\APIKeys.java` with your Firebase's URL and `App\src\debug\res\values\google_maps_api.xml` with your Google map API key. Add `google_services.json` downloaded from Firebase Console to the `App` directory.
 
-The `APK` file of the latest version of NavUS can be downloaded [here](https://github.com/alvintan01/NavUS/raw/main/App/NavUS.apk). Feel free to contact [Alvin](https://github.com/alvintan01) or [Kleon](https://github.com/kleonang) if you have any feedback or suggestions to improve NavUS.
+The `APK` file of the latest version of NavUS can be downloaded [here](https://github.com/alvintan01/NavUS/raw/main/App/NavUS.apk). The Android application is currently free to download and use from GitHub, all that we ask is that you help us improve the app by letting us know your user feedback via [this short feedback form](https://forms.gle/NfEULn6eEUViywUy9). 
+  
+Feel free to contact [Alvin](https://github.com/alvintan01) or [Kleon](https://github.com/kleonang) if you have any feedback or suggestions to improve NavUS.
