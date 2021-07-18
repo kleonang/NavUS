@@ -40,7 +40,6 @@ def get_route(update, user_id):
                                 + str(source[0]) + "/"
                                 + str(source[1]) + "/"
                                 + destination)
-
     else:
         response = requests.get(server_url + "/getpath/"
                                 + source + "/"
@@ -61,7 +60,6 @@ def get_route(update, user_id):
         routing_info_dict[user_id]["Destination"] = destination
 
         reply = get_instructions(user_id)  # Always return the first route
-
     else:  # Error accessing server
         reply = "There's a issue accessing the server, please try again later."
 
@@ -97,7 +95,6 @@ def get_arrival(update, user_id):
                     + "Subsequent: " \
                     + json_object[service]["nextArrivalTime"] \
                     + " mins\n\n"
-
     else:  # Error accessing server
         # String to store data to be returned
         reply = "There's a issue accessing the server, please try again later."
@@ -109,7 +106,6 @@ def get_instructions(user_id):
     """Get route details and instructions."""
     bus_service_list = []
     stops_list = []
-
     # Get user's source and destination
     source = routing_info_dict[user_id]["Source"]
     destination = routing_info_dict[user_id]["Destination"]
@@ -123,6 +119,9 @@ def get_instructions(user_id):
         del routing_info_dict[user_id]
         return "Sorry, the data is out of date."
 
+    if len(json_object) == 0:  # JSON response is {}
+        return "No route found."
+
     ETA = json_object[route_num]["ETA"]
     travel_time = str(json_object[route_num]["TravelTime"])
 
@@ -135,10 +134,7 @@ def get_instructions(user_id):
     else:
         travel_time += " mins"
 
-    if len(json_object[route_num]["Route"]) == 0:
-        reply = "No route found."
-
-    elif len(json_object[route_num]["Route"]) == 1:  # within walking distance
+    if len(json_object[route_num]["Route"]) == 1:  # Within walking distance
         reply = "You are within walking distance to your destination."
 
     else:
@@ -373,6 +369,7 @@ def get_source_and_destination(update, context):
 def error(update, context):
     """Log errors caused by updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
+    print("Type: ", type(context.error))
 
 
 def location(update, context):
