@@ -597,8 +597,11 @@ def get_path_using_coordinates(source_lat, source_long, dest_lat, dest_long):
             r1 = p1["Route"]
             for p2 in path_list:
                 r2 = p2["Route"]
-                if r1 != r2 and r1[0] == r2[0] and r2[-1][0] == dest_name \
-                        and set(r1).issubset(set(r2)):
+                if r1 != r2 \
+                        and r1[0] == r2[0] \
+                        and r2[-1][0] == dest_name \
+                        and set(r1).issubset(set(r2)) \
+                        and p1 in filtered_path_list:
                     filtered_path_list.remove(p1)
         path_list = filtered_path_list
     print("Pathlist contains " + str(len(path_list)) + " paths:")
