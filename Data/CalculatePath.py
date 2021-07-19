@@ -575,20 +575,34 @@ def get_path_using_coordinates(source_lat, source_long, dest_lat, dest_long):
                     p["Destination"] = destination
                     path_list.append(p)
 
-    # Filter out paths in path_list where specified destination is in the path
-    # and is not the last stop (only works if destination is a bus stop)
+    # Filtering not useful supersets and subsets of routes
+    # (only works if destination is a bus stop)
     if (dest_lat, dest_long) in bus_stop_coordinates.values():
         dest_name = list(
             bus_stop_coordinates.keys())[
             list(
                 bus_stop_coordinates.values()).index(
                 (dest_lat, dest_long))]
+        # Filter out paths in path_list where specified destination is in the
+        # path and is not the last stop (supersets)
         path_list = [p for p in path_list
                      if len(
                          [wp for wp in p["Route"]
                           if wp[0] == dest_name
                           and wp != p["Route"][-1]]) == 0]
+        # Filter out paths in path_list which are subsets of other paths ending
+        # in the specified destination
+        filtered_path_list = path_list.copy()
+        for p1 in path_list:
+            r1 = p1["Route"]
+            for p2 in path_list:
+                r2 = p2["Route"]
+                if r1 != r2 and r1[0] == r2[0] and r2[-1][0] == dest_name \
+                        and set(r1).issubset(set(r2)):
+                    filtered_path_list.remove(p1)
+        path_list = filtered_path_list
     print("Pathlist contains " + str(len(path_list)) + " paths:")
+    print(path_list)
 
     all_route_list = []  # to store all (route information, total travel time)
 
@@ -663,7 +677,8 @@ def get_path_using_coordinates(source_lat, source_long, dest_lat, dest_long):
 
                     # cannot catch the next bus, count subsequent bus instead
                     elif bus_timings["nextArrivalTime"] != "-" \
-                            and total_time < int(bus_timings["nextArrivalTime"]):
+                        and total_time < int(
+                            bus_timings["nextArrivalTime"]):
                         bus_arrival_time = bus_timings["nextArrivalTime"]
                         # must subtract current total time for net waiting time
                         total_time += int(bus_arrival_time) - total_time
