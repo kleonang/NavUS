@@ -13,20 +13,6 @@
             "End": "2300"
         }
     },
-    "A1E": {
-        "Weekdays": {
-            "Start": "0730",
-            "End": "1000"
-        },
-        "Saturdays": {
-            "Start": "-",
-            "End": "-"
-        },
-        "SundaysandPH": {
-            "Start": "-",
-            "End": "-"
-        }
-    },
     "A2": {
         "Weekdays": {
             "Start": "0715",
@@ -41,84 +27,14 @@
             "End": "2300"
         }
     },
-    "A2E": {
+    "BTC": {
         "Weekdays": {
-            "Start": "1730",
-            "End": "1900"
-        },
-        "Saturdays": {
-            "Start": "-",
-            "End": "-"
-        },
-        "SundaysandPH": {
-            "Start": "-",
-            "End": "-"
-        }
-    },
-    "B1": {
-        "Weekdays": {
-            "Start": "0715",
-            "End": "1900"
-        },
-        "Saturdays": {
-            "Start": "-",
-            "End": "-"
-        },
-        "SundaysandPH": {
-            "Start": "-",
-            "End": "-"
-        }
-    },
-    "B2": {
-        "Weekdays": {
-            "Start": "0715",
-            "End": "2300"
-        },
-        "Saturdays": {
-            "Start": "0730",
-            "End": "2300"
-        },
-        "SundaysandPH": {
-            "Start": "-",
-            "End": "-"
-        }
-    },
-    "BTC1": {
-        "Weekdays": {
-            "Start": "0720",
+            "Start": "0700",
             "End": "2130"
         },
         "Saturdays": {
-            "Start": "0830",
-            "End": "1230"
-        },
-        "SundaysandPH": {
             "Start": "-",
             "End": "-"
-        }
-    },
-    "BTC2": {
-        "Weekdays": {
-            "Start": "0720",
-            "End": "2130"
-        },
-        "Saturdays": {
-            "Start": "0830",
-            "End": "1230"
-        },
-        "SundaysandPH": {
-            "Start": "-",
-            "End": "-"
-        }
-    },
-    "C": {
-        "Weekdays": {
-            "Start": "0715",
-            "End": "2300"
-        },
-        "Saturdays": {
-            "Start": "0730",
-            "End": "1900"
         },
         "SundaysandPH": {
             "Start": "-",
@@ -151,6 +67,48 @@
         "SundaysandPH": {
             "Start": "0900",
             "End": "2300"
+        }
+    },
+    "E": {
+        "Weekdays": {
+            "Start": "0800",
+            "End": "1600"
+        },
+        "Saturdays": {
+            "Start": "-",
+            "End": "-"
+        },
+        "SundaysandPH": {
+            "Start": "-",
+            "End": "-"
+        }
+    },
+    "K": {
+        "Weekdays": {
+            "Start": "0700",
+            "End": "2300"
+        },
+        "Saturdays": {
+            "Start": "0700",
+            "End": "1930"
+        },
+        "SundaysandPH": {
+            "Start": "-",
+            "End": "-"
+        }
+    },
+    "L": {
+        "Weekdays": {
+            "Start": "1700",
+            "End": "1930"
+        },
+        "Saturdays": {
+            "Start": "-",
+            "End": "-"
+        },
+        "SundaysandPH": {
+            "Start": "-",
+            "End": "-"
         }
     }
 }

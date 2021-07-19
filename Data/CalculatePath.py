@@ -489,10 +489,6 @@ def get_path_using_coordinates(source_lat, source_long, dest_lat, dest_long):
     operating_services = check_operating_services()
 
     data = {}  # initialise as empty dictionary for data to be returned
-    data[0] = {}
-    data[0]['Route'] = []
-    data[0]['ETA'] = ""
-    data[0]['TravelTime'] = ""
 
     master_graph = construct_master_graph(operating_services)
 
@@ -666,7 +662,8 @@ def get_path_using_coordinates(source_lat, source_long, dest_lat, dest_long):
                               + bus_arrival_time + " mins at " + bus_stop)
 
                     # cannot catch the next bus, count subsequent bus instead
-                    elif total_time < int(bus_timings["nextArrivalTime"]):
+                    elif bus_timings["nextArrivalTime"] != "-" \
+                            and total_time < int(bus_timings["nextArrivalTime"]):
                         bus_arrival_time = bus_timings["nextArrivalTime"]
                         # must subtract current total time for net waiting time
                         total_time += int(bus_arrival_time) - total_time

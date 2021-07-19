@@ -127,6 +127,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     int guideid = 0; //to know what guide to show user
     SharedPreferences.Editor editor;
     Marker closestbusstop; //to store the closest bus stop
+    Map<String, Date> lastrefreshed = new HashMap<String, Date>();
     //String serverurl = "http://192.168.1.126:5000";
     String serverurl = "https://navus-312709.uc.r.appspot.com";
     //String serverurl = "https://kleonang.pythonanywhere.com";
@@ -434,15 +435,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+                Boolean refresh = true;
                 if (routeselected)
                     setautopan(false);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 17));
                 marker.showInfoWindow();
                 //if it is a busstop then query for timings
                 if (BusStopMarkerAL.contains(marker)){
-                    marker.setSnippet(getString(R.string.getting_arrival_info));
-                    marker.showInfoWindow();
-                    new getarrivaltimings().execute(marker.getTitle());
+                    if (lastrefreshed.containsKey(marker.getTitle())){
+                        //only allow the user to refresh every 30 seconds
+                        Date thirtysecondslater = new Date(lastrefreshed.get(marker.getTitle()).getTime() + 30000);
+                        if (thirtysecondslater.compareTo(new Date()) > 0){
+                            refresh = false;
+                        }
+                    }
+                    if (refresh){
+                        marker.setSnippet(getString(R.string.getting_arrival_info));
+                        marker.showInfoWindow();
+                        new getarrivaltimings().execute(marker.getTitle());
+                    }
                 }
                 return true;
             }
@@ -1153,9 +1164,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }else if(!previousbusstopname.equals(routeinfo.get(i).getName())){ //remove duplicates in the event of transfer
                 waypointsstring += routeinfo.get(i).getLatitude() + "," + routeinfo.get(i).getLongitude() + "|";
             }
-            if (previousbusstopname.equals("S 17") && routeinfo.get(i).getName().equals("LT 27")){
-                waypointsstring += "1.296827,103.783008|";
-            }
 
             previousbusstopname = routeinfo.get(i).getName();
         }
@@ -1382,6 +1390,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //if marker name matches
                 if (marker.getTitle().equals(result.get(1))){
                     marker.setSnippet(arrivaltimings);
+                    //set refreshed time
+                    lastrefreshed.put(marker.getTitle(), new Date());
 
                     //ensure map is loaded before calling showInfoWindow
                     mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
