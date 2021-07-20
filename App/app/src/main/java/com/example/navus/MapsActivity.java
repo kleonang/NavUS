@@ -128,9 +128,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     SharedPreferences.Editor editor;
     Marker closestbusstop; //to store the closest bus stop
     Map<String, Date> lastrefreshed = new HashMap<String, Date>();
-    //String serverurl = "http://192.168.1.126:5000";
-    String serverurl = "https://navus-312709.uc.r.appspot.com";
-    //String serverurl = "https://kleonang.pythonanywhere.com";
+    String serverurl = "http://127.0.0.1:5000";
 
     //to handle search
     @Override
