@@ -17,6 +17,9 @@
     - [getarrivaltimings](#getarrivaltimings)
 - [Testing](#testing)
 - [Software Engineering Practices](#software-engineering-practices)
+  -  [Separation of Working and Production Copies of Code](#separation-of-working-and-production-copies-of-code)
+  -  [Adherance to Established Code Style](#adherance-to-established-code-style)
+  -  [Error Handling](#error-handling)
 - [Comparisons with Existing Applications](#comparisons-with-existing-applications)
 - [Technical Stack](#technical-stack)
 - [Project Timeline](#project-timeline)
@@ -162,13 +165,16 @@ Currently, we have utilised a script to test all possible combinations of source
 We have also released the Android application to a select group of beta testers who are able to provide feedback with their usage experience. We plan to roll out the Android application to more users (when initial deployment issues are resolved) for testing by using the application as part of their daily commute around NUS.
 
 ## Software Engineering Practices
-### Separation of working and production copies of code
+### Separation of Working and Production Copies of Code
 A working copy of our entire codebase is kept in a shared Google Drive folder that is only accessible to the developers. Similar to GitHub's version history, Google Drive has functionality to update a file to a new version while keeping all past iterations of the file. This helps us keep track of changes to our code and enables us to easily revert back to previous versions if needed. 
 
 A production copy (that is able to be run by the end-user) is maintained on GitHub, and is publicly accessible. An advantage of separating our working and production codebase is keeping public and private files securely segregated. This ensures that essential private information like API keys are only accessible to NavUS developers via Google Drive while the majority of our code is kept open-source on GitHub. 
   
-### Adherance to established code style
+### Adherance to Established Code Style
 For our main server-run Python scripts, `CalculatePath.py` and `TelegramBot.py`, we ensured that the code conforms to the [PEP 8 Style Guide](https://www.python.org/dev/peps/pep-0008/). This makes the code for these essential files more readable and enables other software developers from outside the NavUS development team to comprehend our code more easily. In the above Python scripts, we adhered to the naming conventions, styles as well as formatting recommendations of code and comments in PEP 8.
+  
+### Error Handling
+For all our applications, best effort has been put in to ensure all applications run as intended and informs the user on what's going on. For example, the android application would pause the tutorial if the user ensured a source and destination with no route. The tutorial will resume the next time a route is found. If the user has no internet access, the application would alert the user that it cannot connect to the route server. For the server, we ensure that routes can still be generated even when the NextBus API is down. However, the estimated time of arrival would not be provided this case. For the telegram bot, in the event our server is down, it would alert the user that it is unable to connect to the route server.
   
 ## Comparisons with Existing Applications
 **NUS NextBus** app provides us with the bus routes and arrival times of buses but assumes you know the closest bus stop to your destination. Also, there is no functionality to enter a bus stop and get directions from your location to your intended destination.
