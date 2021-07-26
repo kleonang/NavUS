@@ -1,9 +1,9 @@
-# NavUS <img src="https://user-images.githubusercontent.com/35805635/120774197-a3257d80-c554-11eb-804c-579cd979efe1.png" width="80" height="80">
-
+# NavUS
+![NavUS Logo v1_rounded_tiny](https://user-images.githubusercontent.com/35778042/127007786-5d7f2ac2-790e-42e5-99e4-d206766bc86b.png)
 ## Table of contents
 - [Motivation](#motivation)
 - [User Stories](#user-stories)
-- [Demostration](#demonstration)
+- [Demonstration](#demonstration)
 - [Features](#features)
   - [Android App](#android-app)
   - [Telegram Bot](#telegram-bot)
@@ -29,13 +29,13 @@
   - [JSON Files](#json-files)
 
 ## Motivation
-When you’re trying to look for a classroom and you entered the venue in Google maps, there are no suitable results returned. Currently, students have to manually look up the location of their classrooms/lecture theatres on NUSMods, then look up the individual routes of the NUS ISB to get to their intended destination (either through the NextBus app or static ISB map). This project aims to minimise the lookup time. Users just need to input their current location/via GPS and their destination location within campus (e.g. I3-Auditorium to FoS S12 Bldg) and NavUS should provide step-by-step instructions to get from their current location to their destination. NavUS uses live bus timing data to calculate the estimated travel time required and recommends a route with its bus travel time to the destination’s nearest bus stop.
+When you’re trying to look for a classroom and you entered the venue in Google maps, there are no suitable results returned. Currently, students have to manually look up the location of their classrooms/lecture theatres on NUSMods, then look up the individual routes of the NUS ISB to get to their intended destination (either through the NextBus app or static ISB map). This project aims to minimise the lookup time. Users just need to input their current location (or send their location via GPS) and their destination location within the NUS campus (e.g. I3-Auditorium to FoS S12 Bldg) and NavUS should provide step-by-step instructions to get from their current location to their destination. NavUS uses live bus timing data to calculate the estimated travel time required and recommends a route with its bus travel time to the destination’s nearest bus stop.
 
 ## User Stories
-1. As a student in NUS, I want to be able to find the location of my lessons quickly.
-2. As a student in NUS, I want to be able to get the bus arrival timings for each bus stop.
-3. As a visitor to NUS, I want to be able to locate nearby amenities even without prior knowledge of the NUS campus layout.
-4. As an NUS teaching staff, I want to know how to get from one lecture location to my next tutorial location across campus using the ISB.
+1. As a **student** in NUS, I want to be able to find the location of my lessons quickly.
+2. As a **student** in NUS, I want to be able to get the bus arrival timings for each bus stop.
+3. As a **visitor** to NUS, I want to be able to locate nearby amenities even without prior knowledge of the NUS campus layout.
+4. As an NUS teaching **staff**, I want to know how to get from one lecture location to my next tutorial location across campus using the ISB.
 
 ## Demonstration
 Telegram           |  Android App
@@ -44,24 +44,24 @@ Telegram           |  Android App
 
 ## Features
 - ### Android App
-  - **Background Notification** that guides user when NavUS in running in the background
+  - **Background Notification** that guides users when NavUS is running in the background
   - **Dark mode** support
   - **Estimated Time of Arrival (ETA)** taking into account bus arrival/transit times
-  - **Favourites** list for user to store frequently visited locations
-  - **Google Maps** interface to show the route, with auto pan and polylines that guides the user based on his current location
-  - **Multiple-route recommendation** for user to choose preferred route
+  - **Favourites** list for users to store frequently visited locations
+  - **Google Maps** interface to show the route, with auto pan and polylines that guides users based on his current location
+  - **Multiple-route recommendation** for user to choose their preferred route
   - **Real-time bus arrival information** at bus stops
   - **Recent searches** list that shows the last 5 searches
-  - **Satellite view** for user to quickly identify landmarks
-  - **Tutorial** guides the user on how to interact with the application
-  - **Interactive UI** for user to enter source and destination, as well as browse through the detailed navigation directions
+  - **Satellite view** for users to quickly identify landmarks
+  - **Tutorial** guides users on how to interact with the application
+  - **Interactive UI** for users to enter their source and destination, as well as browse through the detailed navigation directions
 
 - ### Telegram Bot
   - **Estimated Time of Arrival (ETA)** taking into account bus arrival/transit times
-  - **Messaging UI** for user to enter his source and destination, as well as detailed steps to his destination
-  - **Multiple-route recommendation** for user to choose preferred route
+  - **Messaging UI** for users to enter their source and destination, as well as provide detailed steps to their destination
+  - **Multiple-route recommendation** for users to choose their preferred route
   - **Real-time bus arrival information** at bus stops
-  - **Venue suggestions** when user enters a typo in the source/destination
+  - **Venue suggestions** when users enter a typo in the source/destination
 
 ## UI Screenshots
 ### Android UI
@@ -95,7 +95,7 @@ The figure above illustrates how the backend of NavUS is implemented. Firebase s
   
 The Android application checks if the venue information in Firebase was updated since the last time the application was launched and updates it if necessary. Once the user enters a source and destination it will send a request to the Flask server to get the routing information as well as the bus arrival timings. Once the routing information in JSON format is received, it will then send a request to Googles directions API to get the polyline to be displayed on the map. If the user taps on a bus stop icon, a request will also be sent to the Flask server to retrieve the bus arrival timings.
   
-The Telegram bot is hosted using Python which will help to reply to the user's query as well as to prompt the user for their source/destination/bus stop name to query the bus arrival timings. It would also help to suggest venue names in the event the user entered an invalid venue. Once it receives the valid query, it will help to make the request to Flask to get the information returned in JSON format. It would then help to format the data received to a text message and replies the user.
+The Telegram bot is hosted using Python which will help to reply to the user's queries as well as prompt the user for their source/destination/bus stop name to query bus arrival timings. It would also suggest venue names if the user entered an invalid venue. Once it receives a valid query, it will request the Flask server to get the information returned in JSON format. It would then help to format the data received into a text message and replies it to the user.
 
 <img width="975" alt="NavUS Graph_static" src="https://user-images.githubusercontent.com/35778042/123673505-1fb92c80-d873-11eb-80ad-59da9ef6326b.png">
 The above chart illustrates the graph model currently used for calculating the shortest time taken from a given source and destination. The source in the given diagram is "KR MRT" on service D2, assuming that service D2 is in operation.
@@ -166,20 +166,20 @@ _Note: Unlabelled edges are weighted with static travel times._
 ## Testing
 Currently, we have utilised a script to test all possible combinations of sources and destinations to ensure that our server is capable of handling simultaneous requests and without running into errors. We have also fixed bugs found in the Android application and improved the UI based on initial feedback. 
   
-We have also released the Android application to a select group of beta testers who are able to provide feedback with their usage experience. We plan to roll out the Android application to more users (when initial deployment issues are resolved) for testing by using the application as part of their daily commute around NUS.
+We have also released the Android application to a select group of beta testers who can provide feedback with their usage experience. We plan to roll out the Android application to more users (when initial deployment issues are resolved) for testing by using the application as part of their daily commute around NUS.
 
 ## Software Engineering Practices
 ### Separation of Working and Production Copies of Code
-A working copy of our entire codebase is kept in a shared Google Drive folder that is only accessible to the developers. Similar to GitHub's version history, Google Drive has functionality to update a file to a new version while keeping all past iterations of the file. This helps us keep track of changes to our code and enables us to easily revert back to previous versions if needed. 
+A working copy of our entire codebase is kept in a shared Google Drive folder that is only accessible to the developers. Similar to GitHub's version history, Google Drive has the functionality to update a file to a new version while keeping all past iterations of the file. This helps us keep track of changes to our code and enables us to easily revert to previous versions if needed. 
 
-A production copy (that is able to be run by the end-user) is maintained on GitHub, and is publicly accessible. An advantage of separating our working and production codebase is keeping public and private files securely segregated. This ensures that essential private information like API keys are only accessible to NavUS developers via Google Drive while the majority of our code is kept open-source on GitHub. 
+A production copy (that can be run by the end-user) is maintained on GitHub and is publicly accessible. An advantage of separating our working and production codebase is keeping public and private files securely segregated. This ensures that essential private information like API keys are only accessible to NavUS developers via Google Drive while the majority of our code is kept open-source on GitHub. 
   
-### Adherance to Established Code Style
+### Adherence to Established Code Style
 For our main server-run Python scripts, `CalculatePath.py` and `TelegramBot.py`, we ensured that the code conforms to the [PEP 8 Style Guide](https://www.python.org/dev/peps/pep-0008/). This makes the code for these essential files more readable and enables other software developers from outside the NavUS development team to comprehend our code more easily. In the above Python scripts, we adhered to the naming conventions, styles as well as formatting recommendations of code and comments in PEP 8.
   
 ### Error Handling
-For all our applications, best effort has been put in to ensure all applications run as intended and informs the user on what's going on. For example, the android application would pause the tutorial if the user ensured a source and destination with no route. The tutorial will resume the next time a route is found. If the user has no internet access, the application would alert the user that it cannot connect to the route server. For the server, we ensure that routes can still be generated even when the NextBus API is down. However, the estimated time of arrival would not be provided this case. For the telegram bot, in the event our server is down, it would alert the user that it is unable to connect to the route server.
-  
+For all our applications, we have ensured that they run as intended and inform the user of ongoing processes as far as possible. For example, a loading circle animation would play when the Android application is fetching data from our server to let the user know that the application is currently performing tasks. Also, the application would pause the tutorial if the user entered a source and destination with no route. The tutorial will resume from where it left off when a route can be found. If the user has no internet access, the application would alert the user that it cannot connect to the route server. On the server end, we ensured that routes can still be generated even when the NextBus API is down. However, the estimated time of arrival would not be provided in this case. In the event that our server is down, our Telegram bot would alert the user that it is unable to connect to the route server.
+
 ## Comparisons with Existing Applications
 **NUS NextBus** app provides us with the bus routes and arrival times of buses but assumes you know the closest bus stop to your destination. Also, there is no functionality to enter a bus stop and get directions from your location to your intended destination.
 
@@ -192,6 +192,29 @@ For all our applications, best effort has been put in to ensure all applications
 - NextBus API
 - Telegram API
 - Google Maps API
+
+### Python Libraries
+- `asyncio` and `aiohttp`
+  - Enables querying the NextBus API for bus arrival timings asynchronously (up to 7x speedup compared to synchronous requests)
+- `copy`
+  - Enables creation of deep copies of entire (custom) Graph structures with attached references to their Nodes
+- `datetime`
+  - Enables checking of current time as well as performing comparisons of time values
+- `firebase_admin`
+  - Enables fetching of data from our Firebase server
+- `flask`
+  - Enables `CalculatePath.py` to be run as a Python web application
+- `heapq`
+  - Enables creation of priority queue central to Dijkstra's Algorithm, as well as miscellaneous ranking operations
+- `holidays`
+  - Enables fetching of Singapore public holidays to get the corresponding operating timings for bus services
+- `json`
+  - Enables parsing of replies from API queries and return of recommended routes to our web server
+- `math`
+  - Enables performing standard mathematical operations
+- `os` and `time`
+  - Enables setting the server time to Singapore Time (UTC +8) for standardisation
+
   
 ## Limitations
 Currently, our application only allows routes covered by the NUS Internal Bus Shuttle (ISB). It does not include routes covered by public buses. Also, the Android application only runs on Android devices, as such iOS users can only use the Telegram Bot.
@@ -213,10 +236,10 @@ The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Fi
 
 - ### `Python3` Scripts
   - `InsertBusOperatingHours.py` is used to populate Firebase at the `/BusOperatingHours` reference. It contains all the bus operating hours on *Weekdays*, *Saturdays*, and *Sundays and Public Holidays*.
-  - `InsertBusRoutes.py` is used to populate Firebase at the `/BusRoutes` reference. It contains all the bus *routes* as well as the *time taken* to travel to the next busstop.
+  - `InsertBusRoutes.py` is used to populate Firebase at the `/BusRoutes` reference. It contains all the bus *routes* as well as the *time taken* to travel to the next bus stop.
   - `InsertBusStops.py` is used to populate Firebase at the `/BusStops` reference. It contains all the bus stop's *Name*, *NextBusAlias* (used to query for bus arrival timings) and *Services* (used to determine the bus services at each bus stop).
   - `InsertVenue.py` is used to populate Firebase at the `/Venues` reference. It contains all the venue's *Name*, *Latitude*, *Longitude* and *IsBusStop* (used to determine if a venue is a bus stop).
-  - `CalculatePath.py` constructs a graph with vertices representing a unique busstop and service combination and weighted edges representing the travel time between vertices. Dijkstra's Algorithm is used to calculate the shortest path from the given source to the given destination, and the `getpath` method returns this information in `JSON` format running on Flask. The `getarrivaltimings` method returns the bus arrival timings in `JSON` format.
+  - `CalculatePath.py` constructs a graph with vertices representing a unique bus stop and service combination and weighted edges representing the travel time between vertices. Dijkstra's Algorithm is used to calculate the shortest path from the given source to the given destination, and the `getpath` method returns this information in `JSON` format running on Flask. The `getarrivaltimings` method returns the bus arrival timings in `JSON` format.
   - `TelegramBot.py` helps to run the Telegram Bot to get the user's input to query the bus arrival timings as well as routing information from `CalculatePath.py`. It then receives the `JSON` data from Flask and formats it into a text message to reply to the user.
   - `VenueFinder.py` queries the NUSMods API for the list of lesson venues in a given Academic Year and Semester, then scrapes the NUSMods website to get the coordinates (latitude and longitude) of all available venues.
 
