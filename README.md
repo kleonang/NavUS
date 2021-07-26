@@ -22,6 +22,7 @@
   -  [Error Handling](#error-handling)
 - [Comparisons with Existing Applications](#comparisons-with-existing-applications)
 - [Technical Stack](#technical-stack)
+  -  [Python Libraries](#python-libraries)
 - [Limitations](#limitations)
 - [Project Timeline](#project-timeline)
 - [Setup Instructions](#setup-instructions)
@@ -178,7 +179,11 @@ A production copy (that can be run by the end-user) is maintained on GitHub and 
 For our main server-run Python scripts, `CalculatePath.py` and `TelegramBot.py`, we ensured that the code conforms to the [PEP 8 Style Guide](https://www.python.org/dev/peps/pep-0008/). This makes the code for these essential files more readable and enables other software developers from outside the NavUS development team to comprehend our code more easily. In the above Python scripts, we adhered to the naming conventions, styles as well as formatting recommendations of code and comments in PEP 8.
   
 ### Error Handling
-For all our applications, we have ensured that they run as intended and inform the user of ongoing processes as far as possible. For example, a loading circle animation would play when the Android application is fetching data from our server to let the user know that the application is currently performing tasks. Also, the application would pause the tutorial if the user entered a source and destination with no route. The tutorial will resume from where it left off when a route can be found. If the user has no internet access, the application would alert the user that it cannot connect to the route server. On the server end, we ensured that routes can still be generated even when the NextBus API is down. However, the estimated time of arrival would not be provided in this case. In the event that our server is down, our Telegram bot would alert the user that it is unable to connect to the route server.
+For all our applications, we have ensured that they run as intended and inform the user of ongoing processes as far as possible. For example, a loading circle animation would play when the Android application is fetching data from our server to let the user know that the application is currently performing tasks. Also, the application would pause the tutorial if the user entered a source and destination with no route. The tutorial will resume from where it left off when a route can be found. If the user has no internet access, the application would alert the user that it cannot connect to the route server. 
+  
+On the server end, we ensured that routes can still be generated even when the NextBus API is down. However, the estimated time of arrival would not be provided in this case. In the event that our server is down, our Telegram bot would alert the user that it is unable to connect to the route server.
+  
+We have also made 2 servers available for calculating routes: one each on Firebase and PythonAnywhere. This additional layer of redundancy enables us to redirect queries from one server to the other in case of server-side maintenance activities beyond our control.
 
 ## Comparisons with Existing Applications
 **NUS NextBus** app provides us with the bus routes and arrival times of buses but assumes you know the closest bus stop to your destination. Also, there is no functionality to enter a bus stop and get directions from your location to your intended destination.
@@ -186,12 +191,13 @@ For all our applications, we have ensured that they run as intended and inform t
 **NUSMODS** provides us with the location of classrooms but not the routing information to get there.
 
 ## Technical Stack
+- Android Studio
 - Firebase
 - Flask
-- Android Studio
-- NextBus API
-- Telegram API
 - Google Maps API
+- NextBus API
+- PythonAnywhere
+- Telegram API
 
 ### Python Libraries
 - `asyncio` and `aiohttp`
@@ -232,7 +238,7 @@ Week           |  Task
 11 (19/7 - 25/7)           | Further testing and debugging, while polishing the applications as a whole
 
 ## Setup Instructions
-The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Firebase, 1 `Python3` file for the logic of the path calculation and 1 `Python3` file for the logic of the Telegram Bot as well as 1 `Python3` file used to collect venue data. Before running the scripts, ensure that `firebase.json` is replaced with yours downloaded from the `Firebase Console`. Also, edit the file `firebaseurl.txt` to your Firebase's URL from the `Firebase Console`. For Telegram Bot edit the file `telegramapikey.txt` with yours from `BotFather` and the file `server_url.txt` with the URL of your server running `CalculatePath.py`.
+The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Firebase, 1 `Python3` file for the logic of the path calculation, 1 `Python3` file for the logic of the Telegram Bot, as well as 1 `Python3` file used to collect venue data. Before running the scripts, ensure that `firebase.json` is replaced with yours downloaded from the `Firebase Console`. Also, edit the file `firebaseurl.txt` to your Firebase's URL from the `Firebase Console`. For Telegram Bot edit the file `telegramapikey.txt` with yours from `BotFather` and the file `server_url.txt` with the URL of your server running `CalculatePath.py`.
 
 - ### `Python3` Scripts
   - `InsertBusOperatingHours.py` is used to populate Firebase at the `/BusOperatingHours` reference. It contains all the bus operating hours on *Weekdays*, *Saturdays*, and *Sundays and Public Holidays*.
