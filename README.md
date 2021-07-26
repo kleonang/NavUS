@@ -22,6 +22,7 @@
   -  [Error Handling](#error-handling)
 - [Comparisons with Existing Applications](#comparisons-with-existing-applications)
 - [Technical Stack](#technical-stack)
+- [Limitations](#limitations)
 - [Project Timeline](#project-timeline)
 - [Setup Instructions](#setup-instructions)
   - [Python3 Scripts](#python3-scripts)
@@ -90,8 +91,11 @@ The **Android App** provides a visual interface for users to enter their destina
 
 The **Telegram Bot** provides a chat-like interface for users to query the route to their destination.
 ![NavUS Implementation](https://user-images.githubusercontent.com/35805635/123807030-16d36400-d922-11eb-92a8-57c6214f3b6b.png)
-The figure above illustrates how the backend of NavUS is implemented.
-
+The figure above illustrates how the backend of NavUS is implemented. Firebase stores most of the data in our application which includes the BusOperatingHours, BusRoutes, BusStops, LastUpdated and Venues.
+  
+The Android application checks if the venue information in Firebase was updated since the last time the application was launched and updates it if necessary. Once the user enters a source and destination it will send a request to the Flask server to get the routing information as well as the bus arrival timings. Once the routing information in JSON format is received, it will then send a request to Googles directions API to get the polyline to be displayed on the map. If the user taps on a bus stop icon, a request will also be sent to the Flask server to retrieve the bus arrival timings.
+  
+The Telegram bot is hosted using Python which will help to reply to the user's query as well as to prompt the user for their source/destination/bus stop name to query the bus arrival timings. It would also help to suggest venue names in the event the user entered an invalid venue. Once it receives the valid query, it will help to make the request to Flask to get the information returned in JSON format. It would then help to format the data received to a text message and replies the user.
 
 <img width="975" alt="NavUS Graph_static" src="https://user-images.githubusercontent.com/35778042/123673505-1fb92c80-d873-11eb-80ad-59da9ef6326b.png">
 The above chart illustrates the graph model currently used for calculating the shortest time taken from a given source and destination. The source in the given diagram is "KR MRT" on service D2, assuming that service D2 is in operation.
@@ -188,6 +192,9 @@ For all our applications, best effort has been put in to ensure all applications
 - NextBus API
 - Telegram API
 - Google Maps API
+  
+## Limitations
+Currently, our application only allows routes covered by the NUS Internal Bus Shuttle (ISB). It does not include routes covered by public buses. Also, the Android application only runs on Android devices, as such iOS users can only use the Telegram Bot.
 
 ## Project Timeline
 Week           |  Task
