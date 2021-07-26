@@ -183,7 +183,7 @@ For all our applications, we have ensured that they run as intended and inform t
   
 On the server end, we ensured that routes can still be generated even when the NextBus API is down. However, the estimated time of arrival would not be provided in this case. In the event that our server is down, our Telegram bot would alert the user that it is unable to connect to the route server.
   
-We have also made 2 servers available for calculating routes: one each on Firebase and PythonAnywhere. This additional layer of redundancy enables us to redirect queries from one server to the other in case of server-side maintenance activities beyond our control.
+We have also made two servers available for calculating routes: one each on Google Cloud and PythonAnywhere. This additional layer of redundancy enables us to redirect queries from one server to the other in case of server-side maintenance activities beyond our control.
 
 ## Comparisons with Existing Applications
 **NUS NextBus** app provides us with the bus routes and arrival times of buses but assumes you know the closest bus stop to your destination. Also, there is no functionality to enter a bus stop and get directions from your location to your intended destination.
@@ -194,6 +194,7 @@ We have also made 2 servers available for calculating routes: one each on Fireba
 - Android Studio
 - Firebase
 - Flask
+- Google Cloud
 - Google Maps API
 - NextBus API
 - PythonAnywhere
