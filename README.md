@@ -44,7 +44,7 @@ Telegram           |  Android App
 <img src="https://user-images.githubusercontent.com/35805635/125159244-d5a44500-e1a8-11eb-8335-9d144b399543.png" width="360" height="740"> |  <img src="https://user-images.githubusercontent.com/35805635/125159252-e785e800-e1a8-11eb-8ff3-948d27325c65.png" width="360" height="740">
 
 ## Features
-- ### Android App
+- ### Android App ([download link](https://github.com/alvintan01/NavUS/raw/main/App/NavUS.apk))
   - **Background Notification** that guides users when NavUS is running in the background
   - **Dark mode** support
   - **Estimated Time of Arrival (ETA)** taking into account bus arrival/transit times
@@ -57,7 +57,7 @@ Telegram           |  Android App
   - **Tutorial** guides users on how to interact with the application
   - **Interactive UI** for users to enter their source and destination, as well as browse through the detailed navigation directions
 
-- ### Telegram Bot
+- ### Telegram Bot ([@NavUSBot](https://t.me/NavUSBot))
   - **Estimated Time of Arrival (ETA)** taking into account bus arrival/transit times
   - **Messaging UI** for users to enter their source and destination, as well as provide detailed steps to their destination
   - **Multiple-route recommendation** for users to choose their preferred route
