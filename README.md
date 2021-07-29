@@ -167,7 +167,7 @@ _Note: Unlabelled edges are weighted with static travel times._
 ## Testing
 Currently, we have utilised a script to test all possible combinations of sources and destinations to ensure that our server is capable of handling simultaneous requests and without running into errors. We have also fixed bugs found in the Android application and improved the UI based on initial feedback. 
   
-We have also released the Android application to a select group of beta testers who can provide feedback with their usage experience. We plan to roll out the Android application to more users (when initial deployment issues are resolved) for testing by using the application as part of their daily commute around NUS.
+We first released the Android application to a select group of beta testers who can provide feedback with their usage experience. We have also rolled out the Android application and Telegram bot to more users via publicity in Telegram groups for testing by using the application as part of their daily commute around NUS. We are collecting feedback based on these user experiences via [an online feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeitP9waxrhQDNsSO33p7dvhls3KbV5JX-eTABu_K0h-tslXA/viewform?usp=sf_link).
 
 ## Software Engineering Practices
 ### Separation of Working and Production Copies of Code
