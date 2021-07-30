@@ -295,8 +295,8 @@
     },
     "50": {
         "Name": "BOTANIC GARDENS MRT",
-        "Latitude": "1.322706",
-        "Longitude": "103.815102",
+        "Latitude": "1.32264999998361",
+        "Longitude": "103.815540000031",
         "IsBusStop": "true"
     },
     "51": {
@@ -331,14 +331,14 @@
     },
     "56": {
         "Name": "CENTRAL LIBRARY (CLB)",
-        "Latitude": "1.296313",
-        "Longitude": "103.771979",
+        "Latitude": "1.29656572408064",
+        "Longitude": "103.772542476642",
         "IsBusStop": "true"
     },
     "57": {
         "Name": "COLLEGE GREEN",
-        "Latitude": "1.323345",
-        "Longitude": "103.816284",
+        "Latitude": "1.32333331915013",
+        "Longitude": "103.816305669256",
         "IsBusStop": "true"
     },
     "58": {
@@ -865,8 +865,8 @@
     },
     "145": {
         "Name": "EA",
-        "Latitude": "1.30061",
-        "Longitude": "103.77017",
+        "Latitude": "1.30060333385651",
+        "Longitude": "103.770170326798",
         "IsBusStop": "true"
     },
     "146": {
@@ -1021,20 +1021,20 @@
     },
     "171": {
         "Name": "INFORMATION TECHNOLOGY (IT)",
-        "Latitude": "1.29749",
-        "Longitude": "103.772879",
+        "Latitude": "1.29721",
+        "Longitude": "103.7727004",
         "IsBusStop": "true"
     },
     "172": {
         "Name": "KENT RIDGE BUS TERMINAL (KR BUS TERMINAL)",
-        "Latitude": "1.29419",
-        "Longitude": "103.769778",
+        "Latitude": "1.29425341056334",
+        "Longitude": "103.769883231976",
         "IsBusStop": "true"
     },
     "173": {
         "Name": "KENT RIDGE MRT (KR MRT)",
-        "Latitude": "1.294823",
-        "Longitude": "103.784387",
+        "Latitude": "1.2937072200211",
+        "Longitude": "103.784891399988",
         "IsBusStop": "true"
     },
     "174": {
@@ -1111,8 +1111,8 @@
     },
     "186": {
         "Name": "LT 27",
-        "Latitude": "1.297432",
-        "Longitude": "103.780989",
+        "Latitude": "1.29738521493261",
+        "Longitude": "103.780926985672",
         "IsBusStop": "true"
     },
     "187": {
@@ -1357,8 +1357,8 @@
     },
     "227": {
         "Name": "MUSEUM",
-        "Latitude": "1.3011",
-        "Longitude": "103.773728",
+        "Latitude": "1.30107500001488",
+        "Longitude": "103.773694166984",
         "IsBusStop": "true"
     },
     "228": {
@@ -1381,8 +1381,8 @@
     },
     "231": {
         "Name": "OPP KENT RIDGE MRT (OPP KR MRT)",
-        "Latitude": "1.29497",
-        "Longitude": "103.784584",
+        "Latitude": "1.29379302903228",
+        "Longitude": "103.785079100026",
         "IsBusStop": "true"
     },
     "232": {
@@ -1393,8 +1393,8 @@
     },
     "233": {
         "Name": "OPP SDE 3",
-        "Latitude": "1.297868",
-        "Longitude": "103.769662",
+        "Latitude": "1.29786833526113",
+        "Longitude": "103.769595236505",
         "IsBusStop": "true"
     },
     "234": {
@@ -1405,20 +1405,20 @@
     },
     "235": {
         "Name": "OPP UNIVERSITY HALL (OPP UHALL)",
-        "Latitude": "1.297511",
-        "Longitude": "103.77817",
+        "Latitude": "1.29752638901257",
+        "Longitude": "103.778131111022",
         "IsBusStop": "true"
     },
     "236": {
         "Name": "OPP UNIVERSITY HEALTH CENTRE (OPP UHC)",
-        "Latitude": "1.298801",
-        "Longitude": "103.775565",
+        "Latitude": "1.29879333297449",
+        "Longitude": "103.775619167026",
         "IsBusStop": "true"
     },
     "237": {
         "Name": "OPP YUSOF ISHAK HOUSE (OPP YIH)",
-        "Latitude": "1.298995",
-        "Longitude": "103.774197",
+        "Latitude": "1.29898164227099",
+        "Longitude": "103.774177327252",
         "IsBusStop": "true"
     },
     "238": {
@@ -1441,8 +1441,8 @@
     },
     "241": {
         "Name": "RAFFLES HALL",
-        "Latitude": "1.300985",
-        "Longitude": "103.772682",
+        "Latitude": "1.30098333297992",
+        "Longitude": "103.772704167016",
         "IsBusStop": "true"
     },
     "242": {
@@ -1513,8 +1513,8 @@
     },
     "253": {
         "Name": "S 17",
-        "Latitude": "1.297478",
-        "Longitude": "103.781455",
+        "Latitude": "1.29752011664987",
+        "Longitude": "103.78134198615",
         "IsBusStop": "true"
     },
     "254": {
@@ -1687,8 +1687,8 @@
     },
     "282": {
         "Name": "SDE 3",
-        "Latitude": "1.297821",
-        "Longitude": "103.7699",
+        "Latitude": "1.29781833402646",
+        "Longitude": "103.769940270031",
         "IsBusStop": "true"
     },
     "283": {
@@ -1759,8 +1759,8 @@
     },
     "294": {
         "Name": "THE JAPANESE PRIMARY SCHOOL",
-        "Latitude": "1.300752",
-        "Longitude": "103.769964",
+        "Latitude": "1.30076138899694",
+        "Longitude": "103.769935556023",
         "IsBusStop": "true"
     },
     "295": {
@@ -1801,14 +1801,14 @@
     },
     "301": {
         "Name": "UNIVERSITY HALL (UHALL)",
-        "Latitude": "1.297216",
-        "Longitude": "103.778701",
+        "Latitude": "1.29713",
+        "Longitude": "103.7788",
         "IsBusStop": "true"
     },
     "302": {
         "Name": "UNIVERSITY HEALTH CENTRE (UHC)",
-        "Latitude": "1.298922",
-        "Longitude": "103.776159",
+        "Latitude": "1.2989244439988",
+        "Longitude": "103.776114167012",
         "IsBusStop": "true"
     },
     "303": {
@@ -2059,8 +2059,8 @@
     },
     "344": {
         "Name": "YUSOF ISHAK HOUSE (YIH)",
-        "Latitude": "1.298874",
-        "Longitude": "103.774347",
+        "Latitude": "1.29890150201437",
+        "Longitude": "103.774382313194",
         "IsBusStop": "true"
     }
 }
