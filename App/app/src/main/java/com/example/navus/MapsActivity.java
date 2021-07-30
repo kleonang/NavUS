@@ -26,6 +26,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.text.Html;
 import android.text.method.ScrollingMovementMethod;
 import android.util.DisplayMetrics;
@@ -33,6 +34,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.TranslateAnimation;
@@ -111,7 +113,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<ArrayList<Polyline>> polylinearray = new ArrayList<ArrayList<Polyline>>();
     int directionstextid = 0;
     EditText searchbar;
-    int nooftimestoretry = 3, timeout = 10000;
+    int nooftimestoretry = 30, timeout = 10000;
     JSONObject routes;
     boolean routeselected; //flag to know if the arrows is for routing information or selecting the routes
     int selectedrouteid = 0; //to keep track on which route is being selected
@@ -514,7 +516,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 title.setText(marker.getTitle());
                 info.addView(title);
                 title.measure(0,0);//so that we can measure the width later
-                int maxwidth = 0;
 
                 try {
                     TableLayout tbl=new TableLayout(getApplicationContext());
@@ -551,9 +552,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             }
 
                             tbl.addView(row);
-                            row.measure(0,0);//so that we can measure the width later
-                            maxwidth = Math.max(maxwidth, row.getMeasuredWidth());
                         }
+
+                        tbl.measure(0,0); //so that we can measure the width later
+                        int maxwidth = tbl.getMeasuredWidth();
                         tbl.setLayoutParams(new LinearLayout.LayoutParams((int) Math.max(Math.floor(maxwidth*1.2),title.getMeasuredWidth()), LinearLayout.LayoutParams.WRAP_CONTENT)); //set width to min of 500 or larger
                         info.addView(tbl);
                     }
@@ -796,6 +798,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         waypoint.showInfoWindow(); //show instructions
                         String text = directionstextarray.get(j);
                         if (!text.equals("")){
+                            //vibrate to inform user
+                            Vibrator v = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
+                            v.vibrate(500);
+                            //flash text
+                            Animation anim = new AlphaAnimation(0.0f, 1.0f);
+                            anim.setDuration(50); //You can manage the blinking time with this parameter
+                            anim.setStartOffset(20);
+                            anim.setRepeatMode(Animation.REVERSE);
+                            anim.setRepeatCount(5);
+                            directionstextview.startAnimation(anim);
+
                             directionstextview.setText(text); //update directions text view
                             disableenablebuttons(directionstextidpan, directionstextarray.size());
                             directionstextid = directionstextidpan;
@@ -1081,6 +1094,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         RouteMarkers.remove(RouteMarkers.size()-1); //delete from array
                         directionstextarray.remove(directionstextarray.size()-1);
                         directionstextarraybackground.remove(directionstextarray.size()-1);
+
                         directionstext = getString(R.string.transfer,routeinfo.get(i-1).getService(), currentbusstop.getService(), currentbusstop.getName(), currentbusstop.getBusArrivalTimeMins(), currentbusstop.getBusArrivalTime());
                         BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(currentbusstop.getLatitude()),Double.parseDouble(currentbusstop.getLongitude()))).title(currentbusstop.getName()).snippet(getString(R.string.transfer_here, routeinfo.get(i-1).getService(), currentbusstop.getService(), currentbusstop.getBusArrivalTimeMins(), currentbusstop.getBusArrivalTime())).icon(BitmapDescriptorFactory.fromBitmap(bluepin))); //set blue pin if need to transfer bus
                         //add string to array for the buttons

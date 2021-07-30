@@ -333,15 +333,15 @@ public class Search extends AppCompatActivity {
         if (LocationEnabled && issource){
              //sort the list except YOUR LOCATION and favourites and history at the top
             if (search.equals(""))
-                Collections.sort(venue_list.subList(1 + favourites.size() + history.size(), venue_list.size()), new AlphanumComparator(String.CASE_INSENSITIVE_ORDER));
+                Collections.sort(venue_list.subList(1 + favourites.size() + history.size(), venue_list.size()), new CustomCompare(String.CASE_INSENSITIVE_ORDER));
             else
-                Collections.sort(venue_list.subList(1, venue_list.size()), new AlphanumComparator(String.CASE_INSENSITIVE_ORDER));
+                Collections.sort(venue_list.subList(1, venue_list.size()), new CustomCompare(String.CASE_INSENSITIVE_ORDER));
         }else{
             //sort the list except favourites and history at the top
             if (search.equals(""))
-                Collections.sort(venue_list.subList(favourites.size() + history.size(), venue_list.size()), new AlphanumComparator(String.CASE_INSENSITIVE_ORDER));
+                Collections.sort(venue_list.subList(favourites.size() + history.size(), venue_list.size()), new CustomCompare(String.CASE_INSENSITIVE_ORDER));
             else
-                Collections.sort(venue_list, new AlphanumComparator(String.CASE_INSENSITIVE_ORDER));
+                Collections.sort(venue_list, new CustomCompare(String.CASE_INSENSITIVE_ORDER));
         }
     }
 

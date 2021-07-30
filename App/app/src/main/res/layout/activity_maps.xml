@@ -21,6 +21,7 @@
         android:inputType="none"
         android:background="@android:color/transparent"
         android:focusable="false"
+        android:longClickable="false"
         android:hint="@string/search_hint" />
 
 
