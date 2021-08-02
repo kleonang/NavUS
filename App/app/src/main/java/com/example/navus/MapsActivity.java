@@ -113,7 +113,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<ArrayList<Polyline>> polylinearray = new ArrayList<ArrayList<Polyline>>();
     int directionstextid = 0;
     EditText searchbar;
-    int nooftimestoretry = 30, timeout = 10000;
+    int nooftimestoretry = 3, timeout = 5000;
     JSONObject routes;
     boolean routeselected; //flag to know if the arrows is for routing information or selecting the routes
     int selectedrouteid = 0; //to keep track on which route is being selected
@@ -130,6 +130,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     SharedPreferences.Editor editor;
     Marker closestbusstop; //to store the closest bus stop
     Map<String, Date> lastrefreshed = new HashMap<String, Date>();
+    Boolean searchbarenabled = true; //flag to know if search bar is enabled
     String serverurl = "http://127.0.0.1:5000";
 
     //to handle search
@@ -177,7 +178,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     //Get shortest path from source to destination
                     String url = serverurl + "/getpath/" + source.getLatitude() + "/" + source.getLongitude() + "/" + destination.getLatitude() + "/" + destination.getLongitude();
-                    new getbestpath().execute(url);
+
+                    //disable searchbar temporality
+                    searchbarenabled = false;
+                    new getbestpath().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
 
                     //inform user route is being calculated
                     Toast.makeText(getApplicationContext(), R.string.calculating_route, Toast.LENGTH_SHORT).show();
@@ -238,13 +242,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (closestbusstop!=null){
                     closestbusstop.hideInfoWindow();
                 }
-                runservice = false;//to prevent service from running
-                Intent mainIntent = new Intent(MapsActivity.this, Search.class);
-                mainIntent.putExtra("locationenabled", LocationEnabled);
-                startActivityForResult(mainIntent, 0);
-                if (UsersDestinationMarker != null) { //clear pin on map if exists
-                    UsersDestinationMarker.remove();
+                if (searchbarenabled){
+                    runservice = false;//to prevent service from running
+                    Intent mainIntent = new Intent(MapsActivity.this, Search.class);
+                    mainIntent.putExtra("locationenabled", LocationEnabled);
+                    startActivityForResult(mainIntent, 0);
+                    if (UsersDestinationMarker != null) { //clear pin on map if exists
+                        UsersDestinationMarker.remove();
+                    }
+                }else{
+                    Toast.makeText(getApplicationContext(), R.string.please_wait, Toast.LENGTH_LONG).show();
                 }
+
             }
         });
 
@@ -418,7 +427,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        String TAG = MapsActivity.class.getName();
         mMap = googleMap;
         mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
@@ -452,7 +460,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if (refresh){
                         marker.setSnippet(getString(R.string.getting_arrival_info));
                         marker.showInfoWindow();
-                        new getarrivaltimings().execute(marker.getTitle());
+                        new getarrivaltimings().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, marker.getTitle());
                     }
                 }
                 return true;
@@ -726,7 +734,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         closestbusstop = busstop;
                     }
                 }
-                new getarrivaltimings().execute(closestbusstop.getTitle());
+                new getarrivaltimings().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,closestbusstop.getTitle());
             }
         }
     }
@@ -899,13 +907,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // this is executed on the main thread after the process is over
             // update your UI here
             progressbar.setVisibility(View.INVISIBLE); //hide progress bar
+            searchbarenabled = true; //enable searchbar
 
             if (result==""){//Error accessing server
-                Toast.makeText(getApplicationContext(),R.string.route_server_unavailable, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), R.string.route_server_unavailable, Toast.LENGTH_LONG).show();
                 directionstextview.setText(R.string.route_server_unavailable);
-                if (guideid==3){
+                if (guideid == 3) {
                     showguideerror();
                 }
+
             }else{
                 try {
                     routes = new JSONObject(result);
@@ -930,6 +940,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         }
+
     }
 
     private void showguideerror(){
@@ -996,7 +1007,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Getting URL for the Google Directions API
                     String url = getDirectionsUrl(routeinfo, "walking");
                     //draw the blueline
-                    new getdirections().execute(url);
+                    new getdirections().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,url);
                 }
 
 
@@ -1015,7 +1026,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Getting URL for the Google Directions API
                     String url = getDirectionsUrl(routeinfo, "driving");
                     //draw the blueline
-                    new getdirections().execute(url);
+                    new getdirections().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,url);
                 }
 
                 //plot the pins
@@ -1232,30 +1243,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // update your UI here
             if (result==""){//Error accessing server
                 Toast.makeText(getApplicationContext(),R.string.google_server_unavailable, Toast.LENGTH_LONG).show();
-                directionstextview.setText(R.string.google_server_unavailable);
+
             }else{
                 try {
                     JSONObject json = new JSONObject(result);
                     //Routes array is always of length 1 so index 0
-                    String overview_polyline = json.getJSONArray("routes").optJSONObject(0).optJSONObject("overview_polyline").getString("points");
+                    JSONArray JSON_routes = json.getJSONArray("routes");
 
-                    //draw the blue line
-                    List<LatLng> locations = PolyUtil.decode(overview_polyline);
-                    Polyline blueline = mMap.addPolyline(new PolylineOptions().add(locations.toArray(new LatLng[locations.size()])).width(20).color(Color.BLUE));
-                    polylinearray.get(selectedrouteid).add(blueline);
+                    // Error getting polyline
+                    if (JSON_routes.length() == 0){
+                        Toast.makeText(getApplicationContext(),R.string.google_server_unavailable, Toast.LENGTH_LONG).show();
 
-                    LatLngBounds.Builder builder = new LatLngBounds.Builder();//to know how to zoom the map to fit the polyline
+                    }else {
+                        String overview_polyline = JSON_routes.getJSONObject(0).optJSONObject("overview_polyline").getString("points");
 
-                    for (Polyline a : polylinearray.get(selectedrouteid)) { //show all polylines in current route
-                        for (LatLng latlng : a.getPoints()){
-                            builder.include(latlng);
+                        //draw the blue line
+                        List<LatLng> locations = PolyUtil.decode(overview_polyline);
+                        Polyline blueline = mMap.addPolyline(new PolylineOptions().add(locations.toArray(new LatLng[locations.size()])).width(20).color(Color.BLUE));
+                        polylinearray.get(selectedrouteid).add(blueline);
+
+                        LatLngBounds.Builder builder = new LatLngBounds.Builder();//to know how to zoom the map to fit the polyline
+
+                        for (Polyline a : polylinearray.get(selectedrouteid)) { //show all polylines in current route
+                            for (LatLng latlng : a.getPoints()) {
+                                builder.include(latlng);
+                            }
                         }
-                    }
-                    for (Marker marker : RouteMarkers) //add positions of markers
-                        builder.include(marker.getPosition());
+                        for (Marker marker : RouteMarkers) //add positions of markers
+                            builder.include(marker.getPosition());
 
-                    LatLngBounds bounds = builder.build();
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100), 2000, null); //move the map to fit all waypoints
+                        LatLngBounds bounds = builder.build();
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100), 2000, null); //move the map to fit all waypoints
+                    }
 
                 } catch (JSONException e) {
                     Toast.makeText(getApplicationContext(),R.string.google_server_unavailable, Toast.LENGTH_LONG).show();
@@ -1444,7 +1463,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }else if(id==3){ //for right buttons
             //When there's only one route during tutorial, skip route selection
 
-            if (routes.length()!=0){
+            if (routes.length() > 1){
                 mTourGuideHandler.setToolTip(toolTip.setTitle(getString(R.string.route_selection)).setGravity(Gravity.TOP).setDescription(getString(R.string.route_selection_tap)));
                 mTourGuideHandler.playOn(rightbutton);
             }else{
