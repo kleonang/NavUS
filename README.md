@@ -99,9 +99,12 @@ The Android application checks if the venue information in Firebase was updated 
 The Telegram bot is hosted using Python which will help to reply to the user's queries as well as prompt the user for their source/destination/bus stop name to query bus arrival timings. It would also suggest venue names if the user entered an invalid venue. Once it receives a valid query, it will request the Flask server to get the information returned in JSON format. It would then help to format the data received into a text message and replies it to the user.
 
 <img width="1346" alt="NavUS Graph_Flattened" src="https://user-images.githubusercontent.com/35778042/128189096-ad53110c-8bc8-4a55-8c9e-eedfa726cacf.png">
+
 _Note: Edges are weighted with static travel times._
   
-The above chart illustrates the graph model currently used for calculating the shortest time taken from a given source and destination. It is a graph of all bus stops as vertices, with directed edges connecting two vertices if there is at least one ISB service that goes from one bus stop to the other. A modified Breadth First Search (BFS) algorithm is run on the graph when a user queries our server with a source and destination, finding all possible routes within a specified maximum number of stops. Then, BFS is run a second time to get the possible services serving the generated routes. The resulting routes are then passed through our filtering algorithms to remove duplicated or similar routes. Finally, we integrate the live bus arrival timings from the NextBus API to give multiple complete route recommendations to the user.
+The above chart illustrates the graph model currently used for calculating the shortest time taken from a given source and destination. It is a graph of all bus stops as vertices, with directed edges connecting two vertices if there is at least one ISB service that goes from one bus stop to the other. 
+  
+A modified Breadth First Search (BFS) algorithm is run on the graph when a user queries our server with a source and destination, finding all possible routes within a specified maximum number of stops. Then, BFS is run a second time to get the possible services serving the generated routes. The resulting routes are then passed through our filtering algorithms to remove duplicated or similar routes. Finally, we integrate the live bus arrival timings from the NextBus API to give multiple complete route recommendations to the user.
 
 ### Firebase Data Structure
 - BusOperatingHours
