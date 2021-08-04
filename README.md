@@ -98,7 +98,7 @@ The Android application checks if the venue information in Firebase was updated 
   
 The Telegram bot is hosted using Python which will help to reply to the user's queries as well as prompt the user for their source/destination/bus stop name to query bus arrival timings. It would also suggest venue names if the user entered an invalid venue. Once it receives a valid query, it will request the Flask server to get the information returned in JSON format. It would then help to format the data received into a text message and replies it to the user.
 
-<img width="1346" alt="NavUS Graph_Flattened" src="https://user-images.githubusercontent.com/35778042/128189096-ad53110c-8bc8-4a55-8c9e-eedfa726cacf.png">
+<img width="1346" alt="NavUS Graph_Flattened" src="https://user-images.githubusercontent.com/35778042/128190935-18144517-9b91-4b81-bbd4-7bbdbebfd667.png">
 
 _Note: Edges are weighted with static travel times._
   
