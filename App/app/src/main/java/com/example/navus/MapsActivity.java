@@ -110,6 +110,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ImageButton maptypebutton;
     ArrayList<String> directionstextarray = new ArrayList<String>();
     ArrayList<String> directionstextarraybackground = new ArrayList<String>(); //to store instructions for notifications
+    ArrayList<LatLng> routelatlngarray = new ArrayList<LatLng>(); //to store LatLng for notifications
     ArrayList<ArrayList<Polyline>> polylinearray = new ArrayList<ArrayList<Polyline>>();
     int directionstextid = 0;
     EditText searchbar;
@@ -132,6 +133,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Map<String, Date> lastrefreshed = new HashMap<String, Date>();
     Boolean searchbarenabled = true; //flag to know if search bar is enabled
     String serverurl = "http://127.0.0.1:5000";
+
 
     //to handle search
     @Override
@@ -282,7 +284,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 } else { //button is used to select routes
                     selectedrouteid--;
                     drawRoute(selectedrouteid);
-                    disableenablebuttons(selectedrouteid, routes.length());
                 }
             }
         });
@@ -316,7 +317,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 } else { //button is used to select routes
                     selectedrouteid++;
                     drawRoute(selectedrouteid);
-                    disableenablebuttons(selectedrouteid, routes.length());
                 }
             }
         });
@@ -388,16 +388,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onPause();
         //ensure route is selected
         if (runservice){
-            ArrayList<LatLng> routelatlngarray = new ArrayList<LatLng>();
-            for (int i = 0; i<RouteMarkers.size(); i++){
-                Marker marker = RouteMarkers.get(i);
-
-                if (i!=RouteMarkers.size()-1 || venuedict.get(marker.getTitle()).getIsBusStop().equals("true")) { //ensure last point is a bus stop then add
-                    routelatlngarray.add(marker.getPosition());
-                }
-            }
-
-
             Intent intent = new Intent(this, LocationUpdateService.class);
             intent.putExtra("directionstextarray", directionstextarraybackground);
             intent.putExtra("routelatlngarray", routelatlngarray);
@@ -920,6 +910,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 try {
                     routes = new JSONObject(result);
                     if (routes.length()!=0){
+                        // set polylinearray to size of routes
+                        for (int i = 0; i<routes.length(); i++)
+                            polylinearray.add(new ArrayList<Polyline>());
+
                         drawRoute(0); //draw the route 0
                         if (guideid==3)
                             guideuser(3);
@@ -960,9 +954,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         try {
             //reset all UI
             clearui(false);//clear everything excluding polyline
-
-            if(routes.length() > 1) //more than 1 option for the user, enable the right button
-                rightbutton.setEnabled(true);
+            disableenablebuttons(selectedrouteid,routes.length());
 
             //Process the bus stops for the path from the server
             ArrayList<WayPoint> routeinfo = new ArrayList<WayPoint>();
@@ -994,7 +986,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 UsersDestinationMarker.showInfoWindow();
                 Marker sourcemarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(source.getLatitude()),Double.parseDouble(source.getLongitude()))).title(getString(R.string.walk_to_destination)).icon(BitmapDescriptorFactory.fromBitmap(greenpin)));
                 RouteMarkers.add(sourcemarker);//add to RouteMarkers
-
+                routelatlngarray.add(sourcemarker.getPosition());
                 //create route using user's source and destination
                 WayPoint sourcewaypoint = new WayPoint(source.getName(), source.getLatitude(), source.getLongitude(), source.getIsBusStop(), "-", "-", "-");
                 WayPoint destinationwaypoint = new WayPoint(destination.getName(), destination.getLatitude(), destination.getLongitude(), destination.getIsBusStop(), "-", "-", "-");
@@ -1002,12 +994,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 routeinfo.add(destinationwaypoint);
 
                 //check if polyline already exist
-                if (polylinearray.size() <= routeno){
-                    polylinearray.add(new ArrayList<Polyline>()); //Initialise as empty arraylist
+                if (polylinearray.get(routeno).size() == 0){
                     // Getting URL for the Google Directions API
                     String url = getDirectionsUrl(routeinfo, "walking");
                     //draw the blueline
-                    new getdirections().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,url);
+                    new getdirections().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url, String.valueOf(selectedrouteid));
                 }
 
 
@@ -1021,12 +1012,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 //check if polyline already exist
-                if (polylinearray.size() <= routeno){
-                    polylinearray.add(new ArrayList<Polyline>()); //Initialise as empty arraylist
+                if (polylinearray.get(routeno).size() == 0){
                     // Getting URL for the Google Directions API
                     String url = getDirectionsUrl(routeinfo, "driving");
                     //draw the blueline
-                    new getdirections().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,url);
+                    new getdirections().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url, String.valueOf(selectedrouteid));
                 }
 
                 //plot the pins
@@ -1049,6 +1039,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             polylinearray.get(routeno).add(mMap.addPolyline(walkpath));
                             BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(source.getLatitude()),Double.parseDouble(source.getLongitude()))).title(getString(R.string.your_location)).snippet(title).icon(BitmapDescriptorFactory.fromBitmap(greenpin)));
                             RouteMarkers.add(BusStopMarker);
+                            routelatlngarray.add(BusStopMarker.getPosition());
                             directionstextarray.add(title);
                             directionstextarraybackground.add(title);
 
@@ -1056,13 +1047,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             directionstextarray.add(directionstext);
                             directionstextarraybackground.add(directionstext);
                             BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(currentbusstop.getLatitude()),Double.parseDouble(currentbusstop.getLongitude()))).title(currentbusstop.getName()).snippet(directionstext).icon(BitmapDescriptorFactory.fromBitmap(bluepin)));
-
+                            routelatlngarray.add(BusStopMarker.getPosition());
                         }else{
                             directionstext = getString(R.string.board, currentbusstop.getService(), currentbusstop.getBusArrivalTimeMins(), currentbusstop.getBusArrivalTime());
                             //add string to array for the buttons
                             directionstextarray.add(directionstext);
                             directionstextarraybackground.add(directionstext);
                             BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(currentbusstop.getLatitude()),Double.parseDouble(currentbusstop.getLongitude()))).title(currentbusstop.getName()).snippet(directionstext).icon(BitmapDescriptorFactory.fromBitmap(greenpin)));
+                            routelatlngarray.add(BusStopMarker.getPosition());
                         }
 
                         //show first stop information
@@ -1078,6 +1070,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         //add string to array for the buttons
                         directionstextarray.add(directionstext);
                         directionstextarraybackground.add(directionstext + getString(R.string.next_stop));
+                        routelatlngarray.add(BusStopMarker.getPosition());
 
                         //add walk instructions if destination bus stop is not the user's destination
                         if (Double.parseDouble(destination.getLatitude()) != Double.parseDouble(currentbusstop.getLatitude()) ||  Double.parseDouble(destination.getLongitude()) != Double.parseDouble(currentbusstop.getLongitude())){
@@ -1105,17 +1098,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         RouteMarkers.remove(RouteMarkers.size()-1); //delete from array
                         directionstextarray.remove(directionstextarray.size()-1);
                         directionstextarraybackground.remove(directionstextarray.size()-1);
+                        routelatlngarray.remove(routelatlngarray.size()-1);
 
                         directionstext = getString(R.string.transfer,routeinfo.get(i-1).getService(), currentbusstop.getService(), currentbusstop.getName(), currentbusstop.getBusArrivalTimeMins(), currentbusstop.getBusArrivalTime());
                         BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(currentbusstop.getLatitude()),Double.parseDouble(currentbusstop.getLongitude()))).title(currentbusstop.getName()).snippet(getString(R.string.transfer_here, routeinfo.get(i-1).getService(), currentbusstop.getService(), currentbusstop.getBusArrivalTimeMins(), currentbusstop.getBusArrivalTime())).icon(BitmapDescriptorFactory.fromBitmap(bluepin))); //set blue pin if need to transfer bus
                         //add string to array for the buttons
                         directionstextarray.add(directionstext);
                         directionstextarraybackground.add(directionstext + getString(R.string.next_stop));
+                        routelatlngarray.add(BusStopMarker.getPosition());
                         nooftransits++;
                     }else{
                         BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(currentbusstop.getLatitude()),Double.parseDouble(currentbusstop.getLongitude()))).title(currentbusstop.getName()).icon(BitmapDescriptorFactory.fromBitmap(waypointpin))); //else white circle
                         directionstextarray.add("");//add empty string as placeholder
                         directionstextarraybackground.add("");
+                        routelatlngarray.add(BusStopMarker.getPosition());
                     }
                     if (BusStopMarker!=null){
                         RouteMarkers.add(BusStopMarker);//add to RouteMarkers
@@ -1201,10 +1197,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return url;
     }
 
-    private class getdirections extends AsyncTask<String, Integer, String> {
-        protected String doInBackground(String... urls) {
+    private class getdirections extends AsyncTask<String, Integer, ArrayList<String>> {
+        protected ArrayList<String> doInBackground(String... urls) {
             URL url = null;
-            String content = "", line;
+            ArrayList<String> content = new ArrayList<String>();
+
             try {
                 url = new URL(urls[0]);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -1227,7 +1224,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 isw.close(); //close inputstreamreader
                 in.close(); //close inputstream
                 connection.disconnect();
-                content = sb.toString();
+                content.add(sb.toString());
+                content.add(urls[1]); //add selectedrouteid
 
             } catch (IOException e) {
                 System.out.println(e);
@@ -1238,15 +1236,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onProgressUpdate(Integer... progress) {
         }
 
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(ArrayList<String> result) {
             // this is executed on the main thread after the process is over
             // update your UI here
-            if (result==""){//Error accessing server
+
+            if (result.size()==0 || result.get(0)==""){//Error accessing server
                 Toast.makeText(getApplicationContext(),R.string.google_server_unavailable, Toast.LENGTH_LONG).show();
 
             }else{
                 try {
-                    JSONObject json = new JSONObject(result);
+                    JSONObject json = new JSONObject(result.get(0));
+                    Integer routeid = Integer.parseInt(result.get(1));
+
                     //Routes array is always of length 1 so index 0
                     JSONArray JSON_routes = json.getJSONArray("routes");
 
@@ -1256,15 +1257,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     }else {
                         String overview_polyline = JSON_routes.getJSONObject(0).optJSONObject("overview_polyline").getString("points");
-
                         //draw the blue line
                         List<LatLng> locations = PolyUtil.decode(overview_polyline);
                         Polyline blueline = mMap.addPolyline(new PolylineOptions().add(locations.toArray(new LatLng[locations.size()])).width(20).color(Color.BLUE));
-                        polylinearray.get(selectedrouteid).add(blueline);
+                        polylinearray.get(routeid).add(blueline);
 
                         LatLngBounds.Builder builder = new LatLngBounds.Builder();//to know how to zoom the map to fit the polyline
 
-                        for (Polyline a : polylinearray.get(selectedrouteid)) { //show all polylines in current route
+                        for (Polyline a : polylinearray.get(selectedrouteid)) { //show all polylines in current route, didn't use routeid in case user is viewing another route
                             for (LatLng latlng : a.getPoints()) {
                                 builder.include(latlng);
                             }
@@ -1292,6 +1292,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         RouteMarkers.clear(); //clear the arraylist
         directionstextarray.clear();
         directionstextarraybackground.clear();
+        routelatlngarray.clear();
         directionstextid = 0;
         directionstextidpan = 0;
         directionstextview.setText("");
@@ -1323,10 +1324,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onBackPressed() {
         //in case user presses back button during tutorial and he didn't end tutorial
-        if (mTourGuideHandler!=null && guideid!=8) {
+        if (mTourGuideHandler!=null && guideid >= 5 && guideid<7) {
             mTourGuideHandler.cleanUp();
             guideid = 4;
             guideuser(guideid);
+        }else if(mTourGuideHandler!=null){
+            mTourGuideHandler.cleanUp();
         }
 
         if (backbuttoncode==0) {
@@ -1343,7 +1346,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }else{ //backbuttoncode = 2
             routeselected = false;
             drawRoute(selectedrouteid);
-            disableenablebuttons(selectedrouteid,routes.length());
             backbuttoncode = 1;
             //stop service
             stopService(new Intent(getApplicationContext(), LocationUpdateService.class));

@@ -59,6 +59,9 @@ public class LocationUpdateService extends Service {
         directionstextarray = (ArrayList<String>) intent.getExtras().get("directionstextarray");
         routelatlngarray = (ArrayList<LatLng>) intent.getExtras().get("routelatlngarray");
         lastidnotified = intent.getIntExtra("directionstextidpan",0);
+        //to prevent app from crashing when user reached destination
+        if (lastidnotified == directionstextarray.size())
+            lastidnotified--;
 
         // Create the Foreground Service
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
