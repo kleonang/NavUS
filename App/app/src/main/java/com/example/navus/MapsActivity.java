@@ -114,7 +114,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<ArrayList<Polyline>> polylinearray = new ArrayList<ArrayList<Polyline>>();
     int directionstextid = 0;
     EditText searchbar;
-    int nooftimestoretry = 3, timeout = 5000;
+    int nooftimestoretry = 3, timeout = 10000;
     JSONObject routes;
     boolean routeselected; //flag to know if the arrows is for routing information or selecting the routes
     int selectedrouteid = 0; //to keep track on which route is being selected
