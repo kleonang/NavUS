@@ -1,5 +1,6 @@
 # NavUS
 <img src="https://user-images.githubusercontent.com/35778042/128505485-9d319fd3-4e99-4459-a91a-db0b1ba6e6ba.png" width="100" height="100">
+
 ## Table of contents
 - [Motivation](#motivation)
 - [User Stories](#user-stories)
