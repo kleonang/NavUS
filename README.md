@@ -1,5 +1,5 @@
 # NavUS
-![NavUS Logo v1_rounded_tiny](https://user-images.githubusercontent.com/35778042/127007786-5d7f2ac2-790e-42e5-99e4-d206766bc86b.png)
+<img src="https://user-images.githubusercontent.com/35778042/128505485-9d319fd3-4e99-4459-a91a-db0b1ba6e6ba.png" width="100" height="100">
 ## Table of contents
 - [Motivation](#motivation)
 - [User Stories](#user-stories)
@@ -167,9 +167,11 @@ A modified Breadth First Search (BFS) algorithm is run on the graph when a user 
     - nextArrivalTime (String, '-' if unknown/Not operating)
   
 ## Testing
-Currently, we have utilised a script to test all possible combinations of sources and destinations to ensure that our server is capable of handling simultaneous requests and without running into errors. We have also fixed bugs found in the Android application and improved the UI based on initial feedback. 
+In initial testing, we have utilised a script to test all possible combinations of sources and destinations to ensure that our server is capable of handling simultaneous requests and without running into errors. We have also fixed bugs found in the Android application and improved the UI based on initial feedback. 
+
+The NavUS development team have also tested the Android application and Telegram bot live, noting down bugs and inconsistencies of our services during trips around the NUS campus. We have fixed these issues in the latest release of NavUS. 
   
-We first released the Android application to a select group of beta testers who can provide feedback with their usage experience. We have also rolled out the Android application and Telegram bot to more users via publicity in Telegram groups for testing by using the application as part of their daily commute around NUS. We are collecting feedback based on these user experiences via [an online feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeitP9waxrhQDNsSO33p7dvhls3KbV5JX-eTABu_K0h-tslXA/viewform?usp=sf_link).
+In addition, we have released the Android application to a select group of beta testers who can provide feedback with their usage experience. Following that, we rolled out the Android application and Telegram bot to more users for testing via publicity messages in Telegram groups by using the application as part of their daily commute around NUS. We are currently collecting feedback based on these user experiences via [an online feedback form](https://docs.google.com/forms/d/e/1FAIpQLSeitP9waxrhQDNsSO33p7dvhls3KbV5JX-eTABu_K0h-tslXA/viewform?usp=sf_link).
 
 ## Software Engineering Practices
 ### Separation of Working and Production Copies of Code
@@ -190,7 +192,7 @@ We have also made two servers available for calculating routes: one each on Goog
 ## Comparisons with Existing Applications
 **NUS NextBus** app provides us with the bus routes and arrival times of buses but assumes you know the closest bus stop to your destination. Also, there is no functionality to enter a bus stop and get directions from your location to your intended destination.
 
-**NUSMODS** provides us with the location of classrooms but not the routing information to get there.
+**NUSMods** provides us with the location of lesson venues but not the routing directions to get there.
 
 ## Technical Stack
 - Android Studio
