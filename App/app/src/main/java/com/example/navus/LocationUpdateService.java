@@ -59,9 +59,15 @@ public class LocationUpdateService extends Service {
         directionstextarray = (ArrayList<String>) intent.getExtras().get("directionstextarray");
         routelatlngarray = (ArrayList<LatLng>) intent.getExtras().get("routelatlngarray");
         lastidnotified = intent.getIntExtra("directionstextidpan",0);
+        String texttoshow;
+
         //to prevent app from crashing when user reached destination
-        if (lastidnotified == directionstextarray.size())
-            lastidnotified--;
+        if (lastidnotified == directionstextarray.size()){
+            texttoshow = (directionstextarray.get(lastidnotified-1).equals(""))? getString(R.string.running) : directionstextarray.get(lastidnotified-1);
+        } else{
+            //return instruction if not blank
+            texttoshow = (directionstextarray.get(lastidnotified).equals(""))? getString(R.string.running) : directionstextarray.get(lastidnotified);
+        }
 
         // Create the Foreground Service
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -78,7 +84,7 @@ public class LocationUpdateService extends Service {
         notification = notificationBuilder.setOngoing(true)
                 .setSmallIcon(R.drawable.appicon)
                 .setContentTitle(getString(R.string.app_name))
-                .setContentText((directionstextarray.get(lastidnotified).equals(""))? getString(R.string.running) : directionstextarray.get(lastidnotified))//return directions text if it's not blank else return running
+                .setContentText(texttoshow)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setContentIntent(pendingIntent)
                 .addAction(R.drawable.ic_launcher_foreground, getString(R.string.stop), stoppendingIntent)
@@ -106,7 +112,7 @@ public class LocationUpdateService extends Service {
                 waypointlocation.setLongitude(waypoint.longitude);
 
                 if (location.distanceTo(waypointlocation) < 200 && lastidnotified + 1 == i) {//less than 200m and did not notify before
-                    lastidnotified = i;
+                    lastidnotified = i + 1;
                     //if directionstext is not empty then notify the user, else it is just a normal bus stop
                     if (!directionstextarray.get(i).equals("")) {
                         //send notification

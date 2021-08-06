@@ -2,7 +2,7 @@
     "A1": {
         "1": {
             "Name": "KENT RIDGE BUS TERMINAL (KR BUS TERMINAL)",
-            "Time": 3,
+            "Time": 4,
             "Direction": "-"
         },
         "2": {
@@ -139,7 +139,7 @@
         },
         "14": {
             "Name": "VENTUS (OPP LT13)",
-            "Time": 1,
+            "Time": 2,
             "Direction": "-"
         },
         "15": {
@@ -156,7 +156,7 @@
         },
         "2": {
             "Name": "BOTANIC GARDENS MRT",
-            "Time": 11,
+            "Time": 10,
             "Direction": "-"
         },
         "3": {
@@ -186,7 +186,7 @@
         },
         "8": {
             "Name": "RAFFLES HALL",
-            "Time": 3,
+            "Time": 2,
             "Direction": "-"
         },
         "9": {
@@ -382,12 +382,12 @@
         },
         "2": {
             "Name": "RAFFLES HALL",
-            "Time": 3,
+            "Time": 2,
             "Direction": "-"
         },
         "3": {
             "Name": "KENT VALE (KV)",
-            "Time": 1,
+            "Time": 3,
             "Direction": "-"
         },
         "4": {
@@ -397,7 +397,7 @@
         },
         "5": {
             "Name": "SDE 3",
-            "Time": 1,
+            "Time": 2,
             "Direction": "-"
         },
         "6": {
@@ -407,7 +407,7 @@
         },
         "7": {
             "Name": "OPP YUSOF ISHAK HOUSE (OPP YIH)",
-            "Time": 1,
+            "Time": 2,
             "Direction": "-"
         },
         "8": {
@@ -449,7 +449,7 @@
         },
         "7": {
             "Name": "CENTRAL LIBRARY (CLB)",
-            "Time": 2,
+            "Time": 3,
             "Direction": "-"
         },
         "8": {

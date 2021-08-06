@@ -126,6 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Location userslocation;
     ProgressBar progressbar;
     int directionstextidpan = 0; //id for autopan to keep track what it showed
+    Date lastnotified; //to store the time last notified to use
     TourGuide mTourGuideHandler; //to store the tooltips
     int guideid = 0; //to know what guide to show user
     SharedPreferences.Editor editor;
@@ -133,7 +134,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Map<String, Date> lastrefreshed = new HashMap<String, Date>();
     Boolean searchbarenabled = true; //flag to know if search bar is enabled
     String serverurl = "http://127.0.0.1:5000";
-
 
     //to handle search
     @Override
@@ -151,6 +151,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     rightbutton.setEnabled(false);
 
                     clearui(true); //clear everything including polyline
+
+                    //set last notified time
+                    lastnotified = new Date();
 
                     //shrink the map view to show directions text
                     DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -689,6 +692,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mydatabase.execSQL("INSERT INTO Venues VALUES ('" + value.getName().replaceAll("'", "''") + "','" + value.getLatitude() + "','" + value.getLongitude() + "','" + value.getIsBusStop() + "')");//need to replace all in case of ' like Prince George's Park
                 }
                 getdatafromsql(); //for the first launch
+                //to prevent updates till next launch
+                VenueRef.removeEventListener(this);
             }
 
             @Override
@@ -724,7 +729,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         closestbusstop = busstop;
                     }
                 }
-                new getarrivaltimings().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,closestbusstop.getTitle());
+
+                //ensure closestbusstop is not null
+                if (closestbusstop != null)
+                    new getarrivaltimings().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,closestbusstop.getTitle());
             }
         }
     }
@@ -789,8 +797,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Location waypointlocation = new Location("waypoint");
                     waypointlocation.setLatitude(waypoint.getPosition().latitude);
                     waypointlocation.setLongitude(waypoint.getPosition().longitude);
+                    //set a 5 seconds break before notify user again
+                    Date fivesecondslater = new Date(lastnotified.getTime() + 5000);
 
-                    if ((location.distanceTo(waypointlocation) < 150 && directionstextidpan+1 == j) || directionstextidpan==0){//less than 200m and did not show before
+                    if ((location.distanceTo(waypointlocation) < 150 && directionstextidpan+1 == j && fivesecondslater.compareTo(new Date()) < 0) || directionstextidpan==0){//less than 200m and did not show before
+                        lastnotified = new Date();
+
                         int previd = directionstextidpan;
                         directionstextidpan = j;
                         waypoint.showInfoWindow(); //show instructions
@@ -1097,7 +1109,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         RouteMarkers.get(RouteMarkers.size()-1).remove(); //remove the previous pin
                         RouteMarkers.remove(RouteMarkers.size()-1); //delete from array
                         directionstextarray.remove(directionstextarray.size()-1);
-                        directionstextarraybackground.remove(directionstextarray.size()-1);
+                        directionstextarraybackground.remove(directionstextarraybackground.size()-1);
                         routelatlngarray.remove(routelatlngarray.size()-1);
 
                         directionstext = getString(R.string.transfer,routeinfo.get(i-1).getService(), currentbusstop.getService(), currentbusstop.getName(), currentbusstop.getBusArrivalTimeMins(), currentbusstop.getBusArrivalTime());
@@ -1202,33 +1214,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             URL url = null;
             ArrayList<String> content = new ArrayList<String>();
 
-            try {
-                url = new URL(urls[0]);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setConnectTimeout(timeout);
-                connection.setReadTimeout(timeout);
-                connection.connect();
+            for (int i=0; i<nooftimestoretry; i++) {
+                try {
+                    url = new URL(urls[0]);
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+                    connection.setConnectTimeout(timeout);
+                    connection.setReadTimeout(timeout);
+                    connection.connect();
 
-                InputStream in = connection.getInputStream();
-                InputStreamReader isw = new InputStreamReader(in);
-                StringBuilder sb = new StringBuilder();
+                    InputStream in = connection.getInputStream();
+                    InputStreamReader isw = new InputStreamReader(in);
+                    StringBuilder sb = new StringBuilder();
 
-                int data = isw.read();
-                while (data != -1) {
-                    char current = (char) data;
-                    sb.append(current);
-                    data = isw.read();
+                    int data = isw.read();
+                    while (data != -1) {
+                        char current = (char) data;
+                        sb.append(current);
+                        data = isw.read();
+                    }
+
+                    isw.close(); //close inputstreamreader
+                    in.close(); //close inputstream
+                    connection.disconnect();
+                    content.add(sb.toString());
+                    content.add(urls[1]); //add selectedrouteid
+                    break;
+
+                } catch (IOException e) {
+                    System.out.println(e);
                 }
-
-                isw.close(); //close inputstreamreader
-                in.close(); //close inputstream
-                connection.disconnect();
-                content.add(sb.toString());
-                content.add(urls[1]); //add selectedrouteid
-
-            } catch (IOException e) {
-                System.out.println(e);
             }
             return content;
         }
@@ -1418,13 +1433,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 arrivaltimings = getString(R.string.route_server_unavailable);
             }else{
                 arrivaltimings = result.get(0);
+                //set refreshed time
+                lastrefreshed.put(result.get(1), new Date());
             }
             for (Marker marker: BusStopMarkerAL){
                 //if marker name matches
                 if (marker.getTitle().equals(result.get(1))){
                     marker.setSnippet(arrivaltimings);
-                    //set refreshed time
-                    lastrefreshed.put(marker.getTitle(), new Date());
 
                     //ensure map is loaded before calling showInfoWindow
                     mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
