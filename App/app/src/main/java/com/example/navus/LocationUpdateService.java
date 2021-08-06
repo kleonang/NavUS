@@ -32,6 +32,7 @@ public class LocationUpdateService extends Service {
     ArrayList<String> directionstextarray = new ArrayList<String>();
     ArrayList<LatLng> routelatlngarray = new ArrayList<LatLng>();
     int lastidnotified = 0;
+    Boolean firstnotification;
 
     @Override
     public void onCreate() {
@@ -59,6 +60,8 @@ public class LocationUpdateService extends Service {
         directionstextarray = (ArrayList<String>) intent.getExtras().get("directionstextarray");
         routelatlngarray = (ArrayList<LatLng>) intent.getExtras().get("routelatlngarray");
         lastidnotified = intent.getIntExtra("directionstextidpan",0);
+        firstnotification = true;
+
         String texttoshow;
 
         //to prevent app from crashing when user reached destination
@@ -87,6 +90,7 @@ public class LocationUpdateService extends Service {
                 .setContentText(texttoshow)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setContentIntent(pendingIntent)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(texttoshow))
                 .addAction(R.drawable.ic_launcher_foreground, getString(R.string.stop), stoppendingIntent)
                 .build();
         startForeground(1, notification);
@@ -105,13 +109,15 @@ public class LocationUpdateService extends Service {
     private final LocationListener mLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(final Location location) {
+
             for (int i = 0; i < routelatlngarray.size(); i++) {
                 LatLng waypoint = routelatlngarray.get(i);
                 Location waypointlocation = new Location("waypoint");
                 waypointlocation.setLatitude(waypoint.latitude);
                 waypointlocation.setLongitude(waypoint.longitude);
 
-                if (location.distanceTo(waypointlocation) < 200 && lastidnotified + 1 == i) {//less than 200m and did not notify before
+                if (location.distanceTo(waypointlocation) < 200 && (lastidnotified + 1 == i || (lastidnotified==i && firstnotification))) {//less than 200m and did not notify before
+                    firstnotification = false;
                     lastidnotified = i + 1;
                     //if directionstext is not empty then notify the user, else it is just a normal bus stop
                     if (!directionstextarray.get(i).equals("")) {

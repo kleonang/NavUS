@@ -34,6 +34,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.BounceInterpolator;
@@ -152,9 +153,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     clearui(true); //clear everything including polyline
 
-                    //set last notified time
-                    lastnotified = new Date();
-
                     //shrink the map view to show directions text
                     DisplayMetrics displayMetrics = new DisplayMetrics();
                     getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -215,6 +213,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        //Disable screen timeout
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -273,8 +273,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         //decrement ID
                         directionstextid--;
                         //ensure text is not blank
-                        while(directionstextarray.get(directionstextid).equals(""))
+                        while(directionstextarray.get(directionstextid).equals("")){
                             directionstextid--;
+                            if (directionstextid==0)
+                                break;
+                        }
+
                         disableenablebuttons(directionstextid, directionstextarray.size());
 
                         //update textview
@@ -306,8 +310,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         //increment ID
                         directionstextid++;
                         //ensure text is not blank
-                        while(directionstextarray.get(directionstextid).equals(""))
+                        while(directionstextarray.get(directionstextid).equals("")) {
                             directionstextid++;
+                            if (directionstextid == directionstextarray.size()-1)
+                                break;
+                        }
 
                         disableenablebuttons(directionstextid, directionstextarray.size());
                         //update textview
@@ -343,6 +350,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     routeselected = true; //set flag to true to restore the left/right button functionally for routing steps
                     directionstextview.setText(directionstextarray.get(directionstextid)); //set the first step
                     disableenablebuttons(directionstextid, directionstextarray.size());
+                    //set last notified time
+                    lastnotified = new Date();
 
                     //update ETA
                     try {
@@ -791,7 +800,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             userslocation = location; //update user's location
             if (routeselected && autopan){ //ensure user has selected route and autopan is enabled
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 16)); //zoom to user's location
-                Boolean directionsupdated = false;
+                int routelength = 0;
+                try {
+                    routelength = routes.getJSONObject(String.valueOf(selectedrouteid)).getJSONArray("Route").length();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
                 for (int j=0; j<RouteMarkers.size(); j++){
                     Marker waypoint = RouteMarkers.get(j);
                     Location waypointlocation = new Location("waypoint");
@@ -800,20 +815,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     //set a 5 seconds break before notify user again
                     Date fivesecondslater = new Date(lastnotified.getTime() + 5000);
 
-                    if ((location.distanceTo(waypointlocation) < 150 && directionstextidpan+1 == j && fivesecondslater.compareTo(new Date()) < 0) || directionstextidpan==0){//less than 200m and did not show before
+                    if ((location.distanceTo(waypointlocation) < 150 && directionstextidpan+1 == j && fivesecondslater.compareTo(new Date()) < 0) || (directionstextidpan==0 && routelength!=1)){//less than 200m and did not show before or id=0 and not walking instructions
                         lastnotified = new Date();
-
                         int previd = directionstextidpan;
                         directionstextidpan = j;
+                        directionstextid = j; //set so that the user can still use the buttons
                         waypoint.showInfoWindow(); //show instructions
-                        String text = directionstextarray.get(j);
+                        String text;
+                        if (routelength==1)
+                            text = directionstextarray.get(0); //to handle walk case where size = 1
+                        else
+                            text = directionstextarray.get(j);
+
                         if (!text.equals("")){
                             //vibrate to inform user
                             Vibrator v = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
                             v.vibrate(500);
                             //flash text
                             Animation anim = new AlphaAnimation(0.0f, 1.0f);
-                            anim.setDuration(50); //You can manage the blinking time with this parameter
+                            anim.setDuration(100); //You can manage the blinking time with this parameter
                             anim.setStartOffset(20);
                             anim.setRepeatMode(Animation.REVERSE);
                             anim.setRepeatCount(5);
@@ -822,21 +842,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             directionstextview.setText(text); //update directions text view
                             disableenablebuttons(directionstextidpan, directionstextarray.size());
                             directionstextid = directionstextidpan;
-                            directionsupdated = true;
-                        }
 
-                        if (!directionsupdated){ //show next instruction when it does not match any waypoints
+                        }else{ //show next instruction when it does not match any waypoints
                             if (directionstextidpan < directionstextarray.size()-1){
                                 int id = directionstextidpan+1;
                                 //ensure text is not blank
-                                while(directionstextarray.get(id).equals(""))
+                                while(directionstextarray.get(id).equals("")) {
                                     id++;
+                                    if (id==directionstextarray.size()-1)
+                                        break;
+                                }
                                 directionstextview.setText(directionstextarray.get(id)); //show next step
                                 disableenablebuttons(id, directionstextarray.size());
                             }
                         }
                         if (previd!=0)
                             break;
+                    }else{ //show current instruction
+                        if (directionstextidpan < directionstextarray.size()-1){
+                            int id = directionstextidpan;
+                            //ensure text is not blank
+                            while(directionstextarray.get(id).equals("")) {
+                                id++;
+                                if (id==directionstextarray.size()-1)
+                                    break;
+                            }
+                            directionstextid = id; //set so that the user can still use the buttons
+                            directionstextview.setText(directionstextarray.get(id)); //show next step
+                            disableenablebuttons(id, directionstextarray.size());
+                        }
                     }
                 }
             }
@@ -844,15 +878,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     };
 
     public void disableenablebuttons(int id, int length){
-        if (id == length-1)
-            rightbutton.setEnabled(false);
-        else
-            rightbutton.setEnabled(true);
-
-        if (id == 0)
+        if (length == 1){
             leftbutton.setEnabled(false);
-        else
-            leftbutton.setEnabled(true);
+            rightbutton.setEnabled(false);
+        }else{
+            if (id == length-1)
+                rightbutton.setEnabled(false);
+            else
+                rightbutton.setEnabled(true);
+
+            if (id == 0)
+                leftbutton.setEnabled(false);
+            else
+                leftbutton.setEnabled(true);
+        }
     }
 
     //Getting shortest path info from server
@@ -998,6 +1037,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 UsersDestinationMarker.showInfoWindow();
                 Marker sourcemarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(source.getLatitude()),Double.parseDouble(source.getLongitude()))).title(getString(R.string.walk_to_destination)).icon(BitmapDescriptorFactory.fromBitmap(greenpin)));
                 RouteMarkers.add(sourcemarker);//add to RouteMarkers
+                RouteMarkers.add(UsersDestinationMarker);
                 routelatlngarray.add(sourcemarker.getPosition());
                 //create route using user's source and destination
                 WayPoint sourcewaypoint = new WayPoint(source.getName(), source.getLatitude(), source.getLongitude(), source.getIsBusStop(), "-", "-", "-");
