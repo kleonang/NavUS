@@ -5,7 +5,6 @@
 # pip3 install holidays
 
 import asyncio
-import copy
 import datetime
 import heapq
 import json
@@ -17,6 +16,7 @@ import aiohttp
 import firebase_admin
 import holidays
 
+from collections import deque
 from firebase_admin import credentials, db
 from flask import Flask
 
@@ -29,15 +29,16 @@ bus_stop_coordinates = {}  # Key: Bus Stop, Value: (Latitude, Longitude)
 bus_stop_dict = {}  # Key: Bus Stop, Value: {NextBusAlias, Services}
 bus_operating_hours_dict = {}  # Key: Bus Service, Value: Daily Operating Hours
 bus_arrival_time_dict = {}  # Key: Bus Stop, Value: Arrival time for services
-stops_with_repeated_nodes = []  # [(Bus Stop, Service), ...]
 directions = []  # [Bus Stops with attached directions]
+bus_terminal_stop = {}  # Key: Bus Service, Value: Last Bus Stop
 
-# DECLARE NUMBER OF SOURCE-DESTINATION COMBINATIONS
-num_sources = 3
-num_dests = 3
-
-# DELIMITER TO APPEND ID TO REPEATED NODES
-DELIMITER = "_"
+# DECLARE GLOBAL CONSTANTS
+NUM_SOURCES = 3
+NUM_DESTS = 3
+MAX_BUS_STOPS = 12
+MAX_NUM_TRANSITS = 1
+MAX_ROUTES_TO_RETURN = 5  # Maximum no of routes to return
+MAX_DIST = 0.0015  # Constant for euclidean distance
 
 
 def get_walking_time(lat1, long1, lat2, long2):
@@ -46,7 +47,7 @@ def get_walking_time(lat1, long1, lat2, long2):
     a = 0.5 - math.cos((lat2 - lat1) * p) / 2 + math.cos(lat1 * p) * \
         math.cos(lat2 * p) * (1 - math.cos((long2 - long1) * p)) / 2
     distance = 12742 * math.asin(math.sqrt(a))
-    return math.ceil(distance / (4 / 60))  # assume walking speed is 4km/h
+    return math.ceil(distance / (4 / 60))  # Assume walking speed is 4km/h
 
 
 def get_time():
@@ -59,7 +60,7 @@ def check_operating_services():
     bus operating timings in database.
     """
     operating_services = []
-    now = get_time()  # time now
+    now = get_time()  # Time now
     day_number = now.weekday()
     day_to_check = ""
 
@@ -79,7 +80,7 @@ def check_operating_services():
             start_time = datetime.time(
                 hour=int(start[0:2]), minute=int(start[2:4]))
             end_time = datetime.time(hour=int(end[0:2]), minute=int(end[2:4]))
-            if start_time <= now.time() and now.time() <= end_time:
+            if start_time <= now.time() <= end_time:
                 # Service is operating
                 operating_services.append(service)
 
@@ -94,13 +95,13 @@ async def fetch_arrival_times(session, bus_stop):
         # Do nothing if bus stop is cached and updated <1 min ago
         return
 
-    for i in range(3):  # retry to connect 3 times if connection fails
+    for i in range(3):  # Retry to connect 3 times if connection fails
         try:
             async with session.get(api_url
                                    + bus_stop_dict[bus_stop]["NextBusAlias"],
                                    timeout=5) as response:
                 if response.status == 200:
-                    # set query time
+                    # Set query time
                     bus_arrival_time_dict[bus_stop]["QueryTime"] = get_time()
                     data = await response.json(content_type='text/html')
                     for bus_route in data["ShuttleServiceResult"]["shuttles"]:
@@ -116,9 +117,16 @@ async def fetch_arrival_times(session, bus_stop):
                         if bus_route["nextArrivalTime"] != "-" \
                                 and int(bus_route["nextArrivalTime"]) < 0:
                             bus_route["nextArrivalTime"] = "-"
-                        # to capitalise D1 (To BIZ 2) etc and remove spaces
+                        # To capitalise D1 (To BIZ 2) etc and remove spaces
                         bus_service = bus_route[
                             "name"].upper().replace(" ", "")
+                        # Disambiguate D1 shuttles at COM 2
+                        if bus_stop == "COM 2" and bus_service == "D1":
+                            direction = bus_route["busstopcode"].split("-")[-1]
+                            direction = "UTOWN" if direction == "UT" \
+                                else direction
+                            bus_service += "(TO" + direction + ")"
+                        # Insert arrival timings into bus_arrival_time_dict
                         bus_arrival_time_dict[bus_stop][bus_service] = {
                             "arrivalTime": bus_route["arrivalTime"],
                             "nextArrivalTime": bus_route["nextArrivalTime"]}
@@ -138,7 +146,7 @@ async def fetch_arrival_times(session, bus_stop):
     services = bus_stop_dict[bus_stop]["Services"]
     for service in services:
         bus_arrival_time_dict[bus_stop][service.upper().replace(" ", "")] = {
-            "arrivalTime": "-1", "nextArrivalTime": "-1"}
+            "arrivalTime": "5", "nextArrivalTime": "20"}
     return
 
 
@@ -152,292 +160,161 @@ async def get_arrival_times(stops_to_query):
         await asyncio.gather(*tasks)
 
 
-class Node:
-    """Node class to store bus stops"""
-    def __new__(cls, name, svc):
-        self = super().__new__(cls)
-        self.name = name
-        self.service = svc
-        self.adjacent = {}
-        self.dist = math.inf
-        self.edgecount = 0
-        self.visited = False
-        self.prev = None
-        return self
-
-    def __getnewargs__(self):
-        return (self.name, self.service)
-
-    def add_neighbour(self, neighbour, weight):
-        self.adjacent[neighbour] = weight
-
-    def get_neighbours(self):
-        return self.adjacent.keys()
-
-    def get_service(self):
-        return self.service
-
-    def get_name(self):
-        return self.name
-
-    def get_weight(self, neighbour):
-        return self.adjacent[neighbour]
-
-    def set_dist(self, dist):
-        self.dist = dist
-
-    def get_dist(self):
-        return self.dist
-
-    def set_edgecount(self, edgecount):
-        self.edgecount = edgecount
-
-    def get_edgecount(self):
-        return self.edgecount
-
-    def set_prev(self, prev):
-        self.prev = prev
-
-    def visit(self):
-        self.visited = True
-
-    def is_visited(self):
-        return self.visited
-
-    def __eq__(self, other):
-        if isinstance(other, Node):
-            return other.name == self.name and other.service == self.service
-        return False
-
-    def __hash__(self):
-        return hash((self.name, self.service))
-
-    def __lt__(self, other):
-        if self.dist == other.dist:
-            return self.edgecount < other.edgecount
-        else:
-            return self.dist < other.dist
-
-    def __str__(self):
-        return "( " + str(self.name) + ", " + str(self.service) + " ) " \
-            + "is adjacent to: " \
-            + str([(x.name, x.service) for x in self.adjacent])
-
-
-class Graph:
-    """Graph class represents the map of bus stops.
-    In this graph, bus stops are vertices and directed edges go from one vertex
-    to another if a bus route travels between their respective bus stops.
-    """
-
-    def __init__(self):
-        self.nodes = {}
-        self.num_vertices = 0
-
-    def __iter__(self):
-        return iter(self.nodes.values())
-
-    def add_node(self, name, service):
-        self.num_vertices += 1
-        new_busstop = Node(name, service)
-        self.nodes[(name, service)] = new_busstop
-        return new_busstop
-
-    def get_node(self, name, service):
-        if (name, service) in self.nodes:
-            return self.nodes[(name, service)]
-        else:
-            return None
-
-    def add_directed_edge(self, frm, to, cost, frm_svc, to_svc):
-        self.nodes[(frm, frm_svc)].add_neighbour(
-            self.nodes[(to, to_svc)], cost)
-
-    def add_undirected_edge(self, frm, to, cost, frm_svc, to_svc):
-        self.nodes[(frm, frm_svc)].add_neighbour(
-            self.nodes[(to, to_svc)], cost)
-        self.nodes[(to, to_svc)].add_neighbour(
-            self.nodes[(frm, frm_svc)], cost)
-
-    def get_nodes(self):
-        return self.nodes.keys()
-
-    def set_prev(self, curr):
-        self.previous = curr
-
-    def get_prev(self):
-        return self.previous
-
-    def __eq__(self, other):
-        if isinstance(other, Graph):
-            return self.nodes == other.nodes \
-                and self.num_vertices == other.num_vertices
-        return False
-
-
-def update_shortest_path(node, path):
-    """Traces back the shortest path from the given Node to the start Node"""
-    if node.prev:
-        path.append((node.prev.get_name(), node.prev.get_service()))
-        update_shortest_path(node.prev, path)
-    return
-
-
-def trace_path(node):
-    """Traces the path from a given node using update_shortest_path
-    and handles post-processing of routes.
-    """
-    # Reconstruct path
-    path = [(node.get_name(), node.get_service())]
-    update_shortest_path(node, path)
-    path.reverse()
-
-    # Handle unnecessary changes at source node
-    while len(path) > 1 and path[0][0].split(DELIMITER)[
-            0] == path[1][0].split(DELIMITER)[0]:
-        del path[0]
-
-    # Handle unnecessary changes at end node
-    while len(path) > 1 \
-            and path[-1][0].split(DELIMITER)[0] \
-            == path[-2][0].split(DELIMITER)[0]:
-        del path[-1]
-
-    # Handling of directions at COM 2 and UTown
-    for i in range(len(path)):
-        name_split = path[i][0].split(DELIMITER)
-        service = path[i][1]
-        repeated_bus_stops = [(x, y, z) for x, y, z in route_dict[service]
-                              if x.split(DELIMITER)[0] == name_split[0]]
-        if len(repeated_bus_stops) > 1:  # there are duplicate bus stops
-            # if id == 0, return the first bus stop,
-            # if id == 1, return the second duplicate bus stop
-            bus_stop, time, direction = repeated_bus_stops[int(name_split[1])]
-            if direction != "-":  # direction is not blank
-                service += " " + direction
-
-        path[i] = (name_split[0], service)
-
-    return path
-
-
-def dijkstra(graph, source, dest_name):
-    """Dijkstra's Algorithm
-    Finds shortest path from source to destination.
-
-    The argument source is a Node object,
-    dest_name is a string representing the destination.
-    """
-    # Set the distance for the start node to zero
-    source.set_dist(0)
-    # Put start node into the priority queue
-    pq = [source]
-    heapq.heapify(pq)
-    # Generate all paths ending at dest_name and append to result_list
-    result_list = []
-    while len(pq):
-        # Pop the Node with smallest dist from the priority queue
-        current = heapq.heappop(pq)
-        current.visit()
-        # Stop if destination is reached
-        if current.get_name().split(DELIMITER)[0] == dest_name:
-            route = {}
-            traced_path = trace_path(current)
-            route["Route"] = traced_path
-            route["RouteLength"] = len(traced_path)
-            route["TravelTime"] = current.get_dist()
-            if route not in result_list:
-                result_list.append(route)
-        # Iterate through neighbours of current Node
-        for nxt in current.adjacent:
-            # If next Node is visited, skip it
-            if nxt.is_visited():
-                continue
-            # Else relax next Node
-            new_dist = current.get_dist() + current.get_weight(nxt)
-            if nxt.get_dist() > new_dist:
-                nxt.set_dist(new_dist)
-                nxt.set_edgecount(current.get_edgecount() + 1)
-                nxt.set_prev(current)
-                if nxt not in pq:
-                    # Insert nxt into priority queue
-                    heapq.heappush(pq, nxt)
-    if result_list == []:
-        return None
-    result_list = sorted(result_list, key=lambda d: d["RouteLength"])
-    result_list = sorted(result_list, key=lambda d: d["TravelTime"])
-    return result_list
-
-
 def euclidean_distance(this_lat, this_long, other_lat, other_long):
     """Calculates euclidean distance between two points"""
     return math.sqrt(math.pow(this_lat - other_lat, 2)
                      + math.pow(this_long - other_long, 2))
 
 
-def construct_master_graph(operating_services):
-    """Construct the Master Graph to be copied by other functions"""
-    # Construct Master Graph
-    master_graph = Graph()
-    # Add vertices to graph
-    for bus_route in route_dict:
-        if bus_route in operating_services:  # ensure bus service is operating
-            bus_route_len = len(route_dict[bus_route])
-            for i in range(bus_route_len):
-                master_graph.add_node(route_dict[bus_route][i][0], bus_route)
-    # Add directed edges to graph
-    for bus_route in route_dict:
-        if bus_route in operating_services:  # ensure bus service is operating
-            bus_route_len = len(route_dict[bus_route])
-            for i in range(bus_route_len):
-                if route_dict[bus_route][i][1] != 0:
-                    master_graph.add_directed_edge(
-                        route_dict[bus_route][i][0],
-                        route_dict[bus_route][i + 1][0],
-                        route_dict[bus_route][i][1],
-                        bus_route,
-                        bus_route)
-    # Add undirected edges to graph
-    for bus_stop in bus_stop_dict:
-        bus_stop_tuples = []
-        # may include repeated service for 2 directions
-        raw_bus_services = bus_stop_dict[bus_stop]["Services"]
-        for i in range(len(raw_bus_services)):
-            raw_bus_services[i] = raw_bus_services[i].split(" ")[0]
-        # only unique services at each bus stop
-        busservices = list(set(raw_bus_services))
-        for service in busservices:
-            # ensure bus service is operating
-            if service in operating_services:
-                if (bus_stop, service) in stops_with_repeated_nodes:
-                    for i in range(2):
-                        bus_stop_tuples.append(
-                            (bus_stop + DELIMITER + str(i), service))
-                else:
-                    bus_stop_tuples.append((bus_stop, service))
-        services_len = len(bus_stop_tuples)
-        for i in range(services_len):
-            for j in range(i + 1, services_len):
-                master_graph.add_undirected_edge(
-                    bus_stop_tuples[i][0],
-                    bus_stop_tuples[j][0],
-                    0,
-                    bus_stop_tuples[i][1],
-                    bus_stop_tuples[j][1])
+def construct_graph(operating_services):
+    """Construct the Graph"""
+    # Key: Bus Stop, Value: {Next Bus Stop, Time, Direction, Service}
+    bus_service_dict = {}
+    # Stores the graph
+    graph = {}
+    # Indicates if the graph exists
+    valid_graph = False
 
-    # Print graph statistics
-    num_v = 0
-    num_e = 0
-    print('Graph data:')
-    for v in master_graph:
-        num_v += 1
-        for w in v.get_neighbours():
-            num_e += 1
-    # print("Graph vertex count: " + str(graph.num_vertices))
-    # to verify number of unique vertices
-    print("Number of vertices: " + str(num_v))
-    print("Number of edges: " + str(num_e) + "\n")
-    return master_graph
+    # Initialise all bus stops as empty list
+    for bus_stop in bus_stop_dict:
+        graph[bus_stop] = []
+        bus_service_dict[bus_stop] = []
+
+    for service in route_dict:
+        # Ensure services are operating
+        if service in operating_services:
+            for i in range(0, len(route_dict[service])):
+                current_bus_stop, timing, direction = route_dict[service][i]
+                if i != len(route_dict[service]) - 1:
+                    next_bus_stop_name, next_time, next_direction = route_dict[
+                        service][i + 1]
+                    # Add the edges, ensure it does not already exist
+                    if next_bus_stop_name not in graph[current_bus_stop]:
+                        graph[current_bus_stop].append(next_bus_stop_name)
+                        valid_graph = True
+                    bus_service_dict[current_bus_stop].append(
+                        (next_bus_stop_name, timing, direction, service))
+    return bus_service_dict, graph, valid_graph
+
+
+def check_visited(path, node):
+    """Checks if the path contains node"""
+    # If more than 10 bus stops, skip it
+    return len(path) > MAX_BUS_STOPS or node in path
+
+
+def get_all_paths(graph, source, destination):
+    """Returns all possible paths from source to destination"""
+    q = deque()
+    path_list = []
+    path = [source]
+
+    q.append(path.copy())
+
+    while q:
+        path = q.popleft()
+        last_node = path[len(path) - 1]
+
+        if last_node == destination:
+            path_list.append(path)
+
+        for neighbour in graph[last_node]:
+            if not check_visited(path, neighbour):
+                new_path = path.copy()
+                new_path.append(neighbour)
+                q.append(new_path)
+    return path_list
+
+
+def add_transits(path):
+    """Adds duplicate transit bus stops"""
+    formatted_path = []
+    for i in range(0, len(path)):
+        bus_stop, timing, direction, service = path[i]
+
+        if i != 0:
+            prev_bus_stop, prev_time, prev_direction, prev_serv = path[i - 1]
+
+            if service != prev_serv:
+                # Check for terminal bus stop
+                if bus_terminal_stop[prev_serv] == prev_bus_stop:
+                    formatted_path.append(
+                        (prev_bus_stop, 0, prev_direction, prev_serv))
+                    formatted_path.append(
+                        (bus_stop, 0, prev_direction, prev_serv))
+                else:
+                    formatted_path.append(
+                        (bus_stop, 0, prev_direction, prev_serv))
+
+            else:
+                # Check for terminal bus stop and
+                # ensure it is not the second bus stop
+                if bus_terminal_stop[prev_serv] == prev_bus_stop and i != 1:
+                    formatted_path.append(
+                        (prev_bus_stop, 0, prev_direction, prev_serv))
+
+        formatted_path.append((bus_stop, timing, direction, service))
+    return formatted_path
+
+
+def get_path_with_service(path_list, bus_service_dict):
+    """Returns paths with the bus services"""
+    path_list_with_services = []
+
+    for path in path_list:
+        q = deque()
+        path_with_service = [(path[0], "", "", "")]
+
+        q.append(path_with_service.copy())
+
+        while q:
+            path_with_service = q.popleft()
+
+            num_transits = -1
+            prev_serv = ""
+            # Count number of transits
+            for bus_stop, timing, direction, service in path_with_service:
+                # Skip the last bus stop which has no service
+                if service == "":
+                    continue
+                if prev_serv != service:
+                    # Check for terminal bus stop
+                    if bus_terminal_stop[service] == bus_stop:
+                        num_transits += 2
+                    else:
+                        num_transits += 1
+                else:
+                    # Check for terminal bus stop
+                    if bus_terminal_stop[service] == bus_stop:
+                        num_transits += 1
+
+                prev_serv = service
+
+            # Ignore routes with more than max no of transits
+            if num_transits > MAX_NUM_TRANSITS:
+                continue
+
+            index = len(path_with_service) - 1
+
+            current_node = path[index]
+
+            if len(path_with_service) == len(path):  # Reached destination
+                prev_serv = path_with_service[-1][3]
+                # Add destination name
+                path_with_service.append(
+                    (path[len(path_with_service) - 1], 0, "-", prev_serv))
+                # Remove first index as it was a placeholder
+                path_list_with_services.append(path_with_service[1:])
+                continue
+
+            for neighbour, timing, direction, service \
+                    in bus_service_dict[current_node]:
+                if neighbour == path[index + 1]:
+                    new_path_with_service = path_with_service.copy()
+                    new_path_with_service.append(
+                        (current_node, timing, direction, service))
+                    q.append(new_path_with_service)
+    return path_list_with_services
 
 
 # COMMENT OUT NEXT LINE FOR OFFLINE TESTING
@@ -446,12 +323,15 @@ def get_path(source, destination):
     """Get path from source to destination.
     Access at 127.0.0.1:5000/getpath/your_source/your_destination
     """
-    source_lat = venue_dict[source][0]
-    source_long = venue_dict[source][1]
-    dest_lat = venue_dict[destination][0]
-    dest_long = venue_dict[destination][1]
-    return get_path_using_coordinates(source_lat, source_long,
-                                      dest_lat, dest_long)
+    try:
+        source_lat = venue_dict[source][0]
+        source_long = venue_dict[source][1]
+        dest_lat = venue_dict[destination][0]
+        dest_long = venue_dict[destination][1]
+        return get_path_using_coordinates(source_lat, source_long,
+                                          dest_lat, dest_long)
+    except Exception:  # An invalid venue was given
+        return "Invalid Venue!"
 
 
 # COMMENT OUT NEXT LINE FOR OFFLINE TESTING
@@ -462,20 +342,23 @@ def get_path_using_one_coordinate(parameter1, parameter2, parameter3):
     Access at 127.0.0.1:5000/getpath/parameter1/parameter2/parameter3
     """
     try:
-        float(parameter1)  # source was sent as coordinates
-        source_lat = parameter1
-        source_long = parameter2
-        dest_lat = venue_dict[parameter3][0]
-        dest_long = venue_dict[parameter3][1]
+        try:
+            float(parameter1)  # source was sent as coordinates
+            source_lat = parameter1
+            source_long = parameter2
+            dest_lat = venue_dict[parameter3][0]
+            dest_long = venue_dict[parameter3][1]
 
-    except ValueError:  # destination was sent as coordinates
-        source_lat = venue_dict[parameter1][0]
-        source_long = venue_dict[parameter1][1]
-        dest_lat = parameter2
-        dest_long = parameter3
+        except ValueError:  # destination was sent as coordinates
+            source_lat = venue_dict[parameter1][0]
+            source_long = venue_dict[parameter1][1]
+            dest_lat = parameter2
+            dest_long = parameter3
 
-    return get_path_using_coordinates(source_lat, source_long,
-                                      dest_lat, dest_long)
+        return get_path_using_coordinates(source_lat, source_long,
+                                          dest_lat, dest_long)
+    except Exception:  # An invalid venue was given/wrong parameters
+        return "Invalid Venue/URL Parameters!"
 
 
 # COMMENT OUT NEXT LINE FOR OFFLINE TESTING
@@ -488,11 +371,11 @@ def get_path_using_coordinates(source_lat, source_long, dest_lat, dest_long):
     # Construct graph and get operating_services
     operating_services = check_operating_services()
 
-    data = {}  # initialise as empty dictionary for data to be returned
+    data = {}  # Initialise as empty dictionary for data to be returned
 
-    master_graph = construct_master_graph(operating_services)
+    bus_service_dict, graph, valid_graph = construct_graph(operating_services)
 
-    if master_graph == Graph():
+    if not valid_graph:  # No services operating
         return json.dumps(data)
 
     source_lat = float(source_lat)
@@ -502,15 +385,14 @@ def get_path_using_coordinates(source_lat, source_long, dest_lat, dest_long):
 
     sources = []
     dests = []
+    sources_dist = []
+    dests_dist = []
     # Priority queue for sources based on dist from source coordinates
     sources_pq = []
     heapq.heapify(sources_pq)
     # Priority queue for destinations based on dist from dest coordinates
     dests_pq = []
     heapq.heapify(dests_pq)
-
-    # Stores all possible routes
-    path_list = []
 
     for stop in bus_stop_coordinates:
         dist_to_source = euclidean_distance(
@@ -526,88 +408,161 @@ def get_path_using_coordinates(source_lat, source_long, dest_lat, dest_long):
             bus_stop_coordinates[stop][1])
         heapq.heappush(dests_pq, (dist_to_dest, stop))
 
-    for i in range(num_sources):
+    for i in range(NUM_SOURCES):
         s = heapq.heappop(sources_pq)
         sources.append(s[1])
-    for j in range(num_dests):
+        sources_dist.append(s[0])
+
+    for j in range(NUM_DESTS):
         d = heapq.heappop(dests_pq)
         dests.append(d[1])
+        dests_dist.append(d[0])
+
+    # Stores all the path after filtered
+    path_list = []
+    # Stores all (route information, total travel time)
+    all_route_list = []
+    # Stores all the paths after removing paths containing the user's closest
+    # bus stop at source/destination as waypoint
+    filtered_all_path = []
+    unique_path = {}  # To store the least number of transits for each path
 
     for destination in dests:
         for source in sources:
-            graph = copy.deepcopy(master_graph)
-            # Get first available service at source bus stop
-            # may include repeated service for 2 directions
-            raw_bus_services = bus_stop_dict[source]["Services"]
-            for i in range(len(raw_bus_services)):
-                raw_bus_services[i] = raw_bus_services[i].split(" ")[0]
-            # only unique services at each bus stop
-            all_services = set(raw_bus_services)
-            available_services = set(
-                operating_services).intersection(all_services)
-            if available_services == set():
-                print("There are currently no services operating at "
-                      + source + ".")
-                continue
 
-            first_service = list(available_services)[0]
-            # Continue if trivial case of source and destination being the same
-            if source == destination:
-                p = {}
-                p["Route"] = [(source, first_service)]
-                p["RouteLength"] = 1
-                p["TravelTime"] = 0
-                p["Source"] = source
-                p["Destination"] = destination
-                path_list.append(p)
-                continue
-            src = graph.get_node(source, first_service) \
-                if (source, first_service) not in stops_with_repeated_nodes \
-                else graph.get_node(source + DELIMITER + "0", first_service)
-            # Call Dijkstra's Algorithm
-            path_dicts = dijkstra(graph, src, destination)
-            if path_dicts is None:
-                print("There is no valid route at the current time.")
-                continue
-            else:
-                for p in path_dicts:
-                    p["Source"] = source
-                    p["Destination"] = destination
-                    path_list.append(p)
+            # Get all possible paths from source to destination
+            all_paths = get_all_paths(graph, source, destination)
 
-    # Filtering not useful supersets and subsets of routes
-    # (only works if destination is a bus stop)
-    if (dest_lat, dest_long) in bus_stop_coordinates.values():
-        dest_name = list(
-            bus_stop_coordinates.keys())[
-            list(
-                bus_stop_coordinates.values()).index(
-                (dest_lat, dest_long))]
-        # Filter out paths in path_list where specified destination is in the
-        # path and is not the last stop (supersets)
-        path_list = [p for p in path_list
-                     if len(
-                         [wp for wp in p["Route"]
-                          if wp[0] == dest_name
-                          and wp != p["Route"][-1]]) == 0]
-        # Filter out paths in path_list which are subsets of other paths ending
-        # in the specified destination
-        filtered_path_list = path_list.copy()
-        for p1 in path_list:
-            r1 = p1["Route"]
-            for p2 in path_list:
-                r2 = p2["Route"]
-                if r1 != r2 \
-                        and r1[0] == r2[0] \
-                        and r2[-1][0] == dest_name \
-                        and set(r1).issubset(set(r2)) \
-                        and p1 in filtered_path_list:
-                    filtered_path_list.remove(p1)
-        path_list = filtered_path_list
-    print("Pathlist contains " + str(len(path_list)) + " paths:")
-    print(path_list)
+            for path in all_paths:
+                # Flag to know if path contains source or destination
+                remove_path = False
+                for i in range(len(path)):
+                    # Remove all paths containing the user's surrounding bus
+                    # stop that is not the first bus stop for the source,
+                    # and remove all paths containing the bus stop surrounding
+                    # the destination that is not the last bus stop.
+                    # Neighbouring stops must be within the first 2/last 2
+                    if (i != 0 and path[i] == sources[0]) \
+                        or (i != len(path) - 1 and path[i] == dests[0]) \
+                        or (i != 0 and i != 1 and path[i] in sources[1:]) \
+                        or (i != len(path) - 1 and i != len(path) - 2
+                            and path[i] in dests[1:]):
+                        remove_path = True
+                        break
 
-    all_route_list = []  # to store all (route information, total travel time)
+                if not remove_path:
+                    # Add path to filtered path if it does not contain
+                    # source and destination as waypoint
+                    filtered_all_path.append(path)
+
+            # Add the services to the path
+            for path in get_path_with_service(filtered_all_path,
+                                              bus_service_dict):
+                # Add transit bus stop information
+                path_with_transits = add_transits(path)
+
+                # Stores bus stops as a string
+                path_string = ""
+                # Counts the number of transits
+                num_transits = 0
+                # Stores all the service changes
+                transit_service = ""
+                # Stores the ID in the path of the transit stop
+                transit_stop_id = 0
+
+                for i in range(len(path_with_transits)):
+                    bus_stop, timing, direction, service \
+                        = path_with_transits[i]
+
+                    if i != 0:
+                        prev_bus_stop, prev_time, prev_direction, prev_serv \
+                            = path_with_transits[i - 1]
+                        if bus_stop == prev_bus_stop:
+                            num_transits += 1  # Count number of transits
+                            transit_service += prev_serv + service
+                            transit_stop_id = i
+                        else:
+                            # Add the other bus stop without duplicates
+                            path_string += bus_stop
+                    else:
+                        path_string += bus_stop  # Add the source bus stop
+
+                # Filter the paths again only taking the least transits paths
+                if path_string in unique_path:
+                    # Found a route with less transits
+                    if num_transits < unique_path[
+                            path_string]["NoofTransits"]:
+                        # Save as new path
+                        unique_path[path_string]["Path"].clear()
+                        unique_path[path_string]["NoofTransits"] = num_transits
+                        unique_path[path_string]["Path"].append(
+                            (path_with_transits,
+                             transit_service,
+                             transit_stop_id))
+
+                    # Found another path with same number of transits
+                    elif num_transits == unique_path[
+                            path_string]["NoofTransits"]:
+                        add = True
+                        # Ensure same path with the exact service is skipped
+                        if (path_with_transits,
+                            transit_service,
+                            transit_stop_id) \
+                                in unique_path[path_string]["Path"]:
+                            continue
+
+                        # Do not include path if it is changing
+                        # between the same 2 services
+                        for i in range(len(unique_path[path_string]["Path"])):
+                            path, ts, ts_id = unique_path[
+                                path_string]["Path"][i]
+
+                            if transit_service == ts and transit_service != "":
+                                # Pick the route that stays on the same service
+                                # as far as possible
+                                if transit_stop_id > ts_id:
+                                    unique_path[path_string]["Path"][i] = (
+                                        path_with_transits,
+                                        transit_service,
+                                        transit_stop_id)
+
+                                add = False
+                                break
+
+                        if add:
+                            # Append newpath to list
+                            unique_path[path_string]["Path"].append(
+                                (path_with_transits,
+                                 transit_service,
+                                 transit_stop_id))
+
+                else:
+                    unique_path[path_string] = {}
+                    unique_path[path_string]["NoofTransits"] = num_transits
+                    # Initialise as empty list so that there could be multiple
+                    # routes with the same path
+                    unique_path[path_string]["Path"] = []
+                    unique_path[path_string]["Path"].append(
+                        (path_with_transits, transit_service, transit_stop_id))
+
+    keys = list(unique_path.keys())
+    sub_routes = []
+    # Remove paths that are substrings which matches the closest bus stop for
+    # source and destination
+    for i in range(len(unique_path)):
+        for j in range(len(unique_path)):
+            if i != j \
+                    and keys[i].find(keys[j]) != -1 \
+                    and unique_path[keys[i]]["Path"][0] == sources[0] \
+                    and unique_path[keys[i]]["Path"][-1] == dests[0]:
+                sub_routes.append(keys[j])
+
+    # Add the unique path with the least transits to path_list
+    # without the sub routes
+    for key in unique_path:
+        if key not in sub_routes:
+            for path in unique_path[key]["Path"]:
+                path_list.append(path[0])
 
     # ASYNC WORKFLOW
     # 1. Get set of all bus stops to be queried
@@ -616,41 +571,38 @@ def get_path_using_coordinates(source_lat, source_long, dest_lat, dest_long):
     #    queried from dict
 
     stops_to_query = set()
-
     for path in path_list:
-        route = path["Route"]
-        for i in range(len(route) - 1):
-            if len(route) > 1 and (i == 0 or route[i][0] == route[i + 1][0]):
-                stops_to_query.add(route[i][0])
+        for i in range(len(path) - 1):
+            if len(path) > 1 and (i == 0 or path[i][0] == path[i + 1][0]):
+                stops_to_query.add(path[i][0])
+
     stops_to_query = list(stops_to_query)
     asyncio.run(get_arrival_times(stops_to_query))
 
     for path in path_list:
-        print("Source: " + path["Source"] + ", "
-              + "Destination: " + path["Destination"])
-        print("Route waypoints:")
-        print(path["Route"])
-        print("Total route time: " + str(path["TravelTime"]) + " mins\n")
+        print("Source: ", path[0][0], "Destination: ", path[len(path) - 1][0])
+        print(path)
 
-        route = []  # Stores the routing information for each path
-        # flag for special handling when calculating travel time where bus
-        # service is looping i.e. for A1 PGP->KRMRT
-        add_travel_time = False
-        eta_valid = True  # True if ETA for third subsequent bus is not needed
-        total_time = 0  # to store total travel time for each route
-        raw_path = path["Route"]
+        # Stores the routing information for each path
+        route = []
+        # True if ETA for third subsequent bus is not needed
+        eta_valid = True
+        # Stores total travel time for each route
+        total_time = 0
+        # Stores the number of transits, -1 as source bus stop will be counted
+        num_transits = -1
 
-        for i in range(
-                len(raw_path)):  # iterate through the bus stops of every path
-            bus_stop, service = raw_path[i]
-            # service.split as we only want D1 and remove (TO BIZ2)
-            raw_service = service.split(" ")[0]
-            # to capitalise D1 (To BIZ 2) etc and remove spaces
+        for i in range(len(path)):
+            bus_stop, timing, direction, service = path[i]
+            # Append direction to service if applicable
+            if direction != "-":
+                service += " " + direction
+
             service_without_spaces = service.upper().replace(" ", "")
-            bus_arrival_time = "-"  # to store bus arrival information
+            bus_arrival_time = "-"  # To store bus arrival information
 
-            if i == 0:  # source bus stop
-                # add walking time to source bus stop
+            if i == 0:  # Source bus stop
+                # Add walking time to source bus stop
                 walking_time = get_walking_time(
                     source_lat, source_long, float(
                         venue_dict[bus_stop][0]), float(
@@ -658,10 +610,12 @@ def get_path_using_coordinates(source_lat, source_long, dest_lat, dest_long):
                 total_time += walking_time
                 print("Walking time to " + bus_stop + " is", str(walking_time))
 
-            # if source bus stop or current bus stop name is the same as the
+            # If source bus stop or current bus stop name is the same as the
             # previous (transfer needed)
-            if (i == 0 or bus_stop == raw_path[i - 1][0]) \
-                    and len(raw_path) > 1:
+            if (i == 0 or bus_stop == path[i - 1][0]) \
+                    and len(path) > 1:
+
+                num_transits += 1
                 # contains both arrivalTime and nextArrivalTime
                 bus_timings = bus_arrival_time_dict[
                     bus_stop][service_without_spaces]
@@ -701,8 +655,8 @@ def get_path_using_coordinates(source_lat, source_long, dest_lat, dest_long):
                               + " mins! No ETA available.\n")
                         eta_valid = False  # invalidate ETA
 
-            elif i == len(raw_path) - 1:  # destination bus stop
-                # add walking time to destination
+            elif i == len(path) - 1:  # destination bus stop
+                # Add walking time to destination
                 walking_time = get_walking_time(
                     float(venue_dict[bus_stop][0]),
                     float(venue_dict[bus_stop][1]),
@@ -711,127 +665,123 @@ def get_path_using_coordinates(source_lat, source_long, dest_lat, dest_long):
                 total_time += walking_time
                 print("Walking time to destination is", str(walking_time))
 
-            # store bus stop name, service, latitude, longitude, isbusstop,
+            # Store bus stop name, service, latitude, longitude, isbusstop,
             # arrivaltimings in route
-            current_waypoint = {}
-            current_waypoint["Name"] = bus_stop
-            current_waypoint["Service"] = service
-            current_waypoint["Latitude"] = venue_dict[bus_stop][0]
-            current_waypoint["Longitude"] = venue_dict[bus_stop][1]
-            current_waypoint["IsBusStop"] = venue_dict[bus_stop][2]
+            current_waypoint = {"Name": bus_stop, "Service": service,
+                                "Latitude": venue_dict[bus_stop][0],
+                                "Longitude": venue_dict[bus_stop][1],
+                                "IsBusStop": venue_dict[bus_stop][2]}
 
             if bus_arrival_time == "-":
                 current_waypoint["BusArrivalTime"] = "-"
                 current_waypoint["BusArrivalTimeMins"] = "-"
             else:  # return arrival timings in HH:MM am/pm
-                busarrival = get_time() + datetime.timedelta(
+                bus_arrival = get_time() + datetime.timedelta(
                     minutes=int(bus_arrival_time))
-                current_waypoint["BusArrivalTime"] = busarrival.strftime(
+                current_waypoint["BusArrivalTime"] = bus_arrival.strftime(
                     "%-I:%M %p")
                 current_waypoint["BusArrivalTimeMins"] = bus_arrival_time
 
             route.append(current_waypoint)
 
             # If last bus stop, skip adding it as we have reached destination
-            if i != len(raw_path) - 1:
-                # If we are at transit bus stop do not add duplicate unless the
-                # transit stop is the last stop of a route
-                if bus_stop != raw_path[i - 1][0] or add_travel_time:
-                    # To get the travel time from one bus stop to another
-                    for bs, timing, direction in route_dict[raw_service]:
-                        if bs == bus_stop:  # Found the bus stop
-                            if int(timing) == 0:
-                                # Special handling as end of bus route,
-                                # need to add travel time from last bus stop
-                                # in route to the next bus stop
-                                add_travel_time = True
-                            else:
-                                total_time += int(timing)
-                                add_travel_time = False
-                            break
+            if i != len(path) - 1:
+                total_time += timing
 
             else:
                 # Calculation is complete
                 # i.e. did not break halfway due to service not operating
                 print("Estimated travel time: " + str(total_time) + "\n")
                 if eta_valid:
-                    all_route_list.append((route, total_time))
+                    all_route_list.append((route, total_time, num_transits))
                 else:
                     # since there's no ETA just initialise to a huge number
-                    all_route_list.append((route, 100000 + total_time))
+                    all_route_list.append(
+                        (route, 100000 + total_time, num_transits))
 
-    # Sort all routes by time
-    all_route_list = sorted(all_route_list, key=lambda x: x[1])
-
-    if len(all_route_list) != 0:  # if there's a route found
-        source_dest_list = []  # list for matching source and destination
-        dest_list = []  # list for matching destination
-        source_list = []  # list for matching source
-        other_list = []  # list for does not match any
-        # flag to know if the user was already recommended to walk
+    if len(all_route_list) != 0:  # If there's a route found
+        # Flag to know if the user was already recommended to walk
         already_recommended_walk = False
-        bus_routes = []  # list to store all the bus routes
-        shortest_travel_time = all_route_list[0][1]  # shortest travel time
-        max_time_difference = 5
+        sorted_route_dict = {"00": []}
 
         for i in range(len(all_route_list)):
-            route, total_time = all_route_list[i]
-            route_source_lat = float(route[0]["Latitude"])
-            route_source_long = float(route[0]["Longitude"])
-            route_dest_lat = float(route[-1]["Latitude"])
-            route_dest_long = float(route[-1]["Longitude"])
-            bus_stop_list = []  # to store the bus stops for the current route
+            route, total_time, num_transits = all_route_list[i]
+            route_source = route[0]["Name"]
+            route_dest = route[-1]["Name"]
+            sources_index = sources.index(route_source)
+            dests_index = dests.index(route_dest)
 
-            for j in range(len(route)):
-                bus_stop_name = route[j]["Name"]
-                if bus_stop_name not in bus_stop_list:
-                    # ensure no duplicate bus stops during transit
-                    bus_stop_list.append(bus_stop_name)
+            # Index 00 means it is the closest source and destination bus stop,
+            # index 22 means the furthest source and destination bus stop
+            index = str(sources_index) + str(dests_index)
 
-            if bus_stop_list in bus_routes:  # exact same route
-                continue  # skip this route
+            if index not in sorted_route_dict:
+                sorted_route_dict[index] = []  # Initialise as a list
 
-            if(len(route) == 1):
+            if len(route) == 1:
                 if not already_recommended_walk:
                     # ensure that user is only recommended to walk once
-                    # prioritise walk so add to source_dest_list
-                    source_dest_list.append(all_route_list[i])
+                    # prioritise walk so add to "00"
+                    sorted_route_dict["00"].append(all_route_list[i])
                     already_recommended_walk = True
+            else:
+                sorted_route_dict[index].append(all_route_list[i])
 
-            # check if route is within 5 mins and matches source and dest
-            elif total_time <= shortest_travel_time + max_time_difference \
-                    and route_source_lat == source_lat \
-                    and route_source_long == source_long \
-                    and route_dest_lat == dest_lat \
-                    and route_dest_long == dest_long:
-                source_dest_list.append(all_route_list[i])
+        # Join all the route to a list
+        route_list = []
 
-            # propose the route with exact destination
-            elif total_time <= shortest_travel_time + max_time_difference \
-                    and route_dest_lat == dest_lat \
-                    and route_dest_long == dest_long:
-                dest_list.append(all_route_list[i])
+        for index in sorted(sorted_route_dict.keys()):
+            for path in sorted_route_dict[index]:
+                route, total_time, num_transits = path
+                route_source = route[0]["Name"]
+                route_dest = route[-1]["Name"]
+                sources_index = sources.index(route_source)
+                dests_index = dests.index(route_dest)
 
-            # propose the route with exact source
-            elif total_time <= shortest_travel_time + max_time_difference \
-                    and route_source_lat == source_lat \
-                    and route_source_long == source_long:
-                source_list.append(all_route_list[i])
+                # Skip routes containing bus stops too far from user's source
+                # and destination if enough routes already exist
+                if (sources_dist[sources_index] > MAX_DIST
+                        or dests_dist[dests_index] > MAX_DIST) \
+                        and len(route_list) > 3:
+                    continue
 
-            else:  # more than 5mins/does not match source/dest
-                other_list.append(all_route_list[i])
+                route_list.append((path, total_time, index, num_transits))
 
-            bus_routes.append(bus_stop_list)  # add current route to the list
+        sorted_route_list = []
+        fastest_route_time = 0
 
-        print("Shortest travel time: ", shortest_travel_time)
-        # join all the lists
-        sorted_route_list = [*source_dest_list, *dest_list,
-                             *source_list, *other_list]
+        # Sort by time then index then no of transits
+        for path, total_time, index, num_transits \
+                in sorted(route_list, key=lambda x: (x[1], x[2], x[3])):
+            if total_time > 100000:
+                total_time = total_time - 100000  # Get the static travel time
 
-        # format data in JSON
-        for i in range(min(len(sorted_route_list), 5)):
+            if fastest_route_time == 0:
+                # Store the fastest route time, minimum is 10 mins
+                fastest_route_time = max(10, total_time)
+
+            add_counter = 0  # To check if route should be added
+
+            # Remove paths that goes past closest destination
+            for added_path in sorted_route_list:
+                # Loop through the shortest of both routes
+                for i in range(min(len(added_path[0]), len(path[0]))):
+                    # Check if the bus stops are the same
+                    if added_path[0][i] != path[0][i]:
+                        # If different, increment counter
+                        add_counter += 1
+                        break
+
+            # If counter == len(sorted_route_list), no paths were matched
+            if add_counter == len(sorted_route_list):
+                # Add the path if within 2 times of fastest travel time
+                if total_time < fastest_route_time * 2:
+                    sorted_route_list.append(path)
+
+        # Format data in JSON
+        for i in range(min(len(sorted_route_list), MAX_ROUTES_TO_RETURN)):
             # modify parameter to select top x routes instead
-            route, total_time = sorted_route_list[i]
+            route, total_time, num_transits = sorted_route_list[i]
             data[i] = {}
             data[i]['Route'] = route
 
@@ -843,9 +793,6 @@ def get_path_using_coordinates(source_lat, source_long, dest_lat, dest_long):
                 data[i]['ETA'] = eta.strftime("%-I:%M %p")
                 data[i]['TravelTime'] = total_time
 
-    all_route_list.clear()  # clear route list for next query
-    path_list.clear()  # clear path list for next query
-
     json_data = json.dumps(data)  # create a json object
     return json_data  # return the json object
 
@@ -855,26 +802,25 @@ def get_arrival_timings(bus_stop):
     """Get arrival timings for services at specified bus stop.
     Access at 127.0.0.1:5000/getarrivaltimings/<bus_stop>
     """
-    returndict = {}
+    return_dict = {}
     asyncio.run(get_arrival_times([bus_stop]))
     for service in bus_arrival_time_dict[bus_stop]:
         for direction in directions:
-            rawdirection = direction.upper().replace(" ", "")
-            if rawdirection == service:
-                returndict[direction] = {}
-                for arrivaltimes in bus_arrival_time_dict[bus_stop][service]:
+            raw_direction = direction.upper().replace(" ", "")
+            if raw_direction == service:
+                return_dict[direction] = {}
+                for arrival_times in bus_arrival_time_dict[bus_stop][service]:
                     # ensure arrival timings is not < 0 else return "-"
                     if bus_arrival_time_dict[bus_stop][service][
-                            arrivaltimes] == "-" \
+                            arrival_times] == "-" \
                         or int(bus_arrival_time_dict[bus_stop][service][
-                            arrivaltimes]) < 0:
-                        returndict[direction][arrivaltimes] = "-"
+                            arrival_times]) < 0:
+                        return_dict[direction][arrival_times] = "-"
                     else:
-                        returndict[direction][arrivaltimes] \
+                        return_dict[direction][arrival_times] \
                             = bus_arrival_time_dict[bus_stop][
-                                service][arrivaltimes]
-
-    return returndict
+                                service][arrival_times]
+    return return_dict
 
 
 # Set time zone to Singapore Time
@@ -896,57 +842,30 @@ if not firebase_admin._apps:
     firebase_url = f.read()
     f.close()
 
-    # Initialize the app with a None auth variable, limiting the server's
+    # Initialise the app with a None auth variable, limiting the server's
     # access
-    firebase_admin.initialize_app(cred, {
-        'databaseURL': firebase_url
-    })
+    firebase_admin.initialize_app(cred, {'databaseURL': firebase_url})
 
 # Import BusRoutes from database
 ref = db.reference("/BusRoutes")  # access /BusRoutes
 json_array = ref.get()  # returns array of json
 for bus_route in json_array:  # loop through each item
-    route_dict[bus_route] = []  # initalise as empty list
+    route_dict[bus_route] = []  # initialise as empty list
     # bus_route = A1, A2,...
     if bus_route is not None:  # ensure bus_route exists
+        last_bus_stop = ""
         # loop through every bus stop in each route
         for bus_stop in json_array[bus_route]:
             if bus_stop is not None:  # ensure bus stop exists
-                num_repeat = len([(x, y, z)
-                                  for x, y, z in route_dict[bus_route]
-                                  if x.split(DELIMITER)[
-                                      0] == bus_stop["Name"]])
-                if num_repeat > 0:
-                    # if bus stop already exists in the current route,
-                    # append _0 to existing one
-                    if num_repeat == 1:
-                        for i in range(len(route_dict[bus_route])):
-                            if route_dict[bus_route][i][0] == bus_stop["Name"]:
-                                route_dict[bus_route][i] = (
-                                    bus_stop["Name"] + DELIMITER + str(0),
-                                    route_dict[bus_route][i][1],
-                                    route_dict[bus_route][i][2])
-                                break
+                # bus_stop["Name"] returns name of bus stop,
+                # bus_stop["Time"] returns time taken,
+                # bus_stop["Direction"] returns direction i.e. (To BIZ 2)
+                route_dict[bus_route].append(
+                    (bus_stop["Name"], bus_stop["Time"],
+                     bus_stop["Direction"]))
+                last_bus_stop = bus_stop["Name"]
+        bus_terminal_stop[bus_route] = last_bus_stop
 
-                    # append _number to new one
-                    route_dict[bus_route].append(
-                        (bus_stop["Name"] + DELIMITER + str(num_repeat),
-                         bus_stop["Time"],
-                         bus_stop["Direction"]))
-
-                    # add to stops with repeated nodes
-                    if (bus_stop["Name"], bus_route) \
-                            not in stops_with_repeated_nodes:
-                        stops_with_repeated_nodes.append(
-                            (bus_stop["Name"], bus_route))
-
-                else:
-                    # bus_stop["Name"] returns name of bustop,
-                    # bus_stop["Time"] returns time taken,
-                    # bus_stop["Direction"] returns direction i.e. (To BIZ 2)
-                    route_dict[bus_route].append(
-                        (bus_stop["Name"], bus_stop["Time"],
-                         bus_stop["Direction"]))
 
 # Import Venues from database
 ref = db.reference("/Venues")  # access /Venues
@@ -956,23 +875,26 @@ for venue in json_array:  # loop through each item
         # add latitude, longitude, isbusstop as a tuple
         venue_dict[venue["Name"]] = (
             (venue["Latitude"], venue["Longitude"], venue["IsBusStop"]))
-        # If busstops is needed, do
-        # if venue["IsBusStop"] == "true":
-        # add to bus_stop list
+
+        # Store coordinates of bus stops in bus_stop_coordinates
+        if venue["IsBusStop"] == 'true':
+            bus_stop_coordinates[venue["Name"]] = (
+                float(venue["Latitude"]),
+                float(venue["Longitude"]))
 
 # Import BusStops from database
 ref = db.reference("/BusStops")  # access /BusStops
 json_array = ref.get()  # returns array of json
 for bus_stop in json_array:  # loop through each item
     if bus_stop is not None:  # ensure bus stop exists
-        bus_stop_dict[bus_stop["Name"]] = {}  # initalise as dictionary
-        # assign NextBusAlias
+        bus_stop_dict[bus_stop["Name"]] = {}  # initialise as dictionary
+        # Assign NextBusAlias
         bus_stop_dict[bus_stop["Name"]][
             "NextBusAlias"] = bus_stop["NextBusAlias"]
-        # assign Services
+        # Assign Services
         bus_stop_dict[bus_stop["Name"]]["Services"] = bus_stop["Services"]
 
-        # initialise bus_arrival_time_dict
+        # Initialise bus_arrival_time_dict
         bus_arrival_time_dict[bus_stop["Name"]] = {}
         bus_arrival_time_dict[bus_stop["Name"]]["QueryTime"] = get_time() \
             - datetime.timedelta(minutes=1)  # initialise to 1 min ago
@@ -980,7 +902,7 @@ for bus_stop in json_array:  # loop through each item
             bus_arrival_time_dict[bus_stop["Name"]][service.upper().replace(
                 " ", "")] = {"arrivalTime": "-1", "nextArrivalTime": "-1"}
 
-            # to get all possible directions
+            # To get all possible directions
             if service not in directions:
                 directions.append(service)
 
@@ -989,21 +911,14 @@ ref = db.reference("/BusOperatingHours")  # access /BusOperatingHours
 json_array = ref.get()  # returns array of json
 for service in json_array:  # loop through each item
     if service is not None:  # ensure bus service exists
-        bus_operating_hours_dict[service] = {}  # initalise as dict
+        bus_operating_hours_dict[service] = {}  # initialise as dict
         for day in json_array[service]:  # to get the service operating hours
-            bus_operating_hours_dict[service][day] = {}  # initalise as dict
+            bus_operating_hours_dict[service][day] = {}  # initialise as dict
             # to get the start and end timings
             for start_end in json_array[service][day]:
                 # store to bus_operating_hours_dict
                 bus_operating_hours_dict[service][day][
                     start_end] = json_array[service][day][start_end]
-
-# Store coordinates of bus stops in bus_stop_coordinates
-for venue in venue_dict:
-    if venue_dict[venue][2] == 'true':
-        bus_stop_coordinates[venue] = (
-            float(venue_dict[venue][0]),
-            float(venue_dict[venue][1]))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0")
