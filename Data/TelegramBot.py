@@ -22,10 +22,12 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 venue_list = []  # Stores all the venue names
 bus_stop_list = []  # Stores all the bus stop names
 # Stores source and destination as tuple
-# OR ("QUERY", BusStopname), user_id as key
+# OR ("QUERY", BusStopName), user_id as key
 data_dict = {}
 # Stores routing information in case user wants more routes, user_id as key
 routing_info_dict = {}
+# Set of user_ids of bot users
+users = set()
 
 
 def get_route(update, user_id):
@@ -33,36 +35,41 @@ def get_route(update, user_id):
     # Get user's source and destination from data_dict
     source, destination = data_dict[user_id]
     del data_dict[user_id]  # remove user from data_dict
-
-    if isinstance(source, tuple):
-        # If source is tuple, indicates user sent GPS location.
-        # Make a request to the url using coordinates.
-        response = requests.get(server_url + "/getpath/"
-                                + str(source[0]) + "/"
-                                + str(source[1]) + "/"
-                                + destination)
-    else:
-        response = requests.get(server_url + "/getpath/"
-                                + source + "/"
-                                + destination)  # Make a request to the url
-
-    if response.status_code == 200:  # Request successful
-        json_object = json.loads(response.text)
-        routing_info_dict[user_id] = {}
-        routing_info_dict[user_id]["JSON"] = json_object
-        routing_info_dict[user_id]["RouteIDToSend"] = "0"
-        routing_info_dict[user_id]["RequestTime"] = datetime.datetime.now()
-
+    try:
         if isinstance(source, tuple):
-            routing_info_dict[user_id]["Source"] = "your location"
+            # If source is tuple, indicates user sent GPS location.
+            # Make a request to the url using coordinates.
+            response = requests.get(server_url + "/getpath/"
+                                    + str(source[0]) + "/"
+                                    + str(source[1]) + "/"
+                                    + destination)
         else:
-            routing_info_dict[user_id]["Source"] = source
+            response = requests.get(server_url + "/getpath/"
+                                    + source + "/"
+                                    + destination)  # Make a request to the url
 
-        routing_info_dict[user_id]["Destination"] = destination
+        if response.status_code == 200:  # Request successful
+            json_object = json.loads(response.text)
+            routing_info_dict[user_id] = {}
+            routing_info_dict[user_id]["JSON"] = json_object
+            routing_info_dict[user_id]["RouteIDToSend"] = "0"
+            routing_info_dict[user_id]["RequestTime"] = datetime.datetime.now()
 
-        reply = get_instructions(user_id)  # Always return the first route
-    else:  # Error accessing server
-        reply = "There's a issue accessing the server, please try again later."
+            if isinstance(source, tuple):
+                routing_info_dict[user_id]["Source"] = "your location"
+            else:
+                routing_info_dict[user_id]["Source"] = source
+
+            routing_info_dict[user_id]["Destination"] = destination
+
+            reply = get_instructions(user_id)  # Always return the first route
+        else:  # Error accessing server
+            reply = "There's an issue accessing the server, " \
+                + "please try again later."
+
+    except Exception:
+        reply = "There's an issue accessing the server, " \
+            + "please try again later."
 
     # Reply string stores data to be returned
     return reply
@@ -72,33 +79,39 @@ def get_arrival(update, user_id):
     """Get arrival timings of buses."""
     bus_stop = data_dict[user_id][1]
     del data_dict[user_id]  # Remove user from data_dict
-    response = requests.get(server_url + "/getarrivaltimings/"
-                            + bus_stop)  # Make a request to the url
+    try:
+        response = requests.get(server_url + "/getarrivaltimings/"
+                                + bus_stop)  # Make a request to the url
 
-    reply = "<b>" + bus_stop + "</b>\n"
-    if response.status_code == 200:  # Request successful
-        json_object = json.loads(response.text)
-        for service in json_object:
-            if json_object[service]["arrivalTime"] == "-":
-                # Service is not in operation
-                reply += "<i>" + service + "</i>: -\n\n"
-            elif json_object[service]["arrivalTime"] == "0":
-                # Service is arriving
-                reply += "<i>" + service + ":</i>\n" \
-                    + "Arriving: Now\n" \
-                    + "Subsequent: " \
-                    + json_object[service]["nextArrivalTime"] \
-                    + " mins\n\n"
-            else:
-                reply += "<i>" + service + ":</i>\n" \
-                    + "Arriving: " \
-                    + json_object[service]["arrivalTime"] + " mins\n" \
-                    + "Subsequent: " \
-                    + json_object[service]["nextArrivalTime"] \
-                    + " mins\n\n"
-    else:  # Error accessing server
-        # String to store data to be returned
-        reply = "There's a issue accessing the server, please try again later."
+        reply = "<b>" + bus_stop + "</b>\n"
+        if response.status_code == 200:  # Request successful
+            json_object = json.loads(response.text)
+            for service in json_object:
+                if json_object[service]["arrivalTime"] == "-":
+                    # Service is not in operation
+                    reply += "<i>" + service + "</i>: -\n\n"
+                elif json_object[service]["arrivalTime"] == "0":
+                    # Service is arriving
+                    reply += "<i>" + service + ":</i>\n" \
+                        + "Arriving: Now\n" \
+                        + "Subsequent: " \
+                        + json_object[service]["nextArrivalTime"] \
+                        + " mins\n\n"
+                else:
+                    reply += "<i>" + service + ":</i>\n" \
+                        + "Arriving: " \
+                        + json_object[service]["arrivalTime"] + " mins\n" \
+                        + "Subsequent: " \
+                        + json_object[service]["nextArrivalTime"] \
+                        + " mins\n\n"
+        else:  # Error accessing server
+            # String to store data to be returned
+            reply = "There's an issue accessing the server, " \
+                + "please try again later."
+
+    except Exception:
+        reply = "There's an issue accessing the server, " \
+            + "please try again later."
 
     return reply
 
@@ -123,11 +136,11 @@ def get_instructions(user_id):
     if len(json_object) == 0:  # JSON response is {}
         return "No route found."
 
-    ETA = json_object[route_num]["ETA"]
+    eta = json_object[route_num]["ETA"]
     travel_time = str(json_object[route_num]["TravelTime"])
 
-    if ETA == "-":  # no ETA
-        ETA = "Not available as there is no information on the " \
+    if eta == "-":  # no ETA
+        eta = "Not available as there is no information on the " \
             + "third and subsequent buses."
 
     if travel_time == "-":
@@ -197,20 +210,20 @@ def get_instructions(user_id):
             else:
                 bus_service_string += ", " + bus_service_list[i]
 
-        if (route_num == "0"):  # First route
+        if route_num == "0":  # First route
             reply = "<b>Route " + str(int(route_num) + 1) + " of " \
                 + str(len(json_object)) + ": " + travel_time \
                 + "</b>\nThe fastest way to get from " + source \
                 + " to " + destination + " is via ISB service " \
                 + bus_service_string + ".\n" + ''.join(stops_list) \
-                + "Estimated arrival time: <i>" + ETA + "</i>"
+                + "Estimated arrival time: <i>" + eta + "</i>"
         else:  # An alternative way
             reply = "<b>Route " + str(int(route_num) + 1) + " of " \
                 + str(len(json_object)) + ": " + travel_time \
                 + "</b>\nAn alternative way to get from " + source \
                 + " to " + destination + " is via ISB service " \
                 + bus_service_string + ".\n" + ''.join(stops_list) \
-                + "Estimated arrival time: <i>" + ETA + "</i>"
+                + "Estimated arrival time: <i>" + eta + "</i>"
 
     # Increment ID
     routing_info_dict[user_id]["RouteIDToSend"] = str(int(route_num) + 1)
@@ -232,6 +245,7 @@ def get_instructions(user_id):
 def start(update, context):
     """Send a message when the command /start is issued."""
     user_id = update.message.from_user["id"]
+    users.add(user_id)
     if user_id in data_dict:
         del data_dict[user_id]  # remove user from data_dict
     keyboard = [[KeyboardButton(text="Send location using GPS",
@@ -249,6 +263,7 @@ def start(update, context):
 def cancel(update, context):
     """Cancel route query when the command /cancel is issued."""
     user_id = update.message.from_user["id"]
+    users.add(user_id)
     if user_id in data_dict:
         del data_dict[user_id]  # remove user from data_dict
         update.message.reply_text("Got it! Your request has been cancelled.")
@@ -259,6 +274,7 @@ def cancel(update, context):
 def more(update, context):
     """Send more routes when the command /more is issued."""
     user_id = update.message.from_user["id"]
+    users.add(user_id)
     if user_id in routing_info_dict:
         reply = get_instructions(user_id)
         update.message.reply_text(reply, parse_mode="HTML")
@@ -281,6 +297,7 @@ def get_source_and_destination(update, context):
     """Get source and destination from user on Telegram."""
     user_message = update.message.text.upper()
     user_id = update.message.from_user["id"]
+    users.add(user_id)
     keyboard = []
 
     # Check for query case
@@ -317,13 +334,13 @@ def get_source_and_destination(update, context):
                     keyboard.append([bus_stop])
 
             # Cannot find location likely due to typo, use difflib
-            if (len(keyboard) == 0):
+            if len(keyboard) == 0:
                 close_matches = difflib.get_close_matches(user_message,
                                                           bus_stop_list)
                 for bus_stop in close_matches:
                     keyboard.append([bus_stop])
 
-            if (len(keyboard) != 0):
+            if len(keyboard) != 0:
                 update.message.reply_text(
                     "Sorry, I didn't manage to locate your bus stop. "
                     + "Did you mean:",
@@ -379,14 +396,14 @@ def get_source_and_destination(update, context):
                     keyboard.append([venue])
 
             # Cannot find location likely due to typo, use difflib
-            if (len(keyboard) == 0):
+            if len(keyboard) == 0:
                 close_matches = difflib.get_close_matches(user_message,
                                                           venue_list)
                 for venue in close_matches:
                     keyboard.append([venue])
 
             if user_id in data_dict:  # User has already entered source
-                if (len(keyboard) != 0):  # There are predictions
+                if len(keyboard) != 0:  # There are predictions
                     update.message.reply_text(
                         "Sorry, I didn't manage to locate your destination. "
                         + "Did you mean:",
@@ -397,7 +414,7 @@ def get_source_and_destination(update, context):
                         "Sorry, I didn't manage to locate your destination.")
 
             else:  # User has just entered source
-                if (len(keyboard) != 0):  # There are predictions
+                if len(keyboard) != 0:  # There are predictions
                     update.message.reply_text(
                         "I didn't manage to locate your source. Did you mean:",
                         reply_markup=ReplyKeyboardMarkup(
@@ -417,7 +434,7 @@ def error(update, context):
 def location(update, context):
     """Provides updates to users on their location."""
     user_id = update.message.from_user["id"]
-    user_location = (update.message.location)
+    user_location = update.message.location
 
     if user_id in data_dict:  # User has already entered source
         if isinstance(data_dict[user_id][0], tuple):
@@ -442,6 +459,7 @@ def location(update, context):
 def query(update, context):
     """Get user query from reply keyboard input."""
     user_id = update.message.from_user["id"]
+    users.add(user_id)
     data_dict[user_id] = ("QUERY", "")  # Flag to know if user asked for query
 
     keyboard = []
@@ -451,6 +469,23 @@ def query(update, context):
     update.message.reply_text(
         "Got it! Select the bus stop. Enter /cancel to cancel your request.",
         reply_markup=ReplyKeyboardMarkup(keyboard, one_time_keyboard=True))
+
+
+def get_users(update, context):
+    """Gets list of all bot users (by user_id) and outputs to server."""
+    users_list = []
+    for user in sorted(list(users)):
+        usr = str(user) + "\n"
+        users_list.append(usr)
+    users_count = len(users)
+    now = datetime.datetime.now()
+    time_string = now.strftime("%Y_%m_%d_%H:%M:%S")
+    outfile_name = "NavUSBot Users_" + time_string
+    outfile = open(outfile_name, "w")
+    outfile.writelines(users_list)
+    outfile.close()
+    update.message.reply_text(
+        "NavUS has " + str(users_count) + " Telegram bot users.")
 
 
 # Enable logging
@@ -505,6 +540,7 @@ dp.add_handler(CommandHandler("more", more, run_async=True))
 dp.add_handler(CommandHandler("start", start, run_async=True))
 dp.add_handler(CommandHandler("help", help, run_async=True))
 dp.add_handler(CommandHandler("query", query, run_async=True))
+dp.add_handler(CommandHandler("getusers", get_users, run_async=True))
 
 # Handle GPS location
 dp.add_handler(MessageHandler(Filters.location, location, run_async=True))
