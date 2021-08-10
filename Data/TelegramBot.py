@@ -244,8 +244,9 @@ def get_instructions(user_id):
 # Error handlers also receive the raised TelegramError object in error.
 def start(update, context):
     """Send a message when the command /start is issued."""
-    user_id = update.message.from_user["id"]
-    users.add(user_id)
+    user = update.message.from_user
+    user_id = user["id"]
+    users.add(user)
     if user_id in data_dict:
         del data_dict[user_id]  # remove user from data_dict
     keyboard = [[KeyboardButton(text="Send location using GPS",
@@ -262,8 +263,9 @@ def start(update, context):
 
 def cancel(update, context):
     """Cancel route query when the command /cancel is issued."""
-    user_id = update.message.from_user["id"]
-    users.add(user_id)
+    user = update.message.from_user
+    user_id = user["id"]
+    users.add(user)
     if user_id in data_dict:
         del data_dict[user_id]  # remove user from data_dict
         update.message.reply_text("Got it! Your request has been cancelled.")
@@ -273,8 +275,9 @@ def cancel(update, context):
 
 def more(update, context):
     """Send more routes when the command /more is issued."""
-    user_id = update.message.from_user["id"]
-    users.add(user_id)
+    user = update.message.from_user
+    user_id = user["id"]
+    users.add(user)
     if user_id in routing_info_dict:
         reply = get_instructions(user_id)
         update.message.reply_text(reply, parse_mode="HTML")
@@ -296,8 +299,9 @@ def help(update, context):
 def get_source_and_destination(update, context):
     """Get source and destination from user on Telegram."""
     user_message = update.message.text.upper()
-    user_id = update.message.from_user["id"]
-    users.add(user_id)
+    user = update.message.from_user
+    user_id = user["id"]
+    users.add(user)
     keyboard = []
 
     # Check for query case
@@ -433,7 +437,8 @@ def error(update, context):
 
 def location(update, context):
     """Provides updates to users on their location."""
-    user_id = update.message.from_user["id"]
+    user = update.message.from_user
+    user_id = user["id"]
     user_location = update.message.location
 
     if user_id in data_dict:  # User has already entered source
@@ -458,8 +463,9 @@ def location(update, context):
 
 def query(update, context):
     """Get user query from reply keyboard input."""
-    user_id = update.message.from_user["id"]
-    users.add(user_id)
+    user = update.message.from_user
+    user_id = user["id"]
+    users.add(user)
     data_dict[user_id] = ("QUERY", "")  # Flag to know if user asked for query
 
     keyboard = []
@@ -473,19 +479,36 @@ def query(update, context):
 
 def get_users(update, context):
     """Gets list of all bot users (by user_id) and outputs to server."""
-    users_list = []
-    for user in sorted(list(users)):
-        usr = str(user) + "\n"
-        users_list.append(usr)
-    users_count = len(users)
+    user_ids_list = []
+    user_names_list = []
+    # Populate lists of user ids and user names
+    for user in list(users):
+        # Get user id and append to user_ids_list
+        user_id = str(user["id"]) + "\n"
+        user_ids_list.append(user_id)
+        # Initialise names
+        first_name = "" if user["first_name"] is None else user["first_name"]
+        last_name = "" if user["last_name"] is None else user["last_name"]
+        username = "" if user["username"] is None else user["username"]
+        # Concatenate user's name to be displayed
+        user_name = first_name + " " + last_name + " (@" + username + ")"
+        user_names_list.append(user_name)
+    # Sort lists of user ids and user names
+    user_ids_list = sorted(user_ids_list)
+    user_names_list = sorted(user_names_list)
+    # Output user_ids to server
+    users_count = len(user_ids_list)
     now = datetime.datetime.now()
     time_string = now.strftime("%Y_%m_%d_%H:%M:%S")
     outfile_name = "NavUSBot Users_" + time_string
     outfile = open(outfile_name, "w")
-    outfile.writelines(users_list)
+    outfile.writelines(user_ids_list)
     outfile.close()
-    update.message.reply_text(
-        "NavUS has " + str(users_count) + " Telegram bot users.")
+    # Update user(admin) with user names
+    reply = "NavUS has " + str(users_count) + " Telegram bot users:\n"
+    for name in user_names_list:
+        reply += name + "\n"
+    update.message.reply_text(reply)
 
 
 # Enable logging
@@ -531,6 +554,12 @@ telegram_api_key = f.read()
 f.close()
 updater = Updater(telegram_api_key, use_context=True)
 
+# Read admin user_ids
+f = open("NavUSadmins.txt", "r")
+content = f.read()
+admin_ids = [int(x) for x in content.split(",")]
+f.close()
+
 # Get the dispatcher to register handlers
 dp = updater.dispatcher
 
@@ -540,7 +569,8 @@ dp.add_handler(CommandHandler("more", more, run_async=True))
 dp.add_handler(CommandHandler("start", start, run_async=True))
 dp.add_handler(CommandHandler("help", help, run_async=True))
 dp.add_handler(CommandHandler("query", query, run_async=True))
-dp.add_handler(CommandHandler("getusers", get_users, run_async=True))
+dp.add_handler(CommandHandler("getusers", get_users, Filters.user(
+    user_id=admin_ids), run_async=True))
 
 # Handle GPS location
 dp.add_handler(MessageHandler(Filters.location, location, run_async=True))
