@@ -2,6 +2,8 @@ package com.example.navus;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,17 +12,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 
 public class CustomArrayAdapter extends ArrayAdapter<String> {
     private final Context context;
     private final ArrayList<String> values;
-    private Map<String, String> favourites = new HashMap<String, String>(); //using map so it is easier to find if a value exists rather than looping through
+    private Map<String, String> busstops = new HashMap<String, String>();
+    private Deque<String> favourites = new LinkedList<>();
+    private Deque<String> history = new LinkedList<>();
 
     public CustomArrayAdapter(Context context, ArrayList<String> values) {
         super(context, -1, values);
@@ -30,24 +35,45 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.custom_list, parent, false);
+
+        getdatafromsql();
         TextView textView = (TextView) rowView.findViewById(R.id.listviewtext);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.favouriteicon);
-
-        SharedPreferences sharedpreferences = context.getSharedPreferences("MySharedPreference", context.MODE_PRIVATE);
+        ImageView busicon = (ImageView) rowView.findViewById(R.id.busstopicon);
+        SharedPreferences sharedpreferences = context.getSharedPreferences("MySharedPreference", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedpreferences.edit();
         String favouritestring = sharedpreferences.getString("Favourites", "");
+        //Get search history
+        String searchhistory = sharedpreferences.getString("SearchHistory", "");
+
+        if (busstops.containsKey(values.get(position))){
+            busicon.setImageResource(R.drawable.appicon);
+        }
+
 
         if (!favouritestring.equals("")) { //if favourites exists
             for (String fav: favouritestring.split(",")){ //populate the favourites
-                favourites.put(fav, "");//empty string as placeholder
+                if (!favourites.contains(fav)) //ensure it is not in favourites
+                    favourites.add(fav);
+            }
+        }
+
+        if (!searchhistory.equals("")) { //if userhistory exists
+            for (String hist: searchhistory.split(",")){ //populate the history
+                if (!favourites.contains(hist) && !history.contains(hist)){ //ensure it is not in favourites and history
+                    history.add(hist);
+                }
             }
         }
 
         textView.setText(values.get(position));
-        if (favourites.containsKey(values.get(position))){ //already in favourites, set yellow star
+        if (favourites.contains(values.get(position))){ //already in favourites, set yellow star
             imageView.setImageResource(R.drawable.yellowstar);
+        }else if(history.contains(values.get(position))){ //in user's history, set clock
+            imageView.setImageResource(R.drawable.clock);
         }else if (!values.get(position).equals(getContext().getResources().getString(R.string.your_location))){ //ensure it is not YOUR LOCATION
             imageView.setImageResource(R.drawable.star); //defaults to empty star
         }
@@ -56,28 +82,52 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
             @Override
             public void onClick(View v) {
                 String location = values.get(position);
-                if (favourites.containsKey(location)){ //user decides to remove favourite
-                    imageView.setImageResource(R.drawable.star);
+                if (favourites.contains(location)){ //user decides to remove favourite
+                    if (history.contains(location)) //in user's history
+                        imageView.setImageResource(R.drawable.clock);
+                    else
+                        imageView.setImageResource(R.drawable.star);
                     favourites.remove(location); //delete key
+                    Toast.makeText(context.getApplicationContext(), context.getResources().getString(R.string.favourites_removed, location), Toast.LENGTH_SHORT).show();
 
                 }else if (!location.equals(getContext().getResources().getString(R.string.your_location))){//user adds to favourite, ensure it is not YOUR LOCATION
                     imageView.setImageResource(R.drawable.yellowstar);
-                    favourites.put(location, ""); //empty string as placeholder
+                    if (!favourites.contains(location)) //ensure it is not in favourites
+                        favourites.add(location);
+                    Toast.makeText(context.getApplicationContext(),context.getResources().getString(R.string.favourites_added, location), Toast.LENGTH_SHORT).show();
                 }
 
                 String favouritestring = "";
-                for (String fav: favourites.keySet()){ //loop through all the keys
+
+                Iterator itr = favourites.iterator();//loop through all the favourites
+                while (itr.hasNext()) {
                     if (favouritestring.equals("")){ //first element
-                        favouritestring = fav;
+                        favouritestring = String.valueOf(itr.next());
                     }else{ //need to add comma
-                        favouritestring += "," + fav;
+                        favouritestring += "," + itr.next();
                     }
                 }
+
                 editor.putString("Favourites", favouritestring);
-                editor.commit(); //save data
+                editor.apply(); //save data
             }
         });
 
         return rowView;
+    }
+
+    public void getdatafromsql() {
+        DBHelper myhelper = new DBHelper(getContext());
+        SQLiteDatabase mydatabase = myhelper.getWritableDatabase();
+        Cursor cursor = mydatabase.rawQuery("SELECT * FROM Venues", null);
+        if (cursor.moveToFirst()) {
+            do {
+                if (cursor.getString(3).equals("true")) { //if is busstop
+                    busstops.put(cursor.getString(0), "");
+                }
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        mydatabase.close();
     }
 }

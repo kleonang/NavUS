@@ -9,6 +9,7 @@
     android:weightSum="1"
     tools:context=".MapsActivity">
 
+
     <EditText
         android:id="@+id/searchbutton"
         android:drawableLeft="@drawable/magnifyingglass"
@@ -20,7 +21,9 @@
         android:inputType="none"
         android:background="@android:color/transparent"
         android:focusable="false"
+        android:longClickable="false"
         android:hint="@string/search_hint" />
+
 
 
     <fragment
@@ -29,6 +32,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MapsActivity">
+
+        <ProgressBar
+            android:id="@+id/progressbar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center"/>
 
         <FrameLayout
             android:layout_width="wrap_content"
@@ -52,7 +62,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textSize="10dp" />
+                android:textSize="10sp" />
 
         </FrameLayout>
     </fragment>

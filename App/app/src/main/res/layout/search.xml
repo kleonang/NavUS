@@ -79,11 +79,6 @@
 
     </LinearLayout>
 
-    <CheckBox android:id="@+id/exactmatch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/exact_match"/>
-
     <ListView
         android:id="@+id/listresults"
         android:layout_width="match_parent"
