@@ -333,14 +333,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ETAtextview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mTourGuideHandler!=null) {
-                    mTourGuideHandler.cleanUp();
-                    guideid = 5; //set to route instructions
-                    guideuser(guideid);
-                }
-
 
                 if (!routeselected) {
+                    if (mTourGuideHandler!=null) {
+                        mTourGuideHandler.cleanUp();
+                        guideid = 5; //set to route instructions
+                        guideuser(guideid);
+                    }
                     backbuttoncode = 2;//update the back button code
                     //disable buttons first
                     leftbutton.setEnabled(false);
