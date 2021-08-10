@@ -117,8 +117,12 @@ public class LocationUpdateService extends Service {
                 waypointlocation.setLongitude(waypoint.longitude);
 
                 if (location.distanceTo(waypointlocation) < 200 && (lastidnotified + 1 == i || (lastidnotified==i && firstnotification))) {//less than 200m and did not notify before
+                    if (firstnotification)
+                        lastidnotified = i;
+                    else
+                        lastidnotified = i + 1;
+
                     firstnotification = false;
-                    lastidnotified = i + 1;
                     //if directionstext is not empty then notify the user, else it is just a normal bus stop
                     if (!directionstextarray.get(i).equals("")) {
                         //send notification

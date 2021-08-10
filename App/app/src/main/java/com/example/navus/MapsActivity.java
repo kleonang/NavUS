@@ -177,7 +177,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     //create Venue object based on user's destination
                     destination = new Venue(destinationname, venuedict.get(destinationname).getLatitude(), venuedict.get(destinationname).getLongitude(), venuedict.get(destinationname).getIsBusStop());
-                    Location destinationlocation = new Location(LocationManager.GPS_PROVIDER);
 
                     //Get shortest path from source to destination
                     String url = serverurl + "/getpath/" + source.getLatitude() + "/" + source.getLongitude() + "/" + destination.getLatitude() + "/" + destination.getLongitude();
@@ -418,7 +417,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onNewIntent (Intent intent) {
         super.onNewIntent(intent);
         //check if user tap on the stop button in the notification
-        if (intent.getExtras()!=null && intent.getExtras().getBoolean("stopapp", false)==true){
+        if (intent.getExtras()!=null && intent.getExtras().getBoolean("stopapp", false)){
             //stop service
             stopService(new Intent(getApplicationContext(), LocationUpdateService.class));
             //close the app
@@ -897,7 +896,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //Getting shortest path info from server
     private class getbestpath extends AsyncTask<String, Integer, String> {
         protected String doInBackground(String... urls) {
-            URL url = null;
+            URL url;
             String content = "";
             for (int i=0; i<nooftimestoretry; i++){
                 HttpURLConnection connection = null;
@@ -950,7 +949,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             progressbar.setVisibility(View.INVISIBLE); //hide progress bar
             searchbarenabled = true; //enable searchbar
 
-            if (result==""){//Error accessing server
+            if (result.equals("")){//Error accessing server
                 Toast.makeText(getApplicationContext(), R.string.route_server_unavailable, Toast.LENGTH_LONG).show();
                 directionstextview.setText(R.string.route_server_unavailable);
                 if (guideid == 3) {
@@ -1075,7 +1074,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String directionstext;
 
                 for (int i=0; i<routeinfo.size(); i++){
-                    Marker BusStopMarker = null;
+                    Marker BusStopMarker;
                     WayPoint currentbusstop = routeinfo.get(i);
                     //source bus stop
                     if (i == 0) {
@@ -1099,15 +1098,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             directionstextarray.add(directionstext);
                             directionstextarraybackground.add(directionstext);
                             BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(currentbusstop.getLatitude()),Double.parseDouble(currentbusstop.getLongitude()))).title(currentbusstop.getName()).snippet(directionstext).icon(BitmapDescriptorFactory.fromBitmap(bluepin)));
-                            routelatlngarray.add(BusStopMarker.getPosition());
                         }else{
                             directionstext = getString(R.string.board, currentbusstop.getService(), currentbusstop.getBusArrivalTimeMins(), currentbusstop.getBusArrivalTime());
                             //add string to array for the buttons
                             directionstextarray.add(directionstext);
                             directionstextarraybackground.add(directionstext);
                             BusStopMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.parseDouble(currentbusstop.getLatitude()),Double.parseDouble(currentbusstop.getLongitude()))).title(currentbusstop.getName()).snippet(directionstext).icon(BitmapDescriptorFactory.fromBitmap(greenpin)));
-                            routelatlngarray.add(BusStopMarker.getPosition());
                         }
+                        routelatlngarray.add(BusStopMarker.getPosition());
 
                         //show first stop information
                         BusStopMarker.showInfoWindow();
@@ -1225,7 +1223,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Waypoints
         String waypointsstring = "";
         String previousbusstopname="";
-        String url="";
+        String url;
 
         for (int i=0; i<routeinfo.size(); i++){
             if (i==0){//source is first point in route only when user did not enable location services
@@ -1295,7 +1293,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // this is executed on the main thread after the process is over
             // update your UI here
 
-            if (result.size()==0 || result.get(0)==""){//Error accessing server
+            if (result.size()==0 || result.get(0).equals("")){//Error accessing server
                 Toast.makeText(getApplicationContext(),R.string.google_server_unavailable, Toast.LENGTH_LONG).show();
 
             }else{
@@ -1418,7 +1416,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     //Getting arrival timings info from server
     private class getarrivaltimings extends AsyncTask<String, Integer, ArrayList<String>> {
         protected ArrayList<String> doInBackground(String... urls) {
-            URL url = null;
+            URL url;
             String content = "";
             for (int i=0; i<nooftimestoretry; i++){
                 HttpURLConnection connection = null;
