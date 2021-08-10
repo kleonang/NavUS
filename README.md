@@ -244,7 +244,7 @@ Week           |  Task
 11 (19/7 - 25/7)           | Further testing and debugging, while polishing the applications as a whole
 
 ## Setup Instructions
-The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Firebase, 1 `Python3` file for the logic of the path calculation, 1 `Python3` file for the logic of the Telegram Bot, as well as 1 `Python3` file used to collect venue data. Before running the scripts, ensure that `firebase.json` is replaced with yours downloaded from the `Firebase Console`. Also, edit the file `firebaseurl.txt` to your Firebase's URL from the `Firebase Console`. For Telegram Bot edit the file `telegramapikey.txt` with yours from `BotFather` and the file `server_url.txt` with the URL of your server running `CalculatePath.py`.
+The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Firebase, 1 `Python3` file for the logic of the path calculation, 1 `Python3` file for the logic of the Telegram Bot, as well as 1 `Python3` file used to collect venue data. Before running the scripts, ensure that `firebase.json` is replaced with yours downloaded from the `Firebase Console`. Also, edit the file `firebaseurl.txt` to your Firebase's URL from the `Firebase Console`. For Telegram Bot edit the file `telegramapikey.txt` with yours from `BotFather` and the file `server_url.txt` with the URL of your server running `CalculatePath.py`. Also, edit the file `NavUSadmins.txt` to your own Telegram user ID so that you will be able to use the `/getusers` command. 
 
 - ### `Python3` Scripts
   - `InsertBusOperatingHours.py` is used to populate Firebase at the `/BusOperatingHours` reference. It contains all the bus operating hours on *Weekdays*, *Saturdays*, and *Sundays and Public Holidays*.
