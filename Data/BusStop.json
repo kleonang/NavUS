@@ -1,7 +1,7 @@
 {
     "1": {
         "Name": "AS 5",
-        "NextBusAlias": "AS7",
+        "NextBusAlias": "AS5",
         "Services": [
             "A1",
             "BTC",
@@ -27,7 +27,7 @@
     },
     "4": {
         "Name": "CENTRAL LIBRARY (CLB)",
-        "NextBusAlias": "CENLIB",
+        "NextBusAlias": "CLB",
         "Services": [
             "A1",
             "BTC",
@@ -37,7 +37,7 @@
     },
     "5": {
         "Name": "COLLEGE GREEN",
-        "NextBusAlias": "CGH",
+        "NextBusAlias": "CG",
         "Services": [
             "BTC",
             "L"
@@ -55,14 +55,14 @@
     },
     "7": {
         "Name": "EA",
-        "NextBusAlias": "BLK-EA-OPP",
+        "NextBusAlias": "EA",
         "Services": [
             "E"
         ]
     },
     "8": {
         "Name": "INFORMATION TECHNOLOGY (IT)",
-        "NextBusAlias": "COMCEN",
+        "NextBusAlias": "IT",
         "Services": [
             "A2",
             "D1",
@@ -71,7 +71,7 @@
     },
     "9": {
         "Name": "KENT RIDGE BUS TERMINAL (KR BUS TERMINAL)",
-        "NextBusAlias": "KR-BT",
+        "NextBusAlias": "KRB",
         "Services": [
             "A1",
             "A2"
@@ -128,7 +128,7 @@
     },
     "15": {
         "Name": "OEI TIONG HAM BUILDING (OTH BLDG)",
-        "NextBusAlias": "BUKITTIMAH-BTC2",
+        "NextBusAlias": "OTH-BTC-E",
         "Services": [
             "BTC",
             "L"
@@ -168,7 +168,7 @@
     },
     "20": {
         "Name": "OPP TCOMS",
-        "NextBusAlias": "PGP12-OPP",
+        "NextBusAlias": "TCOMS-OPP",
         "Services": [
             "A1"
         ]
@@ -184,7 +184,7 @@
     },
     "22": {
         "Name": "OPP UNIVERSITY HEALTH CENTRE (OPP UHC)",
-        "NextBusAlias": "STAFFCLUB-OPP",
+        "NextBusAlias": "UHC-OPP",
         "Services": [
             "A1",
             "BTC",
@@ -203,7 +203,7 @@
     },
     "24": {
         "Name": "PRINCE GEORGE PARK RESIDENCES (PGPR)",
-        "NextBusAlias": "PGP",
+        "NextBusAlias": "PGPR",
         "Services": [
             "A2",
             "D2",
@@ -212,7 +212,7 @@
     },
     "25": {
         "Name": "PRINCE GEORGE'S PARK (PGP)",
-        "NextBusAlias": "PGPT",
+        "NextBusAlias": "PGP",
         "Services": [
             "A1",
             "BTC",
@@ -246,7 +246,7 @@
     },
     "29": {
         "Name": "TCOMS",
-        "NextBusAlias": "PGP12",
+        "NextBusAlias": "TCOMS",
         "Services": [
             "A2"
         ]
@@ -270,7 +270,7 @@
     },
     "32": {
         "Name": "UNIVERSITY HEALTH CENTRE (UHC)",
-        "NextBusAlias": "STAFFCLUB",
+        "NextBusAlias": "UHC",
         "Services": [
             "A2",
             "D2",
@@ -279,7 +279,7 @@
     },
     "33": {
         "Name": "UNIVERSITY TOWN (UTOWN)",
-        "NextBusAlias": "UTown",
+        "NextBusAlias": "UTOWN",
         "Services": [
             "BTC",
             "D1",

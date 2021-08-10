@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # INSTALL DEPENDENCIES FIRST
+# pip3 install firebase-admin
 # pip3 install python-telegram-bot
 # pip3 install requests
 
@@ -8,7 +9,7 @@ import datetime
 import difflib
 import json
 import logging
-
+import re
 import firebase_admin
 import requests
 
@@ -236,7 +237,7 @@ def start(update, context):
     keyboard = [[KeyboardButton(text="Send location using GPS",
                                 request_location=True)]]
     update.message.reply_text(
-        "Welcome to NavUS! Send me your current location "
+        "Welcome to NavUS! Type in your current location "
         + "(GPS location is also accepted).\n"
         + "Send /query to query bus arrival timings.\n"
         + "Send /help to view my commands.",
@@ -268,7 +269,7 @@ def more(update, context):
 def help(update, context):
     """Send a help message when the command /help is issued."""
     update.message.reply_text(
-        "Send me your current location (GPS location is also accepted) "
+        "Type in your current location (GPS location is also accepted) "
         + "followed by your destination and I'll tell you how to get there!\n"
         + "Send /cancel to re-enter your source.\n"
         + "Send /more to view alternative routes.\n"
@@ -284,7 +285,26 @@ def get_source_and_destination(update, context):
 
     # Check for query case
     if user_id in data_dict and data_dict[user_id][0] == "QUERY":
-        if user_message in bus_stop_list:
+        valid = False
+        # check for valid input
+        for bus_stop in bus_stop_list:
+            alias = ""  # to store alias like KRMRT
+            # To store names with brackets like KENT RIDGE MRT
+            bus_stop_name = ""
+            match = re.search(r"(.+) \((.+)\)", bus_stop)
+            if match:
+                bus_stop_name = match.group(1)
+                alias = match.group(2)
+            msg = user_message.replace(" ", "")
+            if user_message == bus_stop \
+                    or msg == bus_stop.replace(" ", "") \
+                    or msg == alias.replace(" ", "") \
+                    or msg == bus_stop_name.replace(" ", ""):
+                user_message = bus_stop
+                valid = True
+                break
+
+        if valid:
             # Add the queried bus stop name
             data_dict[user_id] = ("QUERY", user_message)
             msg = update.message.reply_text("Getting arrival information...")
@@ -312,8 +332,30 @@ def get_source_and_destination(update, context):
             else:
                 update.message.reply_text(
                     "Sorry, I didn't manage to locate your bus stop.")
+
+    # Not query, should be source and destination
     else:
-        if user_message in venue_list:  # Location exists in venue_list
+        valid = False
+        # Check for valid input
+        for venue in venue_list:
+            alias = ""  # To store alias like KRMRT
+            # To store venue names with brackets like KENT RIDGE MRT
+            venue_name = ""
+            match = re.search(r"(.+) \((.+)\)", venue)
+            if match:
+                venue_name = match.group(1)
+                alias = match.group(2)
+            msg = user_message.replace(" ", "")
+            if user_message == venue \
+                    or msg == venue.replace(" ", "") \
+                    or msg == alias.replace(" ", "") \
+                    or msg == venue_name.replace(" ", ""):
+
+                user_message = venue
+                valid = True
+                break
+
+        if valid:  # Location exists in venue_list
             if user_id in data_dict:  # User has already entered source
                 # Add destination
                 data_dict[user_id] = (data_dict[user_id][0], user_message)
@@ -325,7 +367,7 @@ def get_source_and_destination(update, context):
                 data_dict[user_id] = (user_message, "")
                 update.message.reply_text("Got it! You're at "
                                           + user_message + ". "
-                                          + "Now send me your destination. "
+                                          + "Now type in your destination. "
                                           + "Enter /cancel "
                                           + "to re-enter your source.")
 
@@ -440,7 +482,7 @@ if not firebase_admin._apps:
     })
 
 # Import Venues from database
-ref = db.reference("/Venues")  # access /Venues
+ref = db.reference("/Venues")  # access /VenuesNew
 json_array = ref.get()  # returns array of json
 for venue in json_array:  # loop through each item
     if venue is not None:  # ensure venue exists
