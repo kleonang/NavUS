@@ -1,5 +1,5 @@
 # NavUS
-<img src="https://user-images.githubusercontent.com/35778042/128505485-9d319fd3-4e99-4459-a91a-db0b1ba6e6ba.png" width="100" height="100">
+<img src="https://user-images.githubusercontent.com/35778042/128505485-9d319fd3-4e99-4459-a91a-db0b1ba6e6ba.png" width="100" height="100"> <a href='https://play.google.com/store/apps/details?id=com.orbital.navus&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' width="250"/></a>
 
 ## Table of contents
 - [Motivation](#motivation)
