@@ -45,7 +45,7 @@ Telegram           |  Android App
 <img src="https://user-images.githubusercontent.com/35805635/125159244-d5a44500-e1a8-11eb-8335-9d144b399543.png" width="360" height="740"> |  <img src="https://user-images.githubusercontent.com/35805635/125159252-e785e800-e1a8-11eb-8ff3-948d27325c65.png" width="360" height="740">
 
 ## Features
-- ### Android App ([download link](https://github.com/alvintan01/NavUS/raw/main/App/NavUS.apk))
+- ### Android App ([download link](https://play.google.com/store/apps/details?id=com.orbital.navus))
   - **Background Notification** that guides users when NavUS is running in the background
   - **Dark mode** support
   - **Estimated Time of Arrival (ETA)** taking into account bus arrival/transit times
@@ -263,6 +263,6 @@ The `Data` directory contains 4 `JSON` and 4 `Python3` files used to populate Fi
 
 The `App` directory contains the code for the `Android` application. Update `App\src\main\java\com\example\navus\APIKeys.java` with your Firebase's URL and `App\src\debug\res\values\google_maps_api.xml` with your Google map API key. Add `google_services.json` downloaded from Firebase Console to the `App` directory.
 
-The `APK` file of the latest version of NavUS can be downloaded [here](https://github.com/alvintan01/NavUS/raw/main/App/NavUS.apk). The Android application is currently free to download and use from GitHub, all that we ask is that you help us improve the app by letting us know your user feedback via [this short feedback form](https://forms.gle/NfEULn6eEUViywUy9). 
+The latest version of NavUS can be downloaded from the Google Play Store [via this link](https://play.google.com/store/apps/details?id=com.orbital.navus). The Android application is currently free to download and use, all that we ask is that you help us improve the app by letting us know your user feedback via [this short feedback form](https://forms.gle/NfEULn6eEUViywUy9). 
   
 Feel free to contact [Alvin](https://github.com/alvintan01) or [Kleon](https://github.com/kleonang) if you have any feedback or suggestions to improve NavUS.
