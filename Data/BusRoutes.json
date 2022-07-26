@@ -242,19 +242,19 @@
     },
     "D1": {
         "1": {
-            "Name": "COM 3",
-            "Time": 1,
-            "Direction": "-"
-        },
-        "2": {
             "Name": "OPP HON SUI SEN MEMORIAL LIBRARY (OPP HSSML)",
             "Time": 1,
             "Direction": "-"
         },
-        "3": {
+        "2": {
             "Name": "OPP NUSS",
-            "Time": 1,
+            "Time": 2,
             "Direction": "-"
+        },
+        "3": {
+            "Name": "COM 2",
+            "Time": 2,
+            "Direction": "(To UTown)"
         },
         "4": {
             "Name": "VENTUS (OPP LT13)",
@@ -302,12 +302,12 @@
             "Direction": "-"
         },
         "13": {
-            "Name": "BIZ 2",
-            "Time": 1,
-            "Direction": "-"
+            "Name": "COM 2",
+            "Time": 2,
+            "Direction": "(To BIZ 2)"
         },
         "14": {
-            "Name": "COM 3",
+            "Name": "BIZ 2",
             "Time": 0,
             "Direction": "-"
         }

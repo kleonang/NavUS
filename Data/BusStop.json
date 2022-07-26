@@ -48,24 +48,19 @@
         "NextBusAlias": "COM2",
         "Services": [
             "A1",
-            "A2"
+            "A2",
+            "D1 (To BIZ 2)",
+            "D1 (To UTown)"
         ]
     },
     "7": {
-        "Name": "COM 3",
-        "NextBusAlias": "COM3",
-        "Services": [
-            "D1"
-        ]
-    },
-    "8": {
         "Name": "EA",
         "NextBusAlias": "EA",
         "Services": [
             "E"
         ]
     },
-    "9": {
+    "8": {
         "Name": "INFORMATION TECHNOLOGY (IT)",
         "NextBusAlias": "IT",
         "Services": [
@@ -74,7 +69,7 @@
             "E"
         ]
     },
-    "10": {
+    "9": {
         "Name": "KENT RIDGE BUS TERMINAL (KR BUS TERMINAL)",
         "NextBusAlias": "KRB",
         "Services": [
@@ -82,7 +77,7 @@
             "A2"
         ]
     },
-    "11": {
+    "10": {
         "Name": "KENT RIDGE MRT (KR MRT)",
         "NextBusAlias": "KR-MRT",
         "Services": [
@@ -92,7 +87,7 @@
             "K"
         ]
     },
-    "12": {
+    "11": {
         "Name": "KENT VALE (KV)",
         "NextBusAlias": "KV",
         "Services": [
@@ -101,7 +96,7 @@
             "K"
         ]
     },
-    "13": {
+    "12": {
         "Name": "LT 13",
         "NextBusAlias": "LT13",
         "Services": [
@@ -110,7 +105,7 @@
             "D1"
         ]
     },
-    "14": {
+    "13": {
         "Name": "LT 27",
         "NextBusAlias": "LT27",
         "Services": [
@@ -120,7 +115,7 @@
             "K"
         ]
     },
-    "15": {
+    "14": {
         "Name": "MUSEUM",
         "NextBusAlias": "MUSEUM",
         "Services": [
@@ -131,7 +126,7 @@
             "K"
         ]
     },
-    "16": {
+    "15": {
         "Name": "OEI TIONG HAM BUILDING (OTH BLDG)",
         "NextBusAlias": "OTH-BTC-E",
         "Services": [
@@ -139,7 +134,7 @@
             "L"
         ]
     },
-    "17": {
+    "16": {
         "Name": "OPP HON SUI SEN MEMORIAL LIBRARY (OPP HSSML)",
         "NextBusAlias": "HSSML-OPP",
         "Services": [
@@ -147,7 +142,7 @@
             "D1"
         ]
     },
-    "18": {
+    "17": {
         "Name": "OPP KENT RIDGE MRT (OPP KR MRT)",
         "NextBusAlias": "KR-MRT-OPP",
         "Services": [
@@ -156,7 +151,7 @@
             "K"
         ]
     },
-    "19": {
+    "18": {
         "Name": "OPP NUSS",
         "NextBusAlias": "NUSS-OPP",
         "Services": [
@@ -164,21 +159,21 @@
             "D1"
         ]
     },
-    "20": {
+    "19": {
         "Name": "OPP SDE 3",
         "NextBusAlias": "SDE3-OPP",
         "Services": [
             "K"
         ]
     },
-    "21": {
+    "20": {
         "Name": "OPP TCOMS",
         "NextBusAlias": "TCOMS-OPP",
         "Services": [
             "A1"
         ]
     },
-    "22": {
+    "21": {
         "Name": "OPP UNIVERSITY HALL (OPP UHALL)",
         "NextBusAlias": "UHALL-OPP",
         "Services": [
@@ -187,7 +182,7 @@
             "K"
         ]
     },
-    "23": {
+    "22": {
         "Name": "OPP UNIVERSITY HEALTH CENTRE (OPP UHC)",
         "NextBusAlias": "UHC-OPP",
         "Services": [
@@ -197,7 +192,7 @@
             "K"
         ]
     },
-    "24": {
+    "23": {
         "Name": "OPP YUSOF ISHAK HOUSE (OPP YIH)",
         "NextBusAlias": "YIH-OPP",
         "Services": [
@@ -206,7 +201,7 @@
             "E"
         ]
     },
-    "25": {
+    "24": {
         "Name": "PRINCE GEORGE PARK RESIDENCES (PGPR)",
         "NextBusAlias": "PGPR",
         "Services": [
@@ -215,7 +210,7 @@
             "K"
         ]
     },
-    "26": {
+    "25": {
         "Name": "PRINCE GEORGE'S PARK (PGP)",
         "NextBusAlias": "PGP",
         "Services": [
@@ -225,7 +220,7 @@
             "K"
         ]
     },
-    "27": {
+    "26": {
         "Name": "RAFFLES HALL",
         "NextBusAlias": "RAFFLES",
         "Services": [
@@ -233,7 +228,7 @@
             "E"
         ]
     },
-    "28": {
+    "27": {
         "Name": "S 17",
         "NextBusAlias": "S17",
         "Services": [
@@ -242,28 +237,28 @@
             "K"
         ]
     },
-    "29": {
+    "28": {
         "Name": "SDE 3",
         "NextBusAlias": "SDE3",
         "Services": [
             "E"
         ]
     },
-    "30": {
+    "29": {
         "Name": "TCOMS",
         "NextBusAlias": "TCOMS",
         "Services": [
             "A2"
         ]
     },
-    "31": {
+    "30": {
         "Name": "THE JAPANESE PRIMARY SCHOOL",
         "NextBusAlias": "JP-SCH-16151",
         "Services": [
             "K"
         ]
     },
-    "32": {
+    "31": {
         "Name": "UNIVERSITY HALL (UHALL)",
         "NextBusAlias": "UHALL",
         "Services": [
@@ -273,7 +268,7 @@
             "K"
         ]
     },
-    "33": {
+    "32": {
         "Name": "UNIVERSITY HEALTH CENTRE (UHC)",
         "NextBusAlias": "UHC",
         "Services": [
@@ -282,7 +277,7 @@
             "K"
         ]
     },
-    "34": {
+    "33": {
         "Name": "UNIVERSITY TOWN (UTOWN)",
         "NextBusAlias": "UTOWN",
         "Services": [
@@ -292,7 +287,7 @@
             "E"
         ]
     },
-    "35": {
+    "34": {
         "Name": "VENTUS (OPP LT13)",
         "NextBusAlias": "LT13-OPP",
         "Services": [
@@ -300,7 +295,7 @@
             "D1"
         ]
     },
-    "36": {
+    "35": {
         "Name": "YUSOF ISHAK HOUSE (YIH)",
         "NextBusAlias": "YIH",
         "Services": [
